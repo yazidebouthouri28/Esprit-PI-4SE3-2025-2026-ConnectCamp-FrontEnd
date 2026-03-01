@@ -4,7 +4,7 @@
 
 This project was developed as part of the PIDEV – 4th Year Engineering Program at **Esprit School of Engineering** (Academic Year 2025–2026).
 
-It consists of a full-stack web application that allows campers, organizers, sellers, and sponsors to connect, discover campsites, book outdoor events, purchase camping gear, and engage with a nature-loving community across Tunisia.
+It consists of a full-stack web application that allows campers, organizers, sellers,worker and sponsors to connect, discover campsites, book outdoor events, purchase camping gear, and engage with a nature-loving community across Tunisia.
 
 ## Tech Stack
 
