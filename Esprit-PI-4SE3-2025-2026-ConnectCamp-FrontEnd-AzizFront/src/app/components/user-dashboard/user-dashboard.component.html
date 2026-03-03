@@ -1,0 +1,208 @@
+<div class="py-16 px-4 sm:px-6 lg:px-8 bg-sage/10">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-forest mb-2">My Dashboard</h2>
+      <p class="text-olive">Manage your camping adventures and rewards</p>
+    </div>
+
+    <div class="bg-gradient-to-r from-forest to-olive rounded-xl p-6 mb-8 text-cream">
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+        <div class="w-24 h-24 rounded-full bg-cream flex items-center justify-center text-forest text-3xl font-bold">JD
+        </div>
+        <div class="flex-1 text-center md:text-left">
+          <h3 class="text-2xl font-bold mb-2">John Doe</h3>
+          <p class="text-sage mb-4">Member since January 2025</p>
+          <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+            <span class="font-semibold">{{ rewardsData.tier }} Member</span>
+            <span>{{ rewardsData.currentPoints }} Points</span>
+          </div>
+        </div>
+        <button
+          class="bg-cream text-forest px-6 py-2 rounded-lg font-semibold hover:bg-white transition-colors min-h-[44px]">Edit
+          Profile</button>
+      </div>
+    </div>
+
+    <div class="mb-6 flex flex-wrap gap-2">
+      @for (tab of tabs; track tab.id) {
+      <button (click)="activeTab = tab.id"
+        class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors min-h-[44px]"
+        [ngClass]="activeTab === tab.id ? 'bg-olive text-cream' : 'bg-white text-forest hover:bg-sage/20'">
+        {{ tab.label }}
+      </button>
+      }
+    </div>
+
+    <div class="bg-white rounded-xl p-6 shadow-md border border-sage/30">
+      @if (activeTab === 'bookings') {
+      <h3 class="text-xl font-semibold text-forest mb-4">Upcoming Bookings</h3>
+      <div class="space-y-4">
+        @for (booking of bookingsData; track booking.id) {
+        <div class="border border-sage/30 rounded-lg p-4">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex-1">
+              <h4 class="font-semibold text-forest mb-1">{{ booking.name }}</h4>
+              <div class="text-sm text-olive mb-2">{{ booking.location }}</div>
+              <div class="flex flex-wrap gap-4 text-sm text-olive">
+                <span>Check-in: {{ booking.checkIn }}</span>
+                <span>Check-out: {{ booking.checkOut }}</span>
+                <span>{{ booking.nights }} nights</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-forest">{{ booking.total }} DT</div>
+              <span
+                class="inline-block mt-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">{{
+                booking.status }}</span>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      @if (activeTab === 'purchases') {
+      <h3 class="text-xl font-semibold text-forest mb-4 flex items-center gap-2">
+        📦 My Orders
+      </h3>
+
+      <!-- Order Tabs -->
+      <div class="flex flex-wrap gap-2 mb-6">
+        @for (tab of orderTabs; track tab) {
+        <button (click)="activeOrderTab = tab" class="px-4 py-1 rounded-md text-sm border transition-colors"
+          [ngClass]="activeOrderTab === tab ? 'bg-forest text-white border-forest' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'">
+          {{ tab }}
+        </button>
+        }
+      </div>
+
+      <div class="space-y-6">
+        @for (order of ordersData; track order.id) {
+        <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <!-- Order Header -->
+          <div
+            class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-gray-100">
+            <div>
+              <h4 class="font-bold text-lg text-forest">Order #{{ order.id }}</h4>
+              <div class="text-sm text-gray-500">Placed on {{ order.date }}</div>
+              @if (order.tracking) {
+              <div class="text-sm text-pink-500 mt-1 flex items-center gap-1">
+                📍 Tracking: {{ order.tracking }}
+              </div>
+              }
+            </div>
+            <div class="text-right mt-2 md:mt-0">
+              <div class="font-bold text-xl text-forest">{{ order.total }} DT</div>
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mt-1"
+                [ngClass]="{
+                            'bg-purple-100 text-purple-700': order.status === 'Shipped',
+                            'bg-green-100 text-green-700': order.status === 'Delivered',
+                            'bg-yellow-100 text-yellow-700': order.status === 'Processing'
+                        }">
+                {{ order.status }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div class="space-y-4 mb-6">
+            @for (item of order.items; track item.name) {
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-100 shrink-0">
+                <img [src]="item.image" [alt]="item.name" class="w-full h-full object-cover">
+              </div>
+              <div class="flex-1">
+                <h5 class="font-semibold text-gray-900">{{ item.name }}</h5>
+                <div class="text-sm text-gray-500">Qty: {{ item.qty }}</div>
+              </div>
+              <div class="font-bold text-gray-900">{{ item.price }} DT</div>
+            </div>
+            }
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap gap-3">
+            @if (order.tracking) {
+            <button
+              class="flex items-center gap-2 px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-[#1a2e25] transition-colors">
+              📍 Track Package
+            </button>
+            }
+            @if (order.status === 'Delivered') {
+            <button
+              class="flex items-center gap-2 px-4 py-2 bg-forest text-white rounded-md text-sm hover:bg-[#1a2e25] transition-colors">
+              ⭐ Leave Review
+            </button>
+            }
+            <button
+              class="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm hover:bg-gray-50 transition-colors">
+              📄 Download Invoice
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      @if (activeTab === 'rewards') {
+      <h3 class="text-xl font-semibold text-forest mb-6">Loyalty Rewards</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-sage/20 rounded-lg p-4">
+          <div class="text-sm text-olive mb-1">Current Points</div>
+          <div class="text-3xl font-bold text-forest">{{ rewardsData.currentPoints }}</div>
+        </div>
+        <div class="bg-sage/20 rounded-lg p-4">
+          <div class="text-sm text-olive mb-1">Member Tier</div>
+          <div class="text-3xl font-bold text-forest">{{ rewardsData.tier }}</div>
+        </div>
+        <div class="bg-sage/20 rounded-lg p-4">
+          <div class="text-sm text-olive mb-1">Discount Rate</div>
+          <div class="text-3xl font-bold text-forest">{{ rewardsData.discountRate }}%</div>
+        </div>
+      </div>
+      <div class="mb-6">
+        <div class="flex justify-between text-sm text-olive mb-2">
+          <span>Progress to {{ rewardsData.nextTier }}</span>
+          <span>{{ rewardsData.pointsToNext }} points to go</span>
+        </div>
+        <div class="w-full bg-sage/30 rounded-full h-3">
+          <div class="bg-olive h-3 rounded-full transition-all" [style.width.%]="rewardsProgress()"></div>
+        </div>
+      </div>
+      <div>
+        <h4 class="font-semibold text-forest mb-3">Special Member Offers ({{ rewardsData.specialOffers }})</h4>
+        <div class="border border-sage/30 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h5 class="font-semibold text-forest">20% Off Next Booking</h5>
+              <p class="text-sm text-olive">Valid until Feb 28, 2026</p>
+            </div>
+            <button class="bg-olive text-cream px-4 py-2 rounded-lg min-h-[44px]">Use Now</button>
+          </div>
+        </div>
+      </div>
+      }
+
+      @if (activeTab === 'saved') {
+      <h3 class="text-xl font-semibold text-forest mb-4">Saved Locations</h3>
+      <div class="space-y-4">
+        @for (location of savedLocations; track location.id) {
+        <div class="border border-sage/30 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <h4 class="font-semibold text-forest mb-1">{{ location.name }}</h4>
+            <div class="text-sm text-olive">{{ location.location }} • ★ {{ location.rating }}</div>
+          </div>
+          <button class="text-olive hover:text-forest font-semibold">View Details →</button>
+        </div>
+        }
+      </div>
+      }
+
+      @if (activeTab === 'events' || activeTab === 'forum') {
+      <div class="text-center py-12">
+        <p class="text-olive">Content for {{ activeTabLabel }} coming soon...</p>
+      </div>
+      }
+    </div>
+  </div>
+</div>

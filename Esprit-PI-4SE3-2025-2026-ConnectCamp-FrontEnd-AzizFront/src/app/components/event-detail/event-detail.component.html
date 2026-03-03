@@ -1,0 +1,172 @@
+<div class="min-h-screen bg-[#F9F7F2] pb-12 font-sans text-forest">
+    <!-- Back Button Header -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <button (click)="onBack()"
+            class="flex items-center gap-2 text-forest hover:text-olive transition-colors mb-6 font-semibold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Events
+        </button>
+    </div>
+
+    @if (event) {
+    <!-- Hero Image Grid (3-Image Pattern) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-[400px] md:h-[500px] rounded-3xl overflow-hidden shadow-sm">
+            <!-- Main Image (Left) -->
+            <div class="h-full">
+                <img [src]="event.image" [alt]="event.title"
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
+            </div>
+            <!-- Secondary Images (Right Stack) -->
+            <div class="hidden md:grid grid-rows-2 gap-4 h-full">
+                <div class="h-full overflow-hidden">
+                    <img [src]="event.image" alt="Gallery 2"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 brightness-95">
+                </div>
+                <div class="h-full overflow-hidden relative group cursor-pointer">
+                    <img [src]="event.image" alt="Gallery 3"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-700 brightness-90">
+                    <div
+                        class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span
+                            class="text-white font-bold text-lg border-2 border-white px-4 py-2 rounded-lg uppercase tracking-widest text-xs">View
+                            Photos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+            <!-- Left Column: Details -->
+            <div class="lg:col-span-2 space-y-10">
+                <!-- Header Info -->
+                <div class="border-b border-gray-200 pb-8">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span
+                            class="px-3 py-1 bg-olive/10 text-olive rounded-full text-[10px] font-black uppercase tracking-widest">{{
+                            event.type }}</span>
+                        <span class="text-xs font-bold text-sage">Featured Experience</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-black text-forest mb-4 tracking-tighter">{{ event.title }}</h1>
+                    <div class="flex items-center gap-4 text-olive/70 font-bold">
+                        <span class="flex items-center gap-1">
+                            <span class="text-lg">📍</span> {{ event.location }}
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1 text-forest">
+                            ★ 4.9
+                        </span>
+                        <span class="text-gray-400 font-medium">(24 reviews)</span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <h3 class="text-2xl font-black text-forest mb-6">About this experience</h3>
+                    <p class="text-olive/70 leading-relaxed text-lg font-medium">
+                        Explore the wilderness with expert guides... This professional workshop includes all gear,
+                        safety orientation, and hands-on practice. Perfect for both beginners and seasoned outdoor
+                        enthusiasts looking to sharpen their skills in Tunisian landscapes.
+                    </p>
+                </div>
+
+                <!-- Features / Highlights -->
+                <div class="border-t border-gray-200 pt-10">
+                    <h3 class="text-2xl font-black text-forest mb-8">What's included</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-gray-100">
+                            <span class="text-2xl">🎒</span>
+                            <div>
+                                <h4 class="font-black text-forest text-sm uppercase tracking-wider mb-1">Gear</h4>
+                                <p class="text-xs text-gray-500 font-medium">All specialized equipment provided.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4 p-4 rounded-2xl bg-white border border-gray-100">
+                            <span class="text-2xl">🧑‍🏫</span>
+                            <div>
+                                <h4 class="font-black text-forest text-sm uppercase tracking-wider mb-1">Expert</h4>
+                                <p class="text-xs text-gray-500 font-medium">Certified guides with experience.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Essential Information -->
+                <div class="border-t border-gray-200 pt-10">
+                    <h3 class="text-2xl font-black text-forest mb-8">Essential Information</h3>
+                    <div class="bg-white rounded-3xl p-8 border border-gray-100 space-y-8">
+                        <div class="flex items-start gap-6">
+                            <div class="w-12 h-12 rounded-2xl bg-sage/10 flex items-center justify-center shrink-0">
+                                <span class="text-xl">📅</span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-forest text-sm mb-1 uppercase tracking-widest">Schedule</h4>
+                                <p class="text-olive/70 font-medium">{{ event.date }} • {{ event.time }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-6">
+                            <div class="w-12 h-12 rounded-2xl bg-sage/10 flex items-center justify-center shrink-0">
+                                <span class="text-xl">👥</span>
+                            </div>
+                            <div>
+                                <h4 class="font-black text-forest text-sm mb-1 uppercase tracking-widest">Participants
+                                </h4>
+                                <p class="text-olive/70 font-medium">{{ event.participants }} Registered • Max {{
+                                    event.maxParticipants }}</p>
+                                <div class="mt-3 w-64 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-olive rounded-full" [style.width.%]="progressPercent"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Reservation Card -->
+            <div class="lg:col-span-1">
+                <div
+                    class="sticky top-8 bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-100 p-8">
+                    <div class="flex justify-between items-end mb-8">
+                        <div>
+                            <span class="text-4xl font-black text-forest">{{ event.price }} DT</span>
+                            <span class="text-gray-400 font-bold ml-1">/ person</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <label
+                                class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Selected
+                                Date</label>
+                            <div class="text-forest font-black">{{ event.date }}</div>
+                        </div>
+                    </div>
+
+                    <button
+                        class="w-full bg-forest text-white font-black text-lg py-5 rounded-2xl hover:bg-olive transition-all transform active:scale-[0.98] mb-6 shadow-xl shadow-forest/10 uppercase tracking-widest text-xs">
+                        Get Tickets
+                    </button>
+
+                    <!-- Sponsored By (Mini) -->
+                    <div class="pt-8 border-t border-gray-50">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4 text-center">
+                            Partners</p>
+                        <div class="flex justify-center items-center gap-6 opacity-40 grayscale">
+                            <span class="text-xl">🏜️</span>
+                            <span class="text-xl">🏔️</span>
+                            <span class="text-xl">🌲</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    }
+</div>

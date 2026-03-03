@@ -1,0 +1,373 @@
+<div class="profile-page bg-cream/30">
+    <!-- Top Profile Header -->
+    <div class="profile-header-container bg-white/80 backdrop-blur-md shadow-sm border-b border-olive/10">
+        <div class="max-w-5xl mx-auto">
+            <!-- Cover Photo with Nature Overlay -->
+            <div class="relative h-[250px] md:h-[350px] rounded-b-[2rem] overflow-hidden bg-forest/10 group">
+                <!-- Back Button -->
+                <button (click)="goBack()"
+                    class="absolute top-6 left-6 z-20 w-10 h-10 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-xl border border-white/30 flex items-center justify-center shadow-lg transition-all active:scale-90 group/back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                        class="group-hover/back:-translate-x-1 transition-transform">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                </button>
+
+                <img [src]="viewedUser?.coverImage || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=1200'"
+                    alt="Cover"
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-gradient-to-t from-forest/40 to-transparent"></div>
+                <button *ngIf="isOwnProfile"
+                    class="absolute bottom-6 right-6 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white border border-white/30 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    </svg>
+                    Change Cover
+                </button>
+            </div>
+
+            <!-- Profile Info Bar -->
+            <div class="px-6 pb-6">
+                <div class="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16 md:-mt-24 relative z-10">
+                    <!-- Wavy Profile Picture Container -->
+                    <div class="relative group">
+                        <div
+                            class="w-36 h-36 md:w-48 md:h-48 rounded-[2.5rem] rotate-3 border-8 border-white bg-sage/20 overflow-hidden shadow-2xl transition-transform group-hover:rotate-0 duration-500">
+                            <img [src]="viewedUser?.avatar" alt="Profile"
+                                class="w-full h-full object-cover -rotate-3 group-hover:rotate-0 transition-transform duration-500" />
+                        </div>
+                        <button *ngIf="isOwnProfile"
+                            class="absolute -bottom-2 -right-2 bg-olive text-white p-3 rounded-2xl shadow-xl hover:bg-forest transition-all hover:scale-110">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Name and Creative Info -->
+                    <div class="flex-1 text-center md:text-left pt-4 md:pt-0">
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <h1 class="text-3xl md:text-4xl font-black text-forest tracking-tight">{{ viewedUser?.name
+                                }}</h1>
+                            <svg class="w-6 h-6 text-olive" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="text-sage font-bold mt-1 uppercase tracking-widest text-xs">{{ viewedUser?.role }} •
+                            {{ viewedUser?.followers || '0' }} Adventurers</p>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-3">
+                            <span *ngFor="let tag of viewedUser?.hashtags"
+                                class="bg-sage/10 text-forest px-3 py-1 rounded-full text-xs font-semibold border border-sage/20">{{
+                                tag }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Themed Action Buttons for view-profile -->
+                    <div *ngIf="!isOwnProfile" class="flex gap-4 mb-2">
+                        <button
+                            class="bg-olive hover:bg-forest text-white px-8 py-3 rounded-2xl font-black shadow-lg transition-all hover:scale-105 active:scale-95">
+                            Follow
+                        </button>
+                        <button
+                            class="bg-cream/50 hover:bg-cream text-forest border border-olive/10 px-8 py-3 rounded-2xl font-black transition-all">
+                            Message
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Glassmorphic Tabs -->
+                <div class="mt-8">
+                    <nav class="flex gap-1 p-1 bg-olive/5 rounded-2xl max-w-fit no-scrollbar overflow-x-auto">
+                        <button (click)="setActiveTab('adventure')" [class.bg-white]="activeTab === 'adventure'"
+                            [class.text-forest]="activeTab === 'adventure'"
+                            [class.shadow-sm]="activeTab === 'adventure'" [class.text-sage]="activeTab !== 'adventure'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">Adventure</button>
+                        <button (click)="setActiveTab('follows')" [class.bg-white]="activeTab === 'follows'"
+                            [class.text-forest]="activeTab === 'follows'" [class.shadow-sm]="activeTab === 'follows'"
+                            [class.text-sage]="activeTab !== 'follows'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">Follows</button>
+                        <button (click)="setActiveTab('achievements')" [class.bg-white]="activeTab === 'achievements'"
+                            [class.text-forest]="activeTab === 'achievements'"
+                            [class.shadow-sm]="activeTab === 'achievements'"
+                            [class.text-sage]="activeTab !== 'achievements'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">Achievements</button>
+                        <button (click)="setActiveTab('media')" [class.bg-white]="activeTab === 'media'"
+                            [class.text-forest]="activeTab === 'media'" [class.shadow-sm]="activeTab === 'media'"
+                            [class.text-sage]="activeTab !== 'media'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">Pictures
+                            & Videos</button>
+                    </nav>
+
+                    <!-- Highlights Section -->
+                    <div class="mt-6 flex gap-4 overflow-x-auto no-scrollbar py-2">
+                        <!-- Add Highlight Button -->
+                        <div *ngIf="isOwnProfile"
+                            class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group"
+                            (click)="addHighlight()">
+                            <div
+                                class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-dashed border-sage/40 flex items-center justify-center group-hover:border-olive transition-colors bg-white/50">
+                                <svg class="w-8 h-8 text-sage group-hover:text-olive transition-colors" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <span
+                                class="text-[10px] md:text-xs font-bold text-sage group-hover:text-forest transition-colors uppercase tracking-wider">New</span>
+                        </div>
+
+                        <!-- Highlights List -->
+                        <div *ngFor="let highlight of highlights"
+                            class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group">
+                            <div
+                                class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-forest/10 group-hover:border-olive transition-all p-1 bg-white shadow-sm overflow-hidden">
+                                <img [src]="highlight.image" [alt]="highlight.title"
+                                    class="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <span
+                                class="text-[10px] md:text-xs font-bold text-sage group-hover:text-forest transition-colors truncate w-16 md:w-20 text-center">{{
+                                highlight.title }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- MAIN ADVENTURE TAB -->
+        <div *ngIf="activeTab === 'adventure'" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- Left Column: Bio & Highlights -->
+            <aside class="lg:col-span-4 space-y-6">
+                <!-- Intro Card with Leaf Icon -->
+                <div
+                    class="bg-white/70 backdrop-blur-md rounded-[2rem] shadow-sm p-6 border border-olive/10 relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 text-olive/5 rotate-12">
+                        <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8.13,20C11,20 13.84,18.78 15.82,16.58L15.35,16.08C13.62,18.06 10.95,19.14 8.24,19.14C7.75,19.14 7.27,19.06 6.8,18.91L11.53,7.54C11.69,7.15 11.96,6.84 12.31,6.66C12.65,6.47 13.06,6.43 13.43,6.54C15.03,7 15.9,8.58 15.42,10.2L14.71,12.5C14.63,12.75 14.67,13.03 14.8,13.27C14.93,13.5 15.15,13.68 15.41,13.76C15.67,13.84 15.95,13.8 16.19,13.67C16.42,13.54 16.6,13.32 16.68,13.06L17.39,10.76C18.15,8.22 16.71,5.5 14.18,4.74C13.2,4.45 12.16,4.55 11.26,5.03C10.36,5.5 9.69,6.31 9.38,7.29L4.65,18.66C3.96,16.43 4.25,14 5.5,12C7.36,9.1 10.5,7.4 14,7V2H17V8Z" />
+                        </svg>
+                    </div>
+
+                    <h2 class="text-xl font-black text-forest mb-6 flex items-center gap-2">
+                        Intro
+                    </h2>
+                    <ul class="space-y-5">
+                        <li class="flex items-center gap-4 text-sage group">
+                            <div class="p-2.5 bg-sage/10 rounded-xl group-hover:bg-olive/20 transition-colors">
+                                <svg class="w-5 h-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">From <span
+                                    class="font-bold text-forest underline decoration-olive/30">{{ viewedUser?.location
+                                    || 'The Wild' }}</span></span>
+                        </li>
+                        <li class="flex items-center gap-4 text-sage group">
+                            <div class="p-2.5 bg-sage/10 rounded-xl group-hover:bg-olive/20 transition-colors">
+                                <svg class="w-5 h-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">{{ viewedUser?.role }}</span>
+                        </li>
+                    </ul>
+
+                    <button *ngIf="isOwnProfile"
+                        class="w-full mt-8 py-3 bg-olive/10 hover:bg-olive/20 text-forest font-bold rounded-2xl transition-all border border-olive/5">
+                        Edit Details
+                    </button>
+                    <div *ngIf="!isOwnProfile" class="mt-6 p-4 bg-sage/5 rounded-2xl border border-sage/10">
+                        <p class="text-xs text-forest/80 leading-relaxed italic">"{{ viewedUser?.bio || 'Passionate
+                            explorer of the great outdoors.' }}"</p>
+                    </div>
+                </div>
+
+                <!-- Artistic Gallery Card -->
+                <div class="bg-white/70 backdrop-blur-md rounded-[2rem] shadow-sm p-6 border border-olive/10">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-black text-forest">Gallery</h2>
+                        <a href="#" class="text-olive hover:text-forest font-bold text-sm">See all</a>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <img *ngFor="let img of viewedUser?.gallery || [viewedUser?.avatar]" [src]="img"
+                            class="aspect-square object-cover rounded-xl hover:opacity-80 transition-opacity cursor-pointer" />
+                        <div *ngIf="!viewedUser?.gallery?.length"
+                            class="aspect-square bg-forest/5 rounded-xl flex items-center justify-center text-forest font-bold text-xs">
+                            No Media</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Column: Publications Feed -->
+            <section class="lg:col-span-8 space-y-6">
+                <!-- Themed Post Creator -->
+                <div *ngIf="isOwnProfile" class="bg-white rounded-[2rem] shadow-sm p-6 border border-olive/10">
+                    <div class="flex gap-4 items-center">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-sage/20 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
+                            <img [src]="viewedUser?.avatar" class="w-full h-full object-cover" />
+                        </div>
+                        <button
+                            class="bg-cream/50 hover:bg-cream text-sage rounded-2xl px-6 py-3 flex-grow text-left transition-all border border-olive/5 font-medium">
+                            Share a new adventure, {{ viewedUser?.name }}?
+                        </button>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-cream flex gap-2">
+                        <button
+                            class="w-full hover:bg-forest/5 py-3 rounded-2xl flex items-center justify-center gap-2 text-forest font-bold transition-all text-sm">
+                            <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Photo/Video
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Styled Publication List -->
+                <div class="flex items-center justify-between mb-2 px-2">
+                    <h3 class="text-xl font-black text-forest">Your Journals</h3>
+                    <button
+                        class="text-olive font-bold text-sm bg-olive/5 px-4 py-1.5 rounded-full hover:bg-olive/10 transition-colors">Sort
+                        by Date</button>
+                </div>
+
+                @for (post of posts; track post.id) {
+                <article
+                    class="bg-white rounded-[2rem] shadow-sm overflow-hidden border border-olive/10 group transition-all hover:shadow-xl hover:shadow-forest/5">
+                    <!-- Post Header -->
+                    <div class="p-6 flex justify-between items-center">
+                        <div class="flex gap-4">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-sage/20 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm ring-2 ring-forest/5">
+                                <img [src]="viewedUser?.avatar" class="w-full h-full object-cover" />
+                            </div>
+                            <div>
+                                <h4 class="font-black text-forest leading-tight">{{ post.userName }}</h4>
+                                <p
+                                    class="text-[10px] text-sage font-bold uppercase tracking-tighter mt-1 flex items-center gap-1.5">
+                                    {{ post.date }} • <span class="w-1 h-1 bg-sage/30 rounded-full"></span> 🌍 Public
+                                </p>
+                            </div>
+                        </div>
+                        <button class="text-sage hover:bg-cream p-2.5 rounded-xl transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Post Content -->
+                    <div class="px-6 pb-4">
+                        <p class="text-forest/80 text-sm leading-relaxed font-medium">{{ post.content }}</p>
+                    </div>
+
+                    <!-- Featured Image -->
+                    @if (post.image) {
+                    <div class="relative group/img overflow-hidden">
+                        <img [src]="post.image"
+                            class="w-full max-h-[500px] object-cover transition-transform duration-700 group-hover/img:scale-105" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-forest/20 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity">
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Post Actions -->
+                    <div class="p-4 bg-cream/30 flex gap-2">
+                        <button
+                            class="flex-1 bg-white hover:bg-forest hover:text-white py-3 rounded-2xl flex items-center justify-center gap-2 text-forest font-bold transition-all shadow-sm border border-olive/5 text-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            Like
+                        </button>
+                        <button
+                            class="flex-1 bg-white hover:bg-olive hover:text-white py-3 rounded-2xl flex items-center justify-center gap-2 text-forest font-bold transition-all shadow-sm border border-olive/5 text-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Explore
+                        </button>
+                    </div>
+                </article>
+                }
+            </section>
+        </div>
+
+        <!-- FOLLOWS TAB -->
+        <div *ngIf="activeTab === 'follows'"
+            class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-olive/10 shadow-sm animate-fade-in">
+            <h2 class="text-2xl font-black text-forest mb-8">Follows</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div *ngFor="let user of follows"
+                    class="flex items-center gap-4 p-4 rounded-3xl bg-cream/20 border border-olive/5 hover:bg-cream/40 transition-all">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-forest text-white flex items-center justify-center font-bold text-xl ring-4 ring-forest/5">
+                        {{ user.avatar }}
+                    </div>
+                    <div>
+                        <h4 class="font-black text-forest">{{ user.name }}</h4>
+                        <p class="text-xs text-olive font-bold uppercase">{{ user.role }}</p>
+                        <p class="text-sm text-sage mt-1">{{ user.bio }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACHIEVEMENTS TAB -->
+        <div *ngIf="activeTab === 'achievements'"
+            class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-olive/10 shadow-sm animate-fade-in">
+            <h2 class="text-2xl font-black text-forest mb-8">{{ isOwnProfile ? 'Your' : (viewedUser?.name || 'User') +
+                "'s" }}
+                Achievements</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div *ngFor="let ach of viewedUser?.achievements"
+                    class="p-6 rounded-3xl bg-gradient-to-br from-white to-sage/5 border border-olive/10 shadow-sm hover:-translate-y-1 transition-all text-center">
+                    <div class="text-4xl mb-4">{{ ach.icon }}</div>
+                    <h4 class="font-black text-forest text-lg">{{ ach.title }}</h4>
+                    <p class="text-sm text-sage mb-4">{{ ach.description }}</p>
+                    <div *ngIf="ach.date"
+                        class="text-[10px] text-olive font-bold uppercase bg-olive/5 px-3 py-1 rounded-full w-fit mx-auto">
+                        Earned: {{ ach.date }}
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!viewedUser?.achievements?.length" class="text-center py-12">
+                <p class="text-sage font-bold italic">No achievements earned yet.</p>
+            </div>
+        </div>
+
+        <!-- MEDIA TAB -->
+        <div *ngIf="activeTab === 'media'"
+            class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-olive/10 shadow-sm animate-fade-in">
+            <h2 class="text-2xl font-black text-forest mb-8">Pictures & Videos</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div *ngFor="let img of viewedUser?.gallery"
+                    class="relative aspect-square group overflow-hidden rounded-2xl">
+                    <img [src]="img"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                </div>
+            </div>
+            <div *ngIf="!viewedUser?.gallery?.length" class="text-center py-12">
+                <p class="text-sage font-bold italic">No media uploaded yet.</p>
+            </div>
+        </div>
+    </div>
+</div>

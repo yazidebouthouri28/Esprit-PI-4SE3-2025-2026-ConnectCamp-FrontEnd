@@ -1,0 +1,190 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+    <!-- Title & Primary Action -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-[#1a2e1a]">Reservation Manifest</h1>
+            <p class="text-sm text-[#617152] font-medium">Coordinate site bookings and equipment rentals for Tunisian
+                travelers.</p>
+        </div>
+        <div class="flex gap-3">
+            <button
+                class="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-[#1a2e1a] hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
+                <span>📥</span> Export Manifest
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white p-7 rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+                <div class="flex items-center gap-4 mb-3">
+                    <div
+                        class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 text-xl group-hover:scale-110 transition-transform">
+                        📅
+                    </div>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Active Manifests</span>
+                </div>
+                <div class="flex items-end gap-3">
+                    <p class="text-3xl font-black text-[#1a2e1a]">{{ reservations.length }}</p>
+                </div>
+                <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-tighter">Live deployment records
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-white p-7 rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+                <div class="flex items-center gap-4 mb-3">
+                    <div
+                        class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 text-xl group-hover:scale-110 transition-transform">
+                        ✅
+                    </div>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Confirmed Daily</span>
+                </div>
+                <div class="flex items-end gap-3">
+                    <p class="text-3xl font-black text-[#1a2e1a]">2</p>
+                    <span class="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full mb-1">↑
+                        100%</span>
+                </div>
+                <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-tighter">Verified arrivals today
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-white p-7 rounded-2xl border border-gray-200 shadow-sm relative overflow-hidden group">
+            <div class="relative z-10">
+                <div class="flex items-center gap-4 mb-3">
+                    <div
+                        class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 text-xl group-hover:scale-110 transition-transform">
+                        ⏳
+                    </div>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Review Queued</span>
+                </div>
+                <div class="flex items-end gap-3">
+                    <p class="text-3xl font-black text-[#1a2e1a]">2</p>
+                </div>
+                <p class="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-tighter">Awaiting coordination</p>
+            </div>
+        </div>
+
+        <div class="bg-[#1a2e1a] p-7 rounded-2xl shadow-lg relative overflow-hidden group border border-[#1a2e1a]">
+            <div class="relative z-10">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center text-white text-xl">
+                        📈
+                    </div>
+                    <span class="text-xs font-bold text-white/50 uppercase tracking-widest">Expected Yield</span>
+                </div>
+                <div class="flex items-end gap-3">
+                    <p class="text-2xl font-black text-white italic">995 DT</p>
+                </div>
+                <p class="text-[10px] text-white/30 font-bold mt-1 uppercase tracking-widest">Projected Daily Rev</p>
+            </div>
+            <div class="absolute -right-4 -bottom-4 text-6xl opacity-5 rotate-12 pointer-events-none">💰</div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="relative flex-1 w-full">
+            <input type="text" placeholder="Search by reference ID or guest name..."
+                class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#1a2e1a]/10 transition-all">
+            <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+        </div>
+        <div class="flex gap-2">
+            <select
+                class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-[#1a2e1a] focus:outline-none cursor-pointer">
+                <option>All Entries</option>
+                <option>Today</option>
+                <option>Upcoming</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <!-- Booking Manifest Cards (Upgraded from Table) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (res of reservations; track res.id) {
+                <div
+                    class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col group hover:shadow-lg transition-all">
+                    <div class="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-start">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-10 h-10 bg-white rounded-lg shadow-inner flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                                {{ res.type === 'Campsite' ? '🏕️' : res.type === 'Tour' ? '🧭' : '🎒' }}
+                            </div>
+                            <div>
+                                <h3 class="font-black text-[#1a2e1a] leading-tight">{{ res.customer }}</h3>
+                                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">{{ res.id }}
+                                </p>
+                            </div>
+                        </div>
+                        <span
+                            class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-current"
+                            [ngClass]="getStatusClass(res.status)">
+                            {{ res.status }}
+                        </span>
+                    </div>
+
+                    <div class="p-6 flex-1 space-y-4">
+                        <div class="flex justify-between items-center pb-2 border-b border-gray-50">
+                            <div class="space-y-0.5">
+                                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Temporal Logic
+                                </p>
+                                <p class="text-xs font-bold text-[#1a2e1a]">{{ res.date }}</p>
+                            </div>
+                            <div class="text-right space-y-0.5">
+                                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Party Size</p>
+                                <p class="text-xs font-black text-[#2C4A3C]">{{ res.guests }} Explorers</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100/50 text-center">
+                                <p class="text-[8px] font-black text-blue-500 uppercase">Check-In</p>
+                                <p class="text-xs font-black text-blue-800">{{ res.checkIn }}</p>
+                            </div>
+                            <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-100/50 text-center">
+                                <p class="text-[8px] font-black text-amber-500 uppercase">Check-Out</p>
+                                <p class="text-xs font-black text-amber-800">{{ res.checkOut }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-[10px] font-bold text-gray-400 italic">Total Payable:</span>
+                            <span class="text-sm font-black text-[#1a2e1a] italic">{{ res.amount.toLocaleString() }}
+                                DT</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white border-t border-gray-100 flex gap-2">
+                        <button
+                            class="flex-1 px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all">
+                            Verify Deployment
+                        </button>
+                        <button
+                            class="px-3 py-2 bg-gray-50 text-gray-400 rounded-lg hover:text-[#1a2e1a] transition-all">
+                            📄
+                        </button>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Context Footer -->
+        <div class="px-8 py-4 border-t border-gray-100 bg-gray-50/20">
+            <div class="flex justify-between items-center">
+                <p class="text-[10px] font-bold text-gray-400 italic tracking-tight">Reservation integrity is verified
+                    through cross-platform digital ledger synchronization.</p>
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[9px] font-black text-[#1a2e1a] uppercase">Systems Operational</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

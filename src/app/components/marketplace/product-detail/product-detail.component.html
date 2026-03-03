@@ -1,0 +1,191 @@
+<div class="product-detail-container bg-white rounded-3xl p-8 shadow-xl animate-fade-in relative">
+    <!-- Back Button -->
+    <button (click)="goBack()"
+        class="absolute top-8 left-8 p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-10 group">
+        <svg class="h-6 w-6 text-gray-600 group-hover:-translate-x-1 transition-transform" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+    </button>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-12">
+        <!-- Left Column: Images -->
+        <div class="space-y-6">
+            <div class="aspect-square bg-[#F9F7F2] rounded-2xl overflow-hidden relative group">
+                <img [src]="selectedImage || product.image" [alt]="product.name"
+                    class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700">
+
+                <!-- Hover actions -->
+                <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button class="p-3 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors">
+                        <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Thumbnails (Mock data for visual) -->
+            <!-- Thumbnails -->
+            <div class="grid grid-cols-5 gap-4" *ngIf="product.images?.length">
+                <button *ngFor="let img of product.images" class="aspect-square rounded-lg overflow-hidden border-2"
+                    [class.border-forest]="selectedImage === img" [class.border-transparent]="selectedImage !== img"
+                    (click)="selectedImage = img">
+                    <img [src]="img" class="w-full h-full object-cover">
+                </button>
+            </div>
+            <div class="grid grid-cols-5 gap-4" *ngIf="!product.images?.length">
+                <button class="aspect-square rounded-lg overflow-hidden border-2 border-forest"
+                    (click)="selectedImage = product.image">
+                    <img [src]="product.image" class="w-full h-full object-cover">
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column: Details -->
+        <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold text-olive uppercase tracking-widest">{{ product.category }}</span>
+                <span class="text-gray-400 text-sm">ID: {{ product.id }}</span>
+            </div>
+
+            <h1 class="text-4xl font-black text-forest mb-4 leading-tight">{{ product.name }}</h1>
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="flex text-yellow-500">
+                    <span *ngFor="let _ of [1,2,3,4,5]">★</span>
+                </div>
+                <span class="text-gray-500 text-sm">{{ product.reviews || 42 }} reviews</span>
+            </div>
+
+            <div class="text-5xl font-black text-forest mb-8">
+                {{ product.price }} DT
+            </div>
+
+            <!-- Features List -->
+            <div class="mb-8" *ngIf="product.features?.length">
+                <h3 class="text-sm font-bold text-gray-900 mb-4">Key Features</h3>
+                <ul class="space-y-2">
+                    <li *ngFor="let feature of product.features" class="flex items-start gap-2 text-gray-600 text-sm">
+                        <svg class="h-5 w-5 text-forest shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ feature }}
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Specs Grid -->
+            <div class="mb-8" *ngIf="product.specs">
+                <h3 class="text-sm font-bold text-gray-900 mb-4">Specifications</h3>
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl">
+                    <div *ngFor="let spec of product.specs | keyvalue">
+                        <div class="text-xs text-gray-500 uppercase tracking-wider mb-1">{{ spec.key }}</div>
+                        <div class="text-sm font-bold text-gray-900">{{ spec.value }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Options -->
+            <div class="mb-8" *ngFor="let option of product.options">
+                <h3 class="text-sm font-bold text-gray-900 mb-4">{{ option.name }}</h3>
+                <div class="flex gap-3">
+                    <button *ngFor="let value of option.values" (click)="selectOption(option.name, value)"
+                        [class.bg-forest]="selectedOptions[option.name] === value"
+                        [class.text-white]="selectedOptions[option.name] === value"
+                        [class.border-transparent]="selectedOptions[option.name] === value"
+                        class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-bold hover:border-forest transition-colors min-w-[3rem]">
+                        {{ value }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 mt-auto">
+                <button
+                    class="flex-1 bg-forest text-white h-14 rounded-xl font-bold hover:bg-[#1a2e25] transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Add to cart
+                </button>
+                <button
+                    class="h-14 w-14 rounded-xl border border-gray-200 flex items-center justify-center hover:border-forest hover:text-forest transition-colors">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mt-6 flex items-center gap-2 text-sm text-gray-500">
+                <svg class="h-5 w-5 text-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Free delivery on orders over 30 DT
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bottom Tabs -->
+    <div class="mt-20 border-t border-gray-100 pt-10">
+        <div class="flex gap-8 mb-10 border-b border-gray-100 pb-4">
+            <button class="text-2xl font-black text-forest pb-4 border-b-4 border-forest">Reviews</button>
+            <button class="text-2xl font-bold text-gray-300 pb-4 hover:text-gray-500 transition-colors">Details</button>
+            <button
+                class="text-2xl font-bold text-gray-300 pb-4 hover:text-gray-500 transition-colors">Discussion</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+            <!-- Reviews List -->
+            <!-- Reviews List -->
+            <div class="space-y-8">
+                <div *ngIf="!product.reviewsList?.length" class="text-gray-500 italic">
+                    No reviews yet. Be the first to review!
+                </div>
+
+                <div *ngFor="let review of product.reviewsList" class="flex gap-4">
+                    <img [src]="review.avatar" class="w-12 h-12 rounded-full">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold">{{ review.author }}</span>
+                            <span class="text-xs text-gray-400">{{ review.date }}</span>
+                        </div>
+                        <div class="flex text-yellow-400 text-xs mb-2">
+                            <span *ngFor="let _ of [].constructor(review.rating)">★</span>
+                            <span *ngFor="let _ of [].constructor(5 - review.rating)" class="text-gray-300">★</span>
+                        </div>
+                        <p class="text-gray-600">{{ review.comment }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ratings Summary -->
+            <div>
+                <div class="flex items-end gap-4 mb-8">
+                    <div class="text-6xl font-black text-gray-900">4.8</div>
+                    <div class="flex text-yellow-400 text-xl mb-2">★ ★ ★ ★ ★</div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-4">
+                        <span class="w-4 text-xs font-bold text-gray-400">5</span>
+                        <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-yellow-400 w-[80%]"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span class="w-4 text-xs font-bold text-gray-400">4</span>
+                        <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-yellow-400 w-[40%]"></div>
+                        </div>
+                    </div>
+                    <!-- ... other bars ... -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

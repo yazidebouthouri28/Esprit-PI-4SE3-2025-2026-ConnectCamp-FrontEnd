@@ -1,0 +1,72 @@
+<section id="map" class="py-16 px-4 sm:px-6 lg:px-8 bg-sage/20">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-8">
+      <h2 class="text-3xl font-bold text-forest mb-2">Interactive Map</h2>
+      <p class="text-olive">Explore campsites, rental locations, and event venues</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div class="space-y-4">
+        <div class="bg-white rounded-xl p-5 shadow-md border border-sage/30">
+          <h3 class="font-semibold text-forest mb-4">Filter Locations</h3>
+          <div class="space-y-2">
+            <button (click)="selectedType = 'all'" type="button" class="w-full text-left px-4 py-2 rounded-lg transition-colors min-h-[44px]" [ngClass]="selectedType === 'all' ? 'bg-olive text-cream' : 'bg-sage/20 text-forest'">All Locations</button>
+            <button (click)="selectedType = 'campsite'" type="button" class="w-full text-left px-4 py-2 rounded-lg transition-colors min-h-[44px]" [ngClass]="selectedType === 'campsite' ? 'bg-olive text-cream' : 'bg-sage/20 text-forest'">Campsites</button>
+            <button (click)="selectedType = 'rental'" type="button" class="w-full text-left px-4 py-2 rounded-lg transition-colors min-h-[44px]" [ngClass]="selectedType === 'rental' ? 'bg-olive text-cream' : 'bg-sage/20 text-forest'">Equipment Rentals</button>
+            <button (click)="selectedType = 'event'" type="button" class="w-full text-left px-4 py-2 rounded-lg transition-colors min-h-[44px]" [ngClass]="selectedType === 'event' ? 'bg-olive text-cream' : 'bg-sage/20 text-forest'">Event Venues</button>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-md border border-sage/30">
+          <h3 class="font-semibold text-forest mb-4">Route Planning</h3>
+          <button (click)="showRoutes = !showRoutes" type="button" class="w-full px-4 py-2 rounded-lg transition-colors min-h-[44px]" [ngClass]="showRoutes ? 'bg-olive text-cream' : 'bg-sage/20 text-forest'">
+            {{ showRoutes ? 'Hide Routes' : 'Show Routes' }}
+          </button>
+          <div class="mt-4 space-y-2 text-sm text-olive">
+            <div class="flex justify-between py-1"><span>Total Distance:</span><span class="font-semibold text-forest">42.5 mi</span></div>
+            <div class="flex justify-between py-1"><span>Est. Travel Time:</span><span class="font-semibold text-forest">1h 15m</span></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow-md border border-sage/30">
+          <h3 class="font-semibold text-forest mb-4">Nearby Locations</h3>
+          <div class="space-y-3 max-h-64 overflow-y-auto">
+            @for (location of filteredLocations; track location.id) {
+              <div class="p-3 bg-sage/10 rounded-lg hover:bg-sage/20 transition-colors cursor-pointer">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="font-medium text-forest text-sm">{{ location.name }}</p>
+                    <p class="text-xs text-olive capitalize">{{ location.type }}</p>
+                  </div>
+                  @if (location.available) {
+                    <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Available</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-3">
+        <div class="bg-white rounded-xl overflow-hidden shadow-lg border border-sage/30">
+          <div class="relative w-full h-[600px] bg-gradient-to-br from-sage/20 to-olive/20">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <div class="text-center">
+                <p class="text-forest font-semibold">Interactive Map View</p>
+                <p class="text-sm text-olive mt-2">Showing {{ filteredLocations.length }} locations</p>
+              </div>
+            </div>
+            @for (location of filteredLocations; track location.id; let i = $index) {
+              <div class="absolute cursor-pointer group" [style.left]="(20 + i * 15) + '%'" [style.top]="(30 + (i % 3) * 20) + '%'">
+                <span class="text-2xl" [ngClass]="pinColor(location.type)">📍</span>
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                  <p class="text-sm font-semibold text-forest">{{ location.name }}</p>
+                  <p class="text-xs text-olive capitalize">{{ location.type }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

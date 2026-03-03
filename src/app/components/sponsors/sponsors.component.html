@@ -1,0 +1,136 @@
+<div class="sponsors-page">
+    <!-- Hero Section -->
+    <section class="sponsors-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Our Sponsors</h1>
+            <p class="hero-subtitle">
+                A heartfelt thank you to all the sponsors who make ConnectCamp possible.
+                Their generous support helps us connect campers, hikers, and nature lovers across Tunisia.
+            </p>
+        </div>
+    </section>
+
+    <div class="sponsors-container">
+
+        <!-- Gold Sponsors -->
+        <section class="tier-section">
+            <div class="tier-header">
+                <span class="tier-icon">🥇</span>
+                <h2 class="tier-title gold-title">Gold Sponsors</h2>
+                <div class="tier-line gold-line"></div>
+            </div>
+            <div class="gold-grid">
+                @for (sponsor of goldSponsors; track sponsor.name) {
+                <div class="sponsor-card gold-card">
+                    <div class="card-image-wrapper">
+                        <img [src]="sponsor.logo" [alt]="sponsor.name" class="sponsor-logo-large" />
+                    </div>
+                    <div class="card-body">
+                        <h3 class="sponsor-name">{{ sponsor.name }}</h3>
+                        <p class="sponsor-desc">{{ sponsor.description }}</p>
+                        <a [href]="sponsor.website" target="_blank" rel="noopener" class="sponsor-link">
+                            Visit Website →
+                        </a>
+                    </div>
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- Silver Sponsors -->
+        <section class="tier-section">
+            <div class="tier-header">
+                <span class="tier-icon">🥈</span>
+                <h2 class="tier-title silver-title">Silver Sponsors</h2>
+                <div class="tier-line silver-line"></div>
+            </div>
+            <div class="silver-grid">
+                @for (sponsor of silverSponsors; track sponsor.name) {
+                <div class="sponsor-card silver-card">
+                    <img [src]="sponsor.logo" [alt]="sponsor.name" class="sponsor-logo-medium" />
+                    <div class="card-body">
+                        <h3 class="sponsor-name">{{ sponsor.name }}</h3>
+                        <p class="sponsor-desc">{{ sponsor.description }}</p>
+                        <a [href]="sponsor.website" target="_blank" rel="noopener" class="sponsor-link">
+                            Visit Website →
+                        </a>
+                    </div>
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- Bronze Sponsors -->
+        <section class="tier-section">
+            <div class="tier-header">
+                <span class="tier-icon">🥉</span>
+                <h2 class="tier-title bronze-title">Bronze Sponsors</h2>
+                <div class="tier-line bronze-line"></div>
+            </div>
+            <div class="bronze-grid">
+                @for (sponsor of bronzeSponsors; track sponsor.name) {
+                <div class="sponsor-card bronze-card">
+                    <img [src]="sponsor.logo" [alt]="sponsor.name" class="sponsor-logo-small" />
+                    <h3 class="sponsor-name-small">{{ sponsor.name }}</h3>
+                    <p class="sponsor-desc-small">{{ sponsor.description }}</p>
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- Community Partners -->
+        <section class="tier-section">
+            <div class="tier-header">
+                <span class="tier-icon">🤝</span>
+                <h2 class="tier-title community-title">Community Partners</h2>
+                <div class="tier-line community-line"></div>
+            </div>
+            <div class="community-grid">
+                @for (partner of communityPartners; track partner.name) {
+                <div class="community-card">
+                    <span class="community-icon">{{ partner.icon }}</span>
+                    <span class="community-name">{{ partner.name }}</span>
+                </div>
+                }
+            </div>
+        </section>
+
+        <!-- Become a Sponsor CTA -->
+        <section class="cta-section">
+            <h2 class="cta-title">Become a Sponsor</h2>
+            <p class="cta-subtitle">
+                Join our mission to connect campers across Tunisia. Choose the sponsorship tier that fits your brand.
+            </p>
+            <div class="pricing-grid">
+                @for (tier of sponsorTiers; track tier.name) {
+                <div class="pricing-card" [class.pricing-featured]="tier.name === 'Gold'">
+                    @if (tier.name === 'Gold') {
+                    <div class="pricing-badge">Most Popular</div>
+                    }
+                    <span class="pricing-icon">{{ tier.icon }}</span>
+                    <h3 class="pricing-tier-name">{{ tier.name }}</h3>
+                    <div class="pricing-price">{{ tier.price }}</div>
+                    <p class="pricing-desc">{{ tier.description }}</p>
+                    <ul class="pricing-perks">
+                        @for (perk of tier.perks; track perk) {
+                        <li>
+                            <svg class="perk-check" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            {{ perk }}
+                        </li>
+                        }
+                    </ul>
+                    <button class="pricing-btn" [class.pricing-btn-featured]="tier.name === 'Gold'">
+                        Become a {{ tier.name }} Sponsor
+                    </button>
+                </div>
+                }
+            </div>
+        </section>
+
+    </div>
+</div>

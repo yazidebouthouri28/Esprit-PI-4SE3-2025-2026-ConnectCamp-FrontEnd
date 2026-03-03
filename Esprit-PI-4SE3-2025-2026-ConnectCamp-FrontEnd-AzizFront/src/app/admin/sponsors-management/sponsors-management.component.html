@@ -1,0 +1,162 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+  <!-- Title & Primary Action -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-black text-[#1a2e1a]">Partners & Sponsors</h1>
+      <p class="text-sm text-[#617152] font-medium">Coordinate with ecological agencies and outdoor equipment sponsors.
+      </p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-[#1a2e1a] hover:bg-gray-50 transition-colors shadow-sm">
+        Export List
+      </button>
+      <button
+        class="px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a] transition-all shadow-sm flex items-center gap-2">
+        <span>+</span> Add Partner
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 text-xl">
+          ✅
+        </div>
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Approved</span>
+      </div>
+      <div class="flex items-end gap-3">
+        <p class="text-3xl font-black text-[#1a2e1a]">{{ approvedCount }}</p>
+      </div>
+      <p class="text-[10px] text-gray-400 font-bold mt-1">Verified Partners</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 text-xl">
+          ⏳
+        </div>
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending</span>
+      </div>
+      <div class="flex items-end gap-3">
+        <p class="text-3xl font-black text-[#1a2e1a]">{{ pendingCount }}</p>
+      </div>
+      <p class="text-[10px] text-gray-400 font-bold mt-1">Awaiting Review</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 text-xl">
+          💰
+        </div>
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Budget Pool</span>
+      </div>
+      <div class="flex items-end gap-3 focus:outline-none">
+        <p class="text-2xl font-black text-[#1a2e1a]">{{ totalBudget.toLocaleString() }} DT</p>
+      </div>
+      <p class="text-[10px] text-gray-400 font-bold mt-1">Approved Commitments</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div class="flex items-center gap-4 mb-3">
+        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 text-xl">
+          🌍
+        </div>
+        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Network</span>
+      </div>
+      <div class="flex items-end gap-3">
+        <p class="text-3xl font-black text-[#1a2e1a]">{{ sponsors.length }}</p>
+      </div>
+      <p class="text-[10px] text-gray-400 font-bold mt-1">Eco-System Entities</p>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+    <div class="relative flex-1 w-full">
+      <input type="text" placeholder="Search by name or agency..." [(ngModel)]="searchTerm"
+        class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1a2e1a]/10 focus:border-[#1a2e1a]/30 transition-all">
+      <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
+    </div>
+    <div class="flex bg-gray-50 p-1 rounded-lg border border-gray-200">
+      <button (click)="filterStatus = 'all'" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all"
+        [ngClass]="filterStatus === 'all' ? 'bg-white text-[#1a2e1a] shadow-sm' : 'text-gray-500 hover:text-[#1a2e1a]'">
+        All
+      </button>
+      <button (click)="filterStatus = 'pending'" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all"
+        [ngClass]="filterStatus === 'pending' ? 'bg-white text-[#1a2e1a] shadow-sm' : 'text-gray-500 hover:text-[#1a2e1a]'">
+        Pending
+      </button>
+      <button (click)="filterStatus = 'approved'" class="px-4 py-1.5 rounded-md text-xs font-bold transition-all"
+        [ngClass]="filterStatus === 'approved' ? 'bg-white text-[#1a2e1a] shadow-sm' : 'text-gray-500 hover:text-[#1a2e1a]'">
+        Approved
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid of Partner Cards (Upgraded from Table) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (sponsor of filteredSponsors; track sponsor.id) {
+    <div
+      class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-all flex flex-col group">
+      <div class="p-6 border-b border-gray-50 flex justify-between items-start">
+        <div class="flex items-center gap-4">
+          <div
+            class="w-12 h-12 bg-[#f8f5e6] rounded-xl flex items-center justify-center text-3xl group-hover:scale-110 transition-transform shadow-inner">
+            {{ sponsor.icon || '🏢' }}
+          </div>
+          <div>
+            <h3 class="font-black text-[#1a2e1a] leading-tight">{{ sponsor.companyName }}</h3>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ sponsor.category }}</p>
+          </div>
+        </div>
+        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border"
+          [ngClass]="statusClass(sponsor.status)">
+          {{ sponsor.status }}
+        </span>
+      </div>
+
+      <div class="p-6 flex-1 space-y-4">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-gray-500 italic">Representative</span>
+          <span class="text-xs font-black text-[#1a2e1a]">{{ sponsor.name }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-gray-500 italic">Budget Commitment</span>
+          <span class="text-sm font-black text-emerald-600">{{ sponsor.budget.toLocaleString() }} DT</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-gray-500 italic">Network Reach</span>
+          <div class="flex items-center gap-2">
+            <div class="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="h-full bg-indigo-500 rounded-full" [style.width.%]="sponsor.engagement"></div>
+            </div>
+            <span class="text-[9px] font-black text-indigo-600">{{ sponsor.engagement }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-gray-50/50 border-t border-gray-100 flex gap-2">
+        <button
+          class="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-lg text-[10px] font-black uppercase tracking-widest text-[#1a2e1a] hover:bg-[#1a2e1a] hover:text-white transition-all">
+          Audit Registry
+        </button>
+        <button class="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg hover:text-[#1a2e1a] transition-all">
+          ✉️
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+    <div class="flex items-center gap-3">
+      <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+      <p class="text-[10px] font-bold text-gray-400 italic">Partnerships are evaluated based on environmental impact and
+        community value. Last update: Just now.</p>
+    </div>
+  </div>
+</div>

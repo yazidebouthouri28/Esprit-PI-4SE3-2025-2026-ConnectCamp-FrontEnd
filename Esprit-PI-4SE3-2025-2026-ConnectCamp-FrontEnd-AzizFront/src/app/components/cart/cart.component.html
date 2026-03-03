@@ -1,0 +1,171 @@
+<div class="min-h-screen bg-[#F9F7F2] py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8">
+
+        <!-- Header -->
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <button (click)="goBack()" class="p-2 rounded-full hover:bg-gray-100 transition-colors text-forest">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </button>
+            <h1 class="text-2xl font-black text-forest flex items-center gap-3">
+                <svg class="w-8 h-8 text-forest/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Shopping Cart
+            </h1>
+        </div>
+
+        <!-- Empty Cart Message -->
+        <div *ngIf="cartItems.length === 0" class="text-center py-12">
+            <div class="text-6xl mb-4">🛒</div>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">Your cart is empty</h3>
+            <p class="text-gray-500 mb-6">Add some products to get started!</p>
+            <a routerLink="/marketplace" class="inline-block bg-forest text-white font-bold py-3 px-6 rounded-lg hover:bg-forest/90 transition-colors">
+                Browse Products
+            </a>
+        </div>
+
+        <!-- Cart Items -->
+        <div *ngIf="cartItems.length > 0" class="space-y-4 mb-8">
+            <div *ngFor="let item of cartItems"
+                class="flex items-center gap-4 p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow">
+                <!-- Image -->
+                <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100">
+                    <img [src]="item.image || 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=200'" [alt]="item.productName" class="w-full h-full object-cover">
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-900 text-sm mb-1">{{ item.productName }}</h3>
+                    <div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
+                        <span *ngIf="item.type === 'PURCHASE'">📄 Purchase</span>
+                        <span *ngIf="item.type === 'RENTAL'">🗓️ Rental: {{ item.rentalDays || 7 }} days</span>
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <!-- Quantity -->
+                        <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-1">
+                            <button (click)="decrementQuantity(item)"
+                                class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-forest transition-colors rounded hover:bg-white font-bold">-</button>
+                            <span class="text-sm font-bold w-4 text-center">{{ item.quantity }}</span>
+                            <button (click)="incrementQuantity(item)"
+                                class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-forest transition-colors rounded hover:bg-white font-bold">+</button>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="font-black text-forest">
+                            {{ item.price * item.quantity | number:'1.2-2' }} DT
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete -->
+                <button (click)="removeItem(item)" class="text-gray-300 hover:text-red-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div *ngIf="cartItems.length > 0" class="bg-gray-50 rounded-xl p-6 mb-8">
+            <div class="space-y-3 text-sm text-gray-500 mb-4 border-b border-gray-200 pb-4">
+                <div class="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span class="font-bold text-gray-900">{{ subtotal | number:'1.2-2' }} DT</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Shipping:</span>
+                    <span class="font-bold text-gray-900">{{ shipping | number:'1.2-2' }} DT</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Tax (10%):</span>
+                    <span class="font-bold text-gray-900">{{ tax | number:'1.2-2' }} DT</span>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end">
+                <div class="font-black text-xl text-gray-900">Total:</div>
+                <div class="text-right">
+                    <div class="font-black text-2xl text-forest">{{ total | number:'1.2-2' }} DT</div>
+                    <div class="text-xs font-bold text-purple-600 flex items-center justify-end gap-1 mt-1">
+                        💎 Points to earn: <span class="font-black">{{ pointsToEarn }} points</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div *ngIf="cartItems.length > 0" class="mb-8">
+            <h3 class="font-bold text-forest flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                Payment Method
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Wallet Option -->
+                <div
+                    class="relative bg-[#2D4539] text-white p-4 rounded-xl cursor-pointer border-2 border-transparent hover:border-[#FBBF24] transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-[#FBBF24]/20 flex items-center justify-center text-[#FBBF24]">
+                            💰
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm">ConnectCamp Wallet</div>
+                            <div class="text-xs opacity-70">Balance: {{ walletBalance | number:'1.2-2' }} DT</div>
+                        </div>
+                    </div>
+                    <div
+                        class="absolute top-4 right-4 w-4 h-4 rounded-full border border-white/30 flex items-center justify-center">
+                        <div class="w-2.5 h-2.5 rounded-full bg-[#FBBF24]"></div>
+                    </div>
+                </div>
+
+                <!-- Card Option -->
+                <div
+                    class="relative bg-white border border-gray-200 p-4 rounded-xl cursor-pointer hover:border-forest/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                            💳
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm text-gray-900">Credit/Debit Card</div>
+                            <div class="text-xs text-gray-400">Secure payment</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div *ngIf="cartItems.length > 0" class="flex gap-4">
+            <button (click)="proceedToCheckout()"
+                class="flex-1 bg-forest hover:bg-forest/90 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+                Proceed to Checkout
+            </button>
+            <button (click)="clearCart()"
+                class="bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-8 rounded-lg flex items-center gap-2 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear
+            </button>
+        </div>
+
+    </div>
+</div>

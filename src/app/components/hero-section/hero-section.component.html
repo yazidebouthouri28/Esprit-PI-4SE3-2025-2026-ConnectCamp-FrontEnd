@@ -1,0 +1,76 @@
+<section id="home" class="relative h-[600px] overflow-hidden">
+  <div class="absolute inset-0">
+    <img
+      src="https://images.unsplash.com/photo-1657038455340-d95a1cc49db8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+      alt="Mountain camping"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-r from-forest/80 to-forest/40"></div>
+  </div>
+
+  <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
+    <div class="max-w-3xl">
+      <h1 class="mb-6 text-4xl md:text-5xl lg:text-6xl font-bold text-cream leading-tight">
+        CAMP IS MORE THAN JUST A WORD,<br />IT'S AN EXPERIENCE!
+      </h1>
+      <p class="mb-8 text-lg md:text-xl text-cream/90">
+        Discover unforgettable camping locations, connect with fellow adventurers, and create memories that last a lifetime.
+      </p>
+
+      <div class="bg-white rounded-xl shadow-2xl p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm text-forest block">Location</label>
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <input
+                type="text"
+                placeholder="Where to?"
+                [(ngModel)]="searchData.location"
+                class="w-full pl-10 pr-4 py-3 border border-sage rounded-lg focus:outline-none focus:ring-2 focus:ring-olive"
+              />
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm text-forest block">Check-in</label>
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <input
+                type="date"
+                [(ngModel)]="searchData.checkIn"
+                class="w-full pl-10 pr-4 py-3 border border-sage rounded-lg focus:outline-none focus:ring-2 focus:ring-olive"
+              />
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm text-forest block">Check-out</label>
+            <div class="relative">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <input
+                type="date"
+                [(ngModel)]="searchData.checkOut"
+                class="w-full pl-10 pr-4 py-3 border border-sage rounded-lg focus:outline-none focus:ring-2 focus:ring-olive"
+              />
+            </div>
+          </div>
+          <div class="space-y-2">
+            <label class="text-sm text-forest block">Type</label>
+            <select
+              [(ngModel)]="searchData.accommodationType"
+              class="w-full px-4 py-3 border border-sage rounded-lg focus:outline-none focus:ring-2 focus:ring-olive"
+            >
+              <option value="tent">Tent</option>
+              <option value="rv">RV/Camper</option>
+              <option value="cabin">Cabin</option>
+              <option value="glamping">Glamping</option>
+            </select>
+          </div>
+        </div>
+        <button class="mt-6 w-full md:w-auto bg-olive hover:bg-forest text-cream px-8 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 min-h-[44px]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <span>Search Campsites</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

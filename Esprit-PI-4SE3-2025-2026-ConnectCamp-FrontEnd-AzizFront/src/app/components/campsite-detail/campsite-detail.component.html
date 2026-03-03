@@ -1,0 +1,245 @@
+<div class="min-h-screen bg-[#F9F7F2] pb-12 font-sans text-forest">
+
+    <!-- Back Button & Header -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <button (click)="goBack()"
+            class="flex items-center gap-2 text-forest hover:text-olive transition-colors mb-6 font-semibold">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Campsites
+        </button>
+    </div>
+
+    @if (campsite) {
+    <!-- Hero Image Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-[400px] md:h-[500px] rounded-3xl overflow-hidden">
+            <!-- Main Image (Left) -->
+            <div class="h-full">
+                <img [src]="campsite.images[0]" [alt]="campsite.name"
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+            </div>
+            <!-- Secondary Images (Right Stack) -->
+            <div class="hidden md:grid grid-rows-2 gap-4 h-full">
+                <div class="h-full overflow-hidden">
+                    <img [src]="campsite.images[1]" alt="Gallery 2"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                </div>
+                <div class="h-full overflow-hidden relative group cursor-pointer">
+                    <img [src]="campsite.images[2]" alt="Gallery 3"
+                        class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                    <div
+                        class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span class="text-white font-bold text-lg border-2 border-white px-4 py-2 rounded-lg">View All
+                            Photos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+            <!-- Left Column: Details -->
+            <div class="lg:col-span-2 space-y-10">
+                <!-- Header Info -->
+                <div class="border-b border-gray-200 pb-6">
+                    <h1 class="text-4xl font-bold text-forest mb-2">{{ campsite.name }}</h1>
+                    <div class="flex items-center gap-4 text-olive">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            </svg>
+                            {{ campsite.location }}
+                        </span>
+                        <span>•</span>
+                        <span class="flex items-center gap-1 font-semibold text-forest">
+                            ★ {{ campsite.rating }}
+                        </span>
+                        <span class="text-gray-500 underline cursor-pointer">({{ campsite.reviews }} reviews)</span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <h3 class="text-2xl font-bold text-forest mb-4">About this campsite</h3>
+                    <p class="text-gray-600 leading-relaxed text-lg">
+                        {{ campsite.description }}
+                    </p>
+                    <button class="mt-2 text-forest font-semibold underline">Read More</button>
+                </div>
+
+                <!-- Amenities -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-2xl font-bold text-forest mb-6">Amenities</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-8">
+                        @for (item of campsite.amenities; track item.label) {
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl w-8">{{ item.icon }}</span>
+                            <span class="text-gray-700 font-medium">{{ item.label }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-2xl font-bold text-forest mb-6 flex items-center gap-2">
+                        <span>★ {{ campsite.rating }}</span>
+                        <span>·</span>
+                        <span>{{ campsite.reviews }} reviews</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        @for (review of campsite.reviewsList; track review.author) {
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <img [src]="review.avatar" [alt]="review.author"
+                                    class="w-12 h-12 rounded-full object-cover">
+                                <div>
+                                    <h4 class="font-bold text-forest">{{ review.author }}</h4>
+                                    <p class="text-sm text-gray-500">{{ review.date }}</p>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 leading-relaxed">{{ review.text }}</p>
+                        </div>
+                        }
+                        @if (campsite.reviewsList.length === 0) {
+                        <p class="text-gray-500 italic">No reviews yet.</p>
+                        }
+                    </div>
+                    <button
+                        class="mt-8 border border-forest rounded-lg px-6 py-3 font-semibold hover:bg-forest hover:text-white transition-colors">
+                        Show all {{ campsite.reviews }} reviews
+                    </button>
+                </div>
+
+                <!-- Campsite Information / Rules -->
+                <div class="border-t border-gray-200 pt-8">
+                    <h3 class="text-2xl font-bold text-forest mb-6">Campsite Information</h3>
+                    <div class="bg-white rounded-2xl p-8 border border-gray-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-gray-600">
+                            <div class="flex items-start gap-4">
+                                <svg class="w-6 h-6 text-olive mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <span class="block font-bold text-forest mb-1">Check-in / Check-out</span>
+                                    <span class="block">Check-in: 2:00 PM</span>
+                                    <span class="block">Check-out: 11:00 AM</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <svg class="w-6 h-6 text-olive mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                                <div>
+                                    <span class="block font-bold text-forest mb-1">Cancellation Policy</span>
+                                    <span class="block">Free cancellation up to 48 hours before check-in. Partial refund
+                                        thereafter.</span>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <svg class="w-6 h-6 text-olive mt-1 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                </svg>
+                                <div>
+                                    <span class="block font-bold text-forest mb-1">House Rules</span>
+                                    <span class="block">No smoking in cabins. Quiet hours 10PM-7AM. Pets allowed with
+                                        deposit.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Booking Card -->
+            <div class="lg:col-span-1">
+                <div
+                    class="sticky top-8 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 p-6">
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <span class="text-3xl font-black text-forest">{{ campsite.price }} DT</span>
+                            <span class="text-gray-500 font-medium text-lg"> /night</span>
+                        </div>
+                        <div class="text-sm font-semibold text-olive flex items-center gap-1">
+                            <span>★ {{ campsite.rating }}</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="underline">{{ campsite.reviews }} reviews</span>
+                        </div>
+                    </div>
+
+                    <div class="border border-gray-300 rounded-xl mb-4 overflow-hidden">
+                        <div class="grid grid-cols-2 border-b border-gray-300">
+                            <div
+                                class="p-3 border-r border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors relative group">
+                                <label
+                                    class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider">Check-in</label>
+                                <div class="text-gray-600 truncate">Add date</div>
+                            </div>
+                            <div class="p-3 hover:bg-gray-50 cursor-pointer transition-colors relative group">
+                                <label
+                                    class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider">Check-out</label>
+                                <div class="text-gray-600 truncate">Add date</div>
+                            </div>
+                        </div>
+                        <div class="p-3 hover:bg-gray-50 cursor-pointer transition-colors relative group">
+                            <label
+                                class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider">Guests</label>
+                            <div class="text-gray-600 truncate">1 guest</div>
+                            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <button
+                        class="w-full bg-[#1F4D36] text-white font-bold text-lg py-3 rounded-lg hover:bg-[#163a28] transition-all transform active:scale-[0.98] mb-4">
+                        Reserve
+                    </button>
+
+                    <p class="text-center text-sm text-gray-500 mb-6">You won't be charged yet</p>
+
+                    <!-- Price Breakdown -->
+                    <div class="space-y-4 text-gray-600 mb-6 pb-6 border-b border-gray-100">
+                        <div
+                            class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
+                            <span>{{ campsite.price }} DT x 5 nights</span>
+                            <span>{{ campsite.price * 5 }} DT</span>
+                        </div>
+                        <div
+                            class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
+                            <span>Cleaning fee</span>
+                            <span>45 DT</span>
+                        </div>
+                        <div
+                            class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
+                            <span>Service fee</span>
+                            <span>32 DT</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center text-lg font-bold text-forest">
+                        <span>Total</span>
+                        <span>{{ (campsite.price * 5) + 45 + 32 }} DT</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    }
+</div>

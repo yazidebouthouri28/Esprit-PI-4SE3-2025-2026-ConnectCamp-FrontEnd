@@ -1,0 +1,293 @@
+<div class="community-hub-container flex h-screen bg-cream-beige overflow-hidden">
+    <!-- Left Sidebar (Users & Messages) -->
+    <aside class="w-80 border-r border-olive-green/20 flex flex-col bg-white/50 backdrop-blur-md">
+        <!-- Profile Section -->
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <img [src]="currentUser.avatar" class="w-12 h-12 rounded-full border-2 border-forest-green"
+                        alt="Profile">
+                    <span
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                </div>
+                <div>
+                    <h2 class="font-bold text-forest-green leading-tight">{{currentUser.name}}</h2>
+                    <p class="text-xs text-olive-green">{{currentUser.role}}</p>
+                </div>
+            </div>
+            <button class="text-olive-green hover:text-forest-green">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="1" />
+                    <circle cx="12" cy="5" r="1" />
+                    <circle cx="12" cy="19" r="1" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Online Now -->
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-forest-green">Online Now <span
+                        class="text-olive-green font-normal">({{onlineUsers.length}})</span></h3>
+                <button class="text-xs text-forest-green font-semibold hover:underline">View All</button>
+            </div>
+            <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <div *ngFor="let user of onlineUsers" (click)="viewProfile(user)"
+                    class="flex-shrink-0 relative group cursor-pointer">
+                    <img [src]="user.avatar"
+                        class="w-12 h-12 rounded-full border-2 border-transparent group-hover:border-forest-green transition-all"
+                        [alt]="user.name">
+                    <span
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages List -->
+        <div class="flex-1 overflow-y-auto px-4 py-2">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="font-bold text-forest-green">Message <span
+                        class="text-olive-green font-normal">({{recentChats.length}})</span></h3>
+                <button class="text-olive-green hover:text-forest-green">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="12" cy="5" r="1" />
+                        <circle cx="12" cy="19" r="1" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="relative mb-4 px-2">
+                <input type="text" placeholder="Search"
+                    class="w-full bg-cream-beige/50 border border-olive-green/10 rounded-xl py-2 px-10 text-sm focus:outline-none focus:ring-1 focus:ring-forest-green">
+                <svg class="absolute left-5 top-2.5 text-olive-green/50" xmlns="http://www.w3.org/2000/svg" width="16"
+                    height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+            </div>
+
+            <!-- Chat list -->
+            <div class="space-y-1">
+                <div *ngFor="let chat of recentChats" (click)="switchChat(chat)"
+                    class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer hover:bg-cream-beige/80 transition-all"
+                    [ngClass]="{'bg-cream-beige/80': chat.id === activeGroup.id}">
+                    <div class="relative">
+                        <img [src]="chat.avatar" class="w-11 h-11 rounded-full object-cover">
+                        <span *ngIf="chat.type === 'typing'"
+                            class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-400 border-2 border-white rounded-full"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-0.5">
+                            <h4 class="font-bold text-sm text-forest-green truncate">{{chat.name}}</h4>
+                            <span class="text-[10px] text-olive-green/60">{{chat.time}}</span>
+                        </div>
+                        <p class="text-xs truncate"
+                            [ngClass]="chat.type === 'typing' ? 'text-blue-500 italic' : 'text-olive-green'">
+                            {{chat.lastMessage}}</p>
+                    </div>
+                    <div *ngIf="chat.unread > 0"
+                        class="w-5 h-5 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full">
+                        {{chat.unread}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col bg-white">
+        <!-- Chat Header -->
+        <header class="h-20 border-b border-olive-green/10 px-8 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <img [src]="activeGroup.avatar" class="w-12 h-12 rounded-full border-2 border-olive-green/20"
+                    [alt]="activeGroup.name">
+                <div>
+                    <h2 class="font-bold text-forest-green">{{activeGroup.name}}</h2>
+                    <p class="text-xs text-olive-green">{{activeGroup.description}}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex -space-x-3 ml-2">
+                    <img *ngFor="let member of activeGroup.members.slice(0, 3)" [src]="member.avatar"
+                        class="w-10 h-10 rounded-full border-2 border-white">
+                    <div
+                        class="w-10 h-10 bg-cream-beige text-olive-green text-xs font-bold flex items-center justify-center rounded-full border-2 border-white">
+                        +{{activeGroup.membersCount - 3}}</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Messages Area -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+            <div *ngFor="let msg of activeGroup.messages" class="flex items-start gap-4"
+                [ngClass]="{'flex-row-reverse': isCurrentUser(msg.senderId)}">
+                <img [src]="getSender(msg.senderId)?.avatar"
+                    class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
+                    (click)="viewProfile(getSender(msg.senderId))">
+                <div class="max-w-[70%] group" [ngClass]="{'items-end': isCurrentUser(msg.senderId)}">
+                    <div class="flex items-center gap-2 mb-1"
+                        [ngClass]="{'flex-row-reverse': isCurrentUser(msg.senderId)}">
+                        <span class="text-xs font-bold text-forest-green cursor-pointer hover:underline"
+                            (click)="viewProfile(getSender(msg.senderId))">{{getSender(msg.senderId)?.name}}</span>
+                    </div>
+
+                    <!-- Text Message -->
+                    <div *ngIf="msg.type === 'text'" class="p-4 rounded-2xl shadow-sm text-sm"
+                        [ngClass]="isCurrentUser(msg.senderId) ? 'bg-forest-green text-white rounded-tr-none' : 'bg-cream-beige/50 text-forest-green rounded-tl-none'">
+                        {{msg.content}}
+                    </div>
+
+                    <!-- Image Message -->
+                    <div *ngIf="msg.type === 'image'" class="flex gap-2">
+                        <img *ngFor="let img of msg.imageUrls" [src]="img"
+                            class="max-w-[200px] h-auto rounded-2xl border border-olive-green/10 shadow-sm cursor-pointer hover:scale-[1.02] transition-transform">
+                    </div>
+
+                    <span class="text-[10px] text-olive-green/60 mt-2 block"
+                        [ngClass]="isCurrentUser(msg.senderId) ? 'text-right' : 'text-left'">{{msg.timestamp}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Input -->
+        <footer class="p-6">
+            <div
+                class="bg-cream-beige/30 border border-olive-green/10 rounded-[2rem] p-4 flex items-center gap-4 backdrop-blur-sm">
+                <button class="text-olive-green/60 hover:text-forest-green">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                    </svg>
+                </button>
+                <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()" placeholder="Your Message..."
+                    class="flex-1 bg-transparent border-none text-forest-green placeholder:text-olive-green/40 focus:outline-none">
+                <div class="flex items-center gap-3">
+                    <button class="text-olive-green/60 hover:text-forest-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                            <line x1="9" y1="9" x2="9.01" y2="9" />
+                            <line x1="15" y1="9" x2="15.01" y2="9" />
+                        </svg>
+                    </button>
+                    <button class="text-olive-green/60 hover:text-forest-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="22" />
+                        </svg>
+                    </button>
+                    <button (click)="sendMessage()"
+                        class="bg-forest-green text-white w-10 h-10 flex items-center justify-center rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md shadow-forest-green/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m22 2-7 20-4-9-9-4Z" />
+                            <path d="M22 2 11 13" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Right Sidebar (Details) -->
+    <aside class="w-80 border-l border-olive-green/20 bg-white/50 backdrop-blur-md flex flex-col hidden xl:flex">
+        <!-- Group Profile -->
+        <div class="p-8 text-center border-b border-olive-green/5 bg-cream-beige/20">
+            <div class="relative inline-block mb-4">
+                <img [src]="activeGroup.avatar"
+                    class="w-32 h-32 rounded-[2.5rem] border-4 border-white shadow-xl object-cover rotate-3 hover:rotate-0 transition-transform duration-500">
+                <div
+                    class="absolute -bottom-1 -right-1 w-8 h-8 bg-forest-green text-white rounded-2xl flex items-center justify-center border-2 border-white shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                    </svg>
+                </div>
+            </div>
+            <h2 class="text-xl font-black text-forest-green tracking-tight leading-tight">{{activeGroup.name}}</h2>
+            <p class="text-xs font-bold text-olive-green mt-1 uppercase tracking-widest">{{activeGroup.membersCount}}
+                Members</p>
+        </div>
+
+        <!-- Description -->
+        <div class="p-6">
+            <h3 class="text-xs font-black text-forest-green uppercase tracking-widest mb-3 opacity-50">About</h3>
+            <p class="text-sm text-forest-green/80 leading-relaxed font-medium">
+                {{activeGroup.description}}
+            </p>
+        </div>
+
+        <!-- Members List -->
+        <div class="px-6 flex-1 overflow-y-auto no-scrollbar">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xs font-black text-forest-green uppercase tracking-widest opacity-50">Members</h3>
+                <button class="text-[10px] font-black text-olive-green hover:underline uppercase tracking-tighter">View
+                    All</button>
+            </div>
+            <div class="space-y-4">
+                <div *ngFor="let member of activeGroup.members" (click)="viewProfile(member)"
+                    class="flex items-center justify-between group cursor-pointer hover:bg-cream-beige/30 p-2 rounded-2xl transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <img [src]="member.avatar" class="w-10 h-10 rounded-xl shadow-sm border border-white">
+                            <span *ngIf="member.status === 'online'"
+                                class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-forest-green truncate">{{member.name}}</p>
+                            <p class="text-[10px] text-olive-green font-bold uppercase tracking-tighter opacity-70">
+                                {{member.role}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Section -->
+            <div class="mt-8 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xs font-black text-forest-green uppercase tracking-widest opacity-50">Shared Media
+                    </h3>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div
+                        class="p-3 rounded-2xl bg-cream-beige/30 hover:bg-cream-beige/50 transition-colors cursor-pointer border border-olive-green/5">
+                        <div class="w-8 h-8 bg-blue-50 text-blue-500 flex items-center justify-center rounded-lg mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                        </div>
+                        <p class="text-[10px] font-black text-forest-green uppercase tracking-tighter">
+                            {{activeGroup.mediaCount.docs}} Docs</p>
+                    </div>
+                    <div
+                        class="p-3 rounded-2xl bg-cream-beige/30 hover:bg-cream-beige/50 transition-colors cursor-pointer border border-olive-green/5">
+                        <div
+                            class="w-8 h-8 bg-purple-50 text-purple-500 flex items-center justify-center rounded-lg mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                <circle cx="9" cy="9" r="2" />
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                            </svg>
+                        </div>
+                        <p class="text-[10px] font-black text-forest-green uppercase tracking-tighter">
+                            {{activeGroup.mediaCount.photos}} Photos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>

@@ -1,0 +1,307 @@
+<div class="bg-[#F9F7F2] min-h-screen">
+    <!-- CLASSIC HERO SECTION WITH CINEMATIC BACKGROUND -->
+    <div class="relative pt-24 pb-48 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden bg-forest">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1504851149312-7a075b496cc7?q=80&w=1600"
+                class="w-full h-full object-cover grayscale opacity-90 scale-110" alt="Background">
+            <!-- Cinematic Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-b from-forest/90 via-forest/80 to-forest/70"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- Promo Banner -->
+            <div
+                class="inline-flex items-center gap-2 bg-[#FBBF24] text-forest text-[11px] font-black px-5 py-2 rounded-full mb-10 shadow-2xl animate-fade-in">
+                🌲 ADVENTURE AWAITS IN TUNISIA
+            </div>
+
+            <h1 class="text-6xl md:text-8xl font-black mb-6 tracking-tighter animate-slide-up leading-[0.9]">
+                ADVENTURE AWAY<br /><span class="text-sage italic">FROM</span> REALITY
+            </h1>
+            <p class="text-sage text-xl md:text-2xl mb-14 max-w-3xl mx-auto font-bold opacity-90 animate-fade-in"
+                style="animation-delay: 0.2s">
+                Discover the most breathtaking campsites and outdoor experiences
+            </p>
+
+            <!-- Search Bar (Classic Style) -->
+            <div class="max-w-3xl mx-auto bg-white p-2 rounded-full flex items-center shadow-2xl animate-fade-in mb-10"
+                style="animation-delay: 0.4s">
+                <div class="flex-1 flex items-center px-6">
+                    <svg class="h-5 w-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" placeholder="Search campsites, workshops, hiking trips..."
+                        class="w-full bg-transparent py-4 text-forest placeholder-gray-400 focus:outline-none font-bold">
+                </div>
+                <button
+                    class="bg-forest text-white px-10 py-4 rounded-full font-black uppercase tracking-widest text-xs hover:bg-olive transition-all transform active:scale-95">
+                    Search
+                </button>
+            </div>
+
+            <!-- Hashtags -->
+            <div class="flex flex-wrap justify-center gap-8 text-[11px] font-black text-sage/40 uppercase tracking-[0.3em] animate-fade-in"
+                style="animation-delay: 0.6s">
+                <span>#Wilderness</span>
+                <span>#Exploration</span>
+                <span>#Community</span>
+                <span>#Survival</span>
+                <span>#Nature</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK DISCOVERY -->
+    <div class="max-w-7xl mx-auto px-6 -mt-20 relative z-20">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sage/5 hover:-translate-y-2 transition-transform cursor-pointer group"
+                routerLink="/campsites">
+                <span class="text-4xl block mb-6 group-hover:scale-110 transition-transform">🏕️</span>
+                <h3 class="text-lg font-black text-forest mb-2">Top Campsites</h3>
+                <p class="text-xs text-olive/60 font-bold">120+ Curated locations</p>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sage/5 hover:-translate-y-2 transition-transform cursor-pointer group"
+                routerLink="/events">
+                <span class="text-4xl block mb-6 group-hover:scale-110 transition-transform">🔥</span>
+                <h3 class="text-lg font-black text-forest mb-2">Upcoming Events</h3>
+                <p class="text-xs text-olive/60 font-bold">Survival, Music, Trips</p>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sage/5 hover:-translate-y-2 transition-transform cursor-pointer group"
+                routerLink="/marketplace">
+                <span class="text-4xl block mb-6 group-hover:scale-110 transition-transform">🎒</span>
+                <h3 class="text-lg font-black text-forest mb-2">Premium Gear</h3>
+                <p class="text-xs text-olive/60 font-bold">Rental & Shop</p>
+            </div>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-sage/5 hover:-translate-y-2 transition-transform cursor-pointer group"
+                routerLink="/community">
+                <span class="text-4xl block mb-6 group-hover:scale-110 transition-transform">🤝</span>
+                <h3 class="text-lg font-black text-forest mb-2">Community</h3>
+                <p class="text-xs text-olive/60 font-bold">Meet fellow campers</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURED CAMPSITES (HORIZONTAL) -->
+    <section class="py-24 max-w-7xl mx-auto px-6">
+        <div class="flex items-end justify-between mb-12">
+            <div>
+                <span class="text-[10px] font-black text-sage uppercase tracking-[0.4em] mb-4 block">Destination
+                    Discovery</span>
+                <h2 class="text-4xl font-black text-forest tracking-tighter">Breathtaking Escapes</h2>
+            </div>
+            <a routerLink="/campsites"
+                class="text-sm font-black text-forest/40 hover:text-olive uppercase tracking-widest border-b-2 border-sage/20 pb-1">Explore
+                Campsites →</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div *ngFor="let camp of featuredCampsites"
+                class="group relative aspect-[4/5] rounded-[2.5rem] overflow-hidden cursor-pointer shadow-lg">
+                <img [src]="camp.image"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                <div class="absolute bottom-8 left-8 right-8 text-white">
+                    <p class="text-[10px] font-black text-white/60 mb-2 uppercase tracking-widest">{{ camp.location }}
+                    </p>
+                    <h4 class="text-2xl font-black mb-4">{{ camp.name }}</h4>
+                    <div class="flex items-center justify-between">
+                        <span class="px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md text-xs font-black">From {{
+                            camp.price }} DT</span>
+                        <div class="flex text-yellow-500 text-xs">★ ★ ★ ★ ★</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ATTRACTIVE EVENTS MESH -->
+    <section class="py-24 bg-forest relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/3 h-full bg-white/5 skew-x-[-20deg] translate-x-1/2"></div>
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div>
+                <span class="text-[10px] font-black text-sage uppercase tracking-[0.4em] mb-6 block">Experience the
+                    Great Outdoors</span>
+                <h2 class="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none mb-8">Not Just a
+                    Trip,<br />A <span class="text-sage">Memory</span>.</h2>
+                <p class="text-cream/60 font-bold mb-12 max-w-md text-lg">Join over 2,000+ campers in our monthly
+                    festivals, skill workshops and backcountry expeditions.</p>
+                <button routerLink="/events"
+                    class="px-12 py-5 bg-sage text-forest rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white transition-all shadow-2xl shadow-forest/50 transform active:scale-95">
+                    Explore All Events
+                </button>
+            </div>
+
+            <div class="space-y-8">
+                <div *ngFor="let event of upcomingEvents"
+                    class="group relative h-40 rounded-[2.5rem] overflow-hidden cursor-pointer shadow-2xl border-2 border-white/5"
+                    routerLink="/events">
+                    <img [src]="event.image"
+                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms] opacity-60">
+                    <div class="absolute inset-0 bg-gradient-to-r from-forest via-forest/40 to-transparent"></div>
+
+                    <div class="relative h-full flex items-center justify-between px-10">
+                        <div class="flex items-center gap-6">
+                            <div
+                                class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md flex flex-col items-center justify-center border border-white/20">
+                                <span class="text-[10px] font-black text-sage uppercase">{{ event.date.split(' ')[0]
+                                    }}</span>
+                                <span class="text-2xl font-black text-white leading-none">{{ event.date.split(' ')[1]
+                                    }}</span>
+                            </div>
+                            <div>
+                                <h4 class="text-2xl font-black text-white mb-1 group-hover:text-sage transition-colors">
+                                    {{ event.title }}</h4>
+                                <p class="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black">{{
+                                    event.organizer }}</p>
+                            </div>
+                        </div>
+                        <span class="text-sage text-3xl font-black">{{ event.price }} DT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MARKETPLACE PREVIEW (REDESIGNED & REORDERED) -->
+    <section class="py-24 max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <span class="text-[10px] font-black text-sage uppercase tracking-[0.4em] mb-4 block">Adventure Ready</span>
+            <h2 class="text-5xl font-black text-forest tracking-tighter mb-4">Gear Up For Nature</h2>
+            <p class="text-olive/60 font-bold text-sm tracking-widest uppercase opacity-60">Premium equipment for your
+                next expedition</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div *ngFor="let item of marketplaceItems"
+                class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-sage/5 transition-all duration-500 hover:shadow-2xl group cursor-pointer"
+                routerLink="/marketplace">
+                <div
+                    class="aspect-square rounded-3xl overflow-hidden mb-8 border border-gray-50 flex items-center justify-center bg-gray-50/50">
+                    <img [src]="item.image"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-lg font-black text-forest mb-1 leading-tight">{{ item.name }}</h4>
+                        <span class="text-2xl font-black text-forest">{{ item.price }} DT</span>
+                    </div>
+                    <button
+                        class="w-12 h-12 rounded-full bg-forest text-white flex items-center justify-center shadow-lg hover:bg-olive transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HERO SALES CARD -->
+            <div
+                class="bg-[#FBBF24] rounded-[2.5rem] p-12 flex flex-col justify-center items-start relative overflow-hidden shadow-xl shadow-yellow-200 group">
+                <div
+                    class="absolute -bottom-10 -right-10 text-[180px] font-black text-forest opacity-5 group-hover:scale-110 transition-transform duration-1000">
+                    40%</div>
+                <div class="relative z-10">
+                    <h3 class="text-4xl font-black text-forest mb-6 leading-[1.1]">Winter Gear<br />Sale Event</h3>
+                    <p class="text-forest/70 font-bold mb-10 max-w-[200px]">Up to 40% OFF on all tents and sleeping
+                        bags.</p>
+                    <button routerLink="/marketplace"
+                        class="bg-forest text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-white hover:text-forest transition-all shadow-xl">
+                        Shop Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CUSTOMER REVIEWS SECTION -->
+    <section class="py-32 bg-white relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl md:text-6xl font-black text-forest tracking-tighter mb-6">
+                    What Our <span class="text-olive">Customers Are Saying</span>
+                </h2>
+                <p class="text-olive/60 font-medium max-w-2xl mx-auto text-lg leading-relaxed">
+                    Hear from our community of outdoor enthusiasts, adventurers, and nature lovers who have experienced
+                    the magic of the Tunisian wilderness.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-20">
+                <div *ngFor="let review of reviews"
+                    class="bg-[#F9F7F2] p-10 rounded-[3rem] shadow-sm hover:shadow-2xl transition-all duration-500 relative group">
+                    <div class="flex items-center gap-4 mb-8">
+                        <img [src]="review.avatar" class="w-16 h-16 rounded-full border-4 border-white shadow-lg"
+                            [alt]="review.name">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-black text-forest">{{ review.name }}</h4>
+                            <p class="text-[10px] font-black text-olive/60 uppercase tracking-widest">{{ review.role }}
+                            </p>
+                        </div>
+                        <div
+                            class="w-8 h-8 rounded-full bg-forest text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform overflow-hidden">
+                            <img *ngIf="review.social === 'instagram'"
+                                src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg"
+                                class="w-4 h-4 invert">
+                            <img *ngIf="review.social === 'facebook'"
+                                src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg"
+                                class="w-4 h-4">
+                            <img *ngIf="review.social === 'twitter'"
+                                src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg"
+                                class="w-3 h-3 invert">
+                            <span *ngIf="!['instagram', 'facebook', 'twitter'].includes(review.social)"
+                                class="text-[10px] font-black">★</span>
+                        </div>
+                    </div>
+
+                    <div class="flex text-yellow-500 gap-1 mb-6">
+                        <span *ngFor="let star of [1,2,3,4,5]">★</span>
+                    </div>
+
+                    <p class="text-forest/80 font-medium leading-relaxed italic relative z-10">
+                        "{{ review.text }}"
+                    </p>
+
+                    <div class="absolute bottom-10 right-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <svg class="w-20 h-20 fill-forest" viewBox="0 0 24 24">
+                            <path
+                                d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11C14.017 11.5523 13.5693 12 13.017 12H12.017C11.4647 12 11.017 11.5523 11.017 11V9C11.017 6.79086 12.8079 5 15.017 5H19.017C21.2261 5 23.017 6.79086 23.017 9V15C23.017 18.3137 20.3307 21 17.017 21H14.017ZM3.0166 21L3.0166 18C3.0166 16.8954 3.91203 16 5.0166 16H8.0166C8.56888 16 9.0166 15.5523 9.0166 15V9C9.0166 8.44772 8.56888 8 8.0166 8H4.0166C3.46432 8 3.0166 8.44772 3.0166 9V11C3.0166 11.5523 2.56888 12 2.0166 12H1.0166C0.464317 12 0.0166016 11.5523 0.0166016 11V9C0.0166016 6.79086 1.80746 5 4.0166 5H8.0166C10.2257 5 12.0166 6.79086 12.0166 9V15C12.0166 18.3137 9.3303 21 6.0166 21H3.0166Z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Now / Explore More CTA -->
+            <div class="flex flex-col items-center">
+                <div class="flex gap-4 mb-12">
+                    <div class="w-3 h-1 bg-sage rounded-full"></div>
+                    <div class="w-8 h-1 bg-olive rounded-full"></div>
+                    <div class="w-3 h-1 bg-sage rounded-full"></div>
+                </div>
+                <button routerLink="/marketplace"
+                    class="px-16 py-6 bg-olive text-white rounded-full font-black uppercase tracking-[0.3em] text-xs hover:bg-forest transition-all shadow-2xl shadow-olive/30 transform active:scale-95">
+                    Explore Marketplace
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPONSORS ROW (ENHANCED LOGOS) -->
+    <div class="py-24 border-t border-sage/10 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div
+                class="flex flex-wrap justify-between items-center gap-16 opacity-40 hover:opacity-100 transition-opacity duration-700">
+                <div *ngFor="let s of sponsors"
+                    class="flex items-center gap-4 grayscale group hover:grayscale-0 transition-all cursor-crosshair">
+                    <img [src]="s.logo"
+                        class="h-10 w-auto object-contain max-w-[140px] filter group-hover:brightness-110"
+                        [alt]="s.name">
+                    <span
+                        class="text-xs font-black text-forest uppercase tracking-widest border-l border-sage/20 pl-4">{{
+                        s.name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

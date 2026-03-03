@@ -1,0 +1,55 @@
+<div class="pref-container">
+    <!-- Header -->
+    <header class="pref-header">
+        @if (currentIndex > 0) {
+        <button (click)="prev()" class="back-btn" aria-label="Go back">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </button>
+        } @else {
+        <div class="spacer"></div>
+        }
+        <div class="category-title">{{ currentQuestion.category }}</div>
+        <div class="spacer"></div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+        <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="progress"></div>
+            <div class="checkpoints">
+                @for (q of questions; track q.id) {
+                <div class="checkpoint" [class.active]="$index <= currentIndex">
+                    <div class="diamond"></div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="pref-content">
+        <h2 class="question-title">{{ currentQuestion.title }}</h2>
+
+        <div class="options-grid">
+            @for (opt of currentQuestion.options; track opt.id) {
+            <button (click)="toggleOption(opt.id)" class="option-btn" [class.selected]="isOptionSelected(opt.id)">
+                {{ opt.label }}
+            </button>
+            }
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="nav-footer">
+            @if (currentIndex > 0) {
+            <button (click)="prev()" class="nav-btn secondary-btn">Back</button>
+            } @else {
+            <div></div> <!-- Spacer for flexbox -->
+            }
+            <button (click)="next()" class="nav-btn primary-btn" [disabled]="!canGoNext">
+                {{ isLastQuestion ? 'Validate' : 'Next' }}
+            </button>
+        </div>
+    </main>
+</div>

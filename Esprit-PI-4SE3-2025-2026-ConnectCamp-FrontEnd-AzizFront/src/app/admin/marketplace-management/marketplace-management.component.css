@@ -1,0 +1,38 @@
+/* Custom Scrollbar for the Seller Portal */
+main::-webkit-scrollbar {
+    width: 6px;
+}
+
+main::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+main::-webkit-scrollbar-thumb {
+    background: rgba(45, 74, 45, 0.1);
+    border-radius: 10px;
+}
+
+main::-webkit-scrollbar-thumb:hover {
+    background: rgba(45, 74, 45, 0.2);
+}
+
+.font-black {
+    font-weight: 900;
+}
+
+/* Specific animations for status badges */
+.status-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+}

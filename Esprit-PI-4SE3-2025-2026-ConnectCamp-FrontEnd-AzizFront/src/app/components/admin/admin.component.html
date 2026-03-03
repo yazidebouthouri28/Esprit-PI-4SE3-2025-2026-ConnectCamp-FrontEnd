@@ -1,0 +1,549 @@
+<div class="min-h-screen bg-gray-50 flex">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-[#1a2e1a] min-h-screen p-6 flex flex-col fixed top-0 left-0 h-full z-10">
+    <h2 class="text-xl font-black text-white mb-8 tracking-tight">🛒 Ecommerce Admin</h2>
+    <nav class="space-y-1 flex-1">
+      <button
+        *ngFor="let item of menuItems"
+        (click)="setSection(item.id)"
+        [ngClass]="activeSection === item.id ? 'bg-[#2C4A3C] text-white' : 'text-white/60 hover:bg-white/10 hover:text-white'"
+        class="w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-3">
+        <span>{{ item.icon }}</span>{{ item.label }}
+      </button>
+    </nav>
+    <a routerLink="/" class="text-white/40 text-xs hover:text-white/70 mt-4">← Back to Site</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="ml-64 flex-1 p-8">
+
+    <!-- Global Messages -->
+    <div *ngIf="successMessage" class="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 font-bold text-sm">
+      ✅ {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 font-bold text-sm">
+      ❌ {{ errorMessage }}
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex items-center justify-center h-48">
+      <div class="text-2xl animate-spin">⏳</div>
+    </div>
+
+    <!-- ========== DASHBOARD ========== -->
+    <div *ngIf="activeSection === 'dashboard' && !isLoading">
+      <h1 class="text-3xl font-black text-[#1a2e1a] mb-8">Dashboard Overview</h1>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Total Users</p>
+          <p class="text-3xl font-black text-[#1a2e1a] mt-1">{{ dashboard.totalUsers || 0 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Total Orders</p>
+          <p class="text-3xl font-black text-[#1a2e1a] mt-1">{{ dashboard.totalOrders || 0 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Total Revenue</p>
+          <p class="text-3xl font-black text-emerald-600 mt-1">{{ (dashboard.totalRevenue || 0) | number:'1.2-2' }} DT</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Pending Orders</p>
+          <p class="text-3xl font-black text-amber-600 mt-1">{{ dashboard.pendingOrders || 0 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Total Products</p>
+          <p class="text-3xl font-black text-[#1a2e1a] mt-1">{{ dashboard.totalProducts || 0 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Pending Approval</p>
+          <p class="text-3xl font-black text-amber-600 mt-1">{{ dashboard.pendingApprovalProducts || 0 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Pending Reviews</p>
+          <p class="text-3xl font-black text-blue-600 mt-1">{{ dashboard.pendingReviews || 0 }}</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Pending Refunds</p>
+          <p class="text-3xl font-black text-red-600 mt-1">{{ dashboard.pendingRefundRequests || 0 }}</p>
+        </div>
+      </div>
+
+      <!-- Top Selling Products -->
+      <div *ngIf="dashboard.topSellingProducts?.length" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+        <h2 class="text-lg font-black text-[#1a2e1a] mb-4">🏆 Top Selling Products</h2>
+        <div class="space-y-3">
+          <div *ngFor="let prod of dashboard.topSellingProducts; let i = index"
+               class="flex justify-between items-center py-3 border-b border-gray-50">
+            <div class="flex items-center gap-3">
+              <span class="w-6 h-6 bg-[#2C4A3C] text-white rounded-full flex items-center justify-center text-xs font-black">{{ i+1 }}</span>
+              <span class="font-bold text-[#1a2e1a] text-sm">{{ prod.name }}</span>
+            </div>
+            <span class="text-xs font-black text-emerald-600">{{ prod.purchaseCount }} sold</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== USERS ========== -->
+    <div *ngIf="activeSection === 'users' && !isLoading">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-black text-[#1a2e1a]">Users Management</h1>
+        <span class="text-sm text-gray-400 font-bold">{{ usersTotal }} total</span>
+      </div>
+
+      <!-- Search -->
+      <div class="flex gap-3 mb-6">
+        <input [(ngModel)]="userSearchQuery" (keyup.enter)="searchUsers()"
+               placeholder="Search users by name or email..."
+               class="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20">
+        <button (click)="searchUsers()" class="px-6 py-2 bg-[#2C4A3C] text-white rounded-xl text-sm font-black">Search</button>
+        <button (click)="userSearchQuery = ''; loadUsers()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold">Clear</button>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50 border-b border-gray-100">
+          <tr class="text-xs font-black text-gray-400 uppercase tracking-widest">
+            <th class="px-6 py-4">Name</th>
+            <th class="px-6 py-4">Email</th>
+            <th class="px-6 py-4">Role</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let user of users" class="hover:bg-gray-50/50 transition-colors">
+            <td class="px-6 py-4">
+              <p class="font-bold text-[#1a2e1a] text-sm">{{ user.name }}</p>
+              <p *ngIf="user.isSeller" class="text-xs text-purple-600 font-bold">
+                {{ user.sellerVerified ? '✅ Verified Seller' : '⏳ Unverified Seller' }}
+              </p>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">{{ user.email }}</td>
+            <td class="px-6 py-4">
+              <select [ngModel]="user.role" (ngModelChange)="updateUserRole(user.id, $event)"
+                      class="px-3 py-1 border border-gray-200 rounded-lg text-xs font-bold focus:outline-none">
+                <option>BUYER</option>
+                <option>SELLER</option>
+                <option>ADMIN</option>
+              </select>
+            </td>
+            <td class="px-6 py-4">
+                <span class="px-3 py-1 rounded-full text-xs font-black border"
+                      [ngClass]="user.isSuspended ? 'bg-red-50 text-red-600 border-red-100' : user.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100'">
+                  {{ user.isSuspended ? '🚫 Suspended' : user.isActive ? '✅ Active' : '⭕ Inactive' }}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex gap-2 justify-end flex-wrap">
+                <button *ngIf="user.isSuspended || !user.isActive" (click)="activateUser(user.id)"
+                        class="px-3 py-1 bg-emerald-500 text-white rounded-lg text-xs font-black hover:bg-emerald-600">Activate</button>
+                <button *ngIf="!user.isSuspended" (click)="suspendUser(user.id, 'Policy violation')"
+                        class="px-3 py-1 bg-red-500 text-white rounded-lg text-xs font-black hover:bg-red-600">Suspend</button>
+                <button *ngIf="user.isSeller && !user.sellerVerified" (click)="verifySellerUser(user.id)"
+                        class="px-3 py-1 bg-purple-500 text-white rounded-lg text-xs font-black hover:bg-purple-600">Verify</button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      <div class="flex justify-between mt-4">
+        <button [disabled]="usersPage === 0" (click)="usersPage = usersPage - 1; loadUsers()"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold disabled:opacity-40">← Previous</button>
+        <span class="text-sm text-gray-500 font-bold">Page {{ usersPage + 1 }}</span>
+        <button (click)="usersPage = usersPage + 1; loadUsers()"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold">Next →</button>
+      </div>
+    </div>
+
+    <!-- ========== PRODUCTS ========== -->
+    <div *ngIf="activeSection === 'products' && !isLoading">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-black text-[#1a2e1a]">Products Management</h1>
+        <div class="flex gap-3">
+          <button (click)="showPendingOnly = !showPendingOnly; loadProducts()"
+                  [ngClass]="showPendingOnly ? 'bg-amber-500 text-white' : 'bg-white text-gray-600 border border-gray-200'"
+                  class="px-4 py-2 rounded-xl text-sm font-black transition-all">
+            {{ showPendingOnly ? '⏳ Pending Only' : 'All Products' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50 border-b border-gray-100">
+          <tr class="text-xs font-black text-gray-400 uppercase tracking-widest">
+            <th class="px-6 py-4">Product</th>
+            <th class="px-6 py-4">Seller</th>
+            <th class="px-6 py-4">Price</th>
+            <th class="px-6 py-4">Stock</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let prod of products" class="hover:bg-gray-50/50 transition-colors group">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <img *ngIf="prod.mainImage" [src]="prod.mainImage" class="w-10 h-10 rounded-lg object-cover">
+                <div>
+                  <p class="font-bold text-[#1a2e1a] text-sm">{{ prod.name }}</p>
+                  <p *ngIf="prod.isFeatured" class="text-xs text-amber-500 font-bold">⭐ Featured</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-500">{{ prod.sellerName }}</td>
+            <td class="px-6 py-4 font-black text-[#1a2e1a]">{{ prod.price | number:'1.2-2' }} DT</td>
+            <td class="px-6 py-4">
+                <span [ngClass]="prod.stockQuantity < 10 ? 'text-red-600' : 'text-emerald-600'" class="font-black text-sm">
+                  {{ prod.stockQuantity }}
+                </span>
+            </td>
+            <td class="px-6 py-4">
+                <span class="px-3 py-1 rounded-full text-xs font-black border"
+                      [ngClass]="prod.isApproved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'">
+                  {{ prod.isApproved ? '✅ Approved' : '⏳ Pending' }}
+                </span>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <div class="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity flex-wrap">
+                <button *ngIf="!prod.isApproved" (click)="approveProduct(prod.id)"
+                        class="px-3 py-1 bg-emerald-500 text-white rounded-lg text-xs font-black">Approve</button>
+                <button *ngIf="!prod.isApproved" (click)="rejectProduct(prod.id, 'Does not meet standards')"
+                        class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-black">Reject</button>
+                <button (click)="toggleFeatured(prod.id)"
+                        class="px-3 py-1 bg-amber-100 text-amber-700 rounded-lg text-xs font-black">
+                  {{ prod.isFeatured ? 'Unfeature' : 'Feature' }}
+                </button>
+                <button (click)="deleteProduct(prod.id)"
+                        class="px-3 py-1 bg-red-500 text-white rounded-lg text-xs font-black">Delete</button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-between mt-4">
+        <button [disabled]="productsPage === 0" (click)="productsPage = productsPage - 1; loadProducts()"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold disabled:opacity-40">← Previous</button>
+        <button (click)="productsPage = productsPage + 1; loadProducts()"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold">Next →</button>
+      </div>
+    </div>
+
+    <!-- ========== ORDERS ========== -->
+    <div *ngIf="activeSection === 'orders' && !isLoading">
+      <h1 class="text-3xl font-black text-[#1a2e1a] mb-6">Orders Management</h1>
+
+      <!-- Status Filter -->
+      <div class="flex gap-2 mb-6 flex-wrap">
+        <button (click)="selectedOrderStatus = ''; ordersPage = 0; loadOrders()"
+                [ngClass]="selectedOrderStatus === '' ? 'bg-[#2C4A3C] text-white' : 'bg-white text-gray-500 border border-gray-200'"
+                class="px-4 py-2 rounded-xl text-xs font-black transition-all">All</button>
+        <button *ngFor="let status of orderStatuses"
+                (click)="selectedOrderStatus = status; ordersPage = 0; loadOrders()"
+                [ngClass]="selectedOrderStatus === status ? 'bg-[#2C4A3C] text-white' : 'bg-white text-gray-500 border border-gray-200'"
+                class="px-4 py-2 rounded-xl text-xs font-black transition-all">{{ status }}</button>
+      </div>
+
+      <div class="space-y-4">
+        <div *ngFor="let order of orders" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-all">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="font-black text-[#1a2e1a]">Order #{{ order.id }}</h3>
+              <p class="text-sm text-gray-400 font-bold">{{ order.orderDate | date:'medium' }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xl font-black text-[#1a2e1a]">{{ order.totalAmount | number:'1.2-2' }} DT</p>
+              <span class="px-3 py-1 rounded-full text-xs font-black border"
+                    [ngClass]="getStatusBadgeClass(order.status)">{{ order.status }}</span>
+            </div>
+          </div>
+
+          <!-- Order Actions -->
+          <div class="flex gap-3 flex-wrap pt-4 border-t border-gray-50">
+            <select #statusSelect class="px-3 py-2 border border-gray-200 rounded-xl text-xs font-bold focus:outline-none">
+              <option *ngFor="let s of orderStatuses" [value]="s" [selected]="s === order.status">{{ s }}</option>
+            </select>
+            <button (click)="updateOrderStatus(order.id, statusSelect.value)"
+                    class="px-4 py-2 bg-[#2C4A3C] text-white rounded-xl text-xs font-black">Update Status</button>
+            <button *ngIf="order.status !== 'CANCELLED' && order.status !== 'DELIVERED'"
+                    (click)="cancelOrder(order.id, 'Admin cancellation')"
+                    class="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-black">Cancel Order</button>
+            <!-- Tracking Input -->
+            <div class="flex gap-2 ml-auto">
+              <input #trackingInput placeholder="Tracking number..."
+                     class="px-3 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none" [value]="order.trackingNumber || ''">
+              <button (click)="updateTracking(order.id, trackingInput.value)"
+                      class="px-3 py-2 bg-blue-500 text-white rounded-xl text-xs font-black">📦 Set Tracking</button>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="orders.length === 0" class="text-center text-gray-400 py-16 font-bold">No orders found</p>
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button [disabled]="ordersPage === 0" (click)="ordersPage = ordersPage - 1; loadOrders()"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold disabled:opacity-40">← Previous</button>
+        <button (click)="ordersPage = ordersPage + 1; loadOrders()"
+                class="px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold">Next →</button>
+      </div>
+    </div>
+
+    <!-- ========== CATEGORIES ========== -->
+    <div *ngIf="activeSection === 'categories' && !isLoading">
+      <h1 class="text-3xl font-black text-[#1a2e1a] mb-6">Categories Management</h1>
+
+      <!-- Add Category Form -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+        <h2 class="font-black text-[#1a2e1a] mb-4">➕ Add New Category</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <input [(ngModel)]="newCategory.name" placeholder="Category name"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20">
+          <input [(ngModel)]="newCategory.slug" placeholder="slug (e.g. camping-gear)"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20">
+          <input [(ngModel)]="newCategory.description" placeholder="Description"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 col-span-2">
+        </div>
+        <button (click)="createCategory()" class="mt-4 px-6 py-2 bg-[#2C4A3C] text-white rounded-xl text-sm font-black hover:bg-[#1a2e1a]">
+          Create Category
+        </button>
+      </div>
+
+      <!-- Categories List -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div *ngFor="let cat of categories" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <!-- Edit Mode -->
+          <div *ngIf="editingCategory?.id === cat.id">
+            <input [(ngModel)]="editingCategory.name" class="w-full mb-2 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none">
+            <input [(ngModel)]="editingCategory.slug" class="w-full mb-2 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none" placeholder="Slug">
+            <input [(ngModel)]="editingCategory.description" class="w-full mb-3 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none" placeholder="Description">
+            <div class="flex gap-2">
+              <button (click)="saveEditCategory()" class="px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-xs font-black">Save</button>
+              <button (click)="editingCategory = null" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-black">Cancel</button>
+            </div>
+          </div>
+          <!-- View Mode -->
+          <div *ngIf="editingCategory?.id !== cat.id">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <h3 class="font-black text-[#1a2e1a]">{{ cat.name }}</h3>
+                <p class="text-xs text-gray-400 font-bold">{{ cat.slug }}</p>
+              </div>
+              <span class="text-sm text-gray-400 font-black">{{ cat.productCount || 0 }} products</span>
+            </div>
+            <p class="text-sm text-gray-500 mb-4">{{ cat.description }}</p>
+            <div class="flex gap-2">
+              <button (click)="editingCategory = { ...cat }" class="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-xs font-black">✏️ Edit</button>
+              <button (click)="deleteCategory(cat.id)" class="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-lg text-xs font-black">🗑️ Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== REVIEWS ========== -->
+    <div *ngIf="activeSection === 'reviews' && !isLoading">
+      <h1 class="text-3xl font-black text-[#1a2e1a] mb-6">Pending Reviews</h1>
+
+      <div class="space-y-4">
+        <div *ngFor="let review of pendingReviews" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <p class="font-black text-[#1a2e1a]">{{ review.reviewerName }}</p>
+              <p class="text-xs text-gray-400 font-bold">{{ review.productName }}</p>
+            </div>
+            <div class="text-amber-500 font-black">{{ '★'.repeat(review.rating) }}{{ '☆'.repeat(5 - review.rating) }}</div>
+          </div>
+          <p class="text-sm text-gray-600 mb-4">{{ review.comment }}</p>
+          <div class="flex gap-3">
+            <button (click)="approveReview(review.id)" class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black">✅ Approve</button>
+            <button (click)="rejectReview(review.id)" class="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-black">❌ Reject</button>
+            <button (click)="deleteReview(review.id)" class="px-4 py-2 bg-gray-100 text-gray-500 rounded-xl text-xs font-black">🗑️ Delete</button>
+          </div>
+        </div>
+        <p *ngIf="pendingReviews.length === 0" class="text-center text-gray-400 py-16 font-bold">No pending reviews 🎉</p>
+      </div>
+    </div>
+
+    <!-- ========== COUPONS ========== -->
+    <div *ngIf="activeSection === 'coupons' && !isLoading">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-black text-[#1a2e1a]">Coupons Management</h1>
+        <button (click)="showCouponForm = !showCouponForm"
+                class="px-4 py-2 bg-[#2C4A3C] text-white rounded-xl text-sm font-black">
+          {{ showCouponForm ? '✕ Close' : '+ New Coupon' }}
+        </button>
+      </div>
+
+      <!-- Create Coupon Form -->
+      <div *ngIf="showCouponForm" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+        <h2 class="font-black text-[#1a2e1a] mb-4">Create Coupon</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <input [(ngModel)]="newCoupon.code" placeholder="Coupon code (e.g. SUMMER20)"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 uppercase">
+          <select [(ngModel)]="newCoupon.discountType"
+                  class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+            <option value="PERCENTAGE">Percentage (%)</option>
+            <option value="FIXED">Fixed Amount (DT)</option>
+          </select>
+          <input type="number" [(ngModel)]="newCoupon.discountValue" placeholder="Discount value"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20">
+          <input type="number" [(ngModel)]="newCoupon.minOrderAmount" placeholder="Min order amount"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20">
+          <input type="number" [(ngModel)]="newCoupon.maxUsageCount" placeholder="Max usage count"
+                 class="px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20">
+          <div></div>
+          <div>
+            <label class="text-xs font-black text-gray-400 uppercase mb-1 block">Start Date</label>
+            <input type="date" [(ngModel)]="newCoupon.startDate"
+                   class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+          </div>
+          <div>
+            <label class="text-xs font-black text-gray-400 uppercase mb-1 block">Expiry Date</label>
+            <input type="date" [(ngModel)]="newCoupon.expiryDate"
+                   class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+          </div>
+        </div>
+        <button (click)="createCoupon()" class="mt-4 px-6 py-2 bg-[#2C4A3C] text-white rounded-xl text-sm font-black">
+          Create Coupon
+        </button>
+      </div>
+
+      <!-- Coupons Table -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-gray-50 border-b border-gray-100">
+          <tr class="text-xs font-black text-gray-400 uppercase tracking-widest">
+            <th class="px-6 py-4">Code</th>
+            <th class="px-6 py-4">Discount</th>
+            <th class="px-6 py-4">Usage</th>
+            <th class="px-6 py-4">Expiry</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+          <tr *ngFor="let coupon of coupons" class="hover:bg-gray-50/50 transition-colors group">
+            <!-- Edit mode -->
+            <ng-container *ngIf="editingCoupon?.id === coupon.id">
+              <td class="px-6 py-4" colspan="5">
+                <div class="grid grid-cols-3 gap-3">
+                  <input [(ngModel)]="editingCoupon.code" class="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Code">
+                  <input type="number" [(ngModel)]="editingCoupon.discountValue" class="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Value">
+                  <input type="date" [(ngModel)]="editingCoupon.expiryDate" class="px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex gap-2 justify-end">
+                  <button (click)="saveEditCoupon()" class="px-3 py-1 bg-[#2C4A3C] text-white rounded-lg text-xs font-black">Save</button>
+                  <button (click)="editingCoupon = null" class="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-black">Cancel</button>
+                </div>
+              </td>
+            </ng-container>
+            <!-- View mode -->
+            <ng-container *ngIf="editingCoupon?.id !== coupon.id">
+              <td class="px-6 py-4 font-black text-[#1a2e1a] font-mono text-sm">{{ coupon.code }}</td>
+              <td class="px-6 py-4 font-bold text-sm">
+                {{ coupon.discountValue }}{{ coupon.discountType === 'PERCENTAGE' ? '%' : ' DT' }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">{{ coupon.currentUsageCount || 0 }}/{{ coupon.maxUsageCount }}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">{{ coupon.expiryDate | date:'shortDate' }}</td>
+              <td class="px-6 py-4">
+                  <span class="px-3 py-1 rounded-full text-xs font-black border"
+                        [ngClass]="coupon.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-gray-50 text-gray-400 border-gray-100'">
+                    {{ coupon.isActive ? '✅ Active' : 'Inactive' }}
+                  </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button (click)="editingCoupon = { ...coupon }" class="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-lg text-xs font-black">Edit</button>
+                  <button (click)="toggleCouponStatus(coupon.id)" class="px-3 py-1 bg-amber-50 text-amber-600 border border-amber-100 rounded-lg text-xs font-black">Toggle</button>
+                  <button (click)="deleteCoupon(coupon.id)" class="px-3 py-1 bg-red-50 text-red-600 border border-red-100 rounded-lg text-xs font-black">Delete</button>
+                </div>
+              </td>
+            </ng-container>
+          </tr>
+          </tbody>
+        </table>
+        <p *ngIf="coupons.length === 0" class="text-center text-gray-400 py-16 font-bold">No coupons yet</p>
+      </div>
+    </div>
+
+    <!-- ========== REFUNDS ========== -->
+    <div *ngIf="activeSection === 'refunds' && !isLoading">
+      <h1 class="text-3xl font-black text-[#1a2e1a] mb-6">Refund Requests</h1>
+
+      <!-- Pending Refunds Alert -->
+      <div *ngIf="pendingRefunds.length > 0" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-center gap-3">
+        <span class="text-2xl">⚠️</span>
+        <p class="font-black text-amber-800">{{ pendingRefunds.length }} pending refund request(s) require your attention</p>
+      </div>
+
+      <!-- All Refunds -->
+      <div class="space-y-4">
+        <div *ngFor="let refund of refunds" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="font-black text-[#1a2e1a]">Refund #{{ refund.id }}</h3>
+              <p class="text-sm text-gray-400 font-bold">Order: {{ refund.orderId }}</p>
+              <p class="text-sm text-gray-500 mt-1">Reason: {{ refund.reason }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xl font-black text-[#1a2e1a]">{{ refund.requestedAmount | number:'1.2-2' }} DT</p>
+              <span class="px-3 py-1 rounded-full text-xs font-black border"
+                    [ngClass]="getStatusBadgeClass(refund.status)">{{ refund.status }}</span>
+            </div>
+          </div>
+
+          <!-- Actions for PENDING refunds -->
+          <div *ngIf="refund.status === 'PENDING'" class="flex gap-3 flex-wrap pt-4 border-t border-gray-50">
+            <!-- Approve -->
+            <div *ngIf="selectedRefund?.id !== refund.id + '_approve'" class="flex gap-2">
+              <button (click)="selectedRefund = {id: refund.id + '_approve', refundId: refund.id}; refundAmount = refund.requestedAmount"
+                      class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black">✅ Approve</button>
+            </div>
+            <div *ngIf="selectedRefund?.id === refund.id + '_approve'" class="flex gap-2 items-center">
+              <input type="number" [(ngModel)]="refundAmount" [max]="refund.requestedAmount"
+                     class="px-3 py-2 border border-gray-200 rounded-xl text-sm w-32 focus:outline-none" placeholder="Amount">
+              <input [(ngModel)]="refundNotes" placeholder="Notes..."
+                     class="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none">
+              <button (click)="approveRefund(refund.id, refundAmount, refundNotes)"
+                      class="px-4 py-2 bg-emerald-500 text-white rounded-xl text-xs font-black">Confirm</button>
+              <button (click)="selectedRefund = null" class="px-3 py-2 bg-gray-100 text-gray-500 rounded-xl text-xs font-black">Cancel</button>
+            </div>
+
+            <!-- Reject -->
+            <div *ngIf="selectedRefund?.id !== refund.id + '_reject'" class="flex gap-2">
+              <button (click)="selectedRefund = {id: refund.id + '_reject', refundId: refund.id}"
+                      class="px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-black">❌ Reject</button>
+            </div>
+            <div *ngIf="selectedRefund?.id === refund.id + '_reject'" class="flex gap-2 items-center">
+              <input [(ngModel)]="refundRejectReason" placeholder="Rejection reason..."
+                     class="px-3 py-2 border border-gray-200 rounded-xl text-sm flex-1 focus:outline-none">
+              <button (click)="rejectRefund(refund.id, refundRejectReason)"
+                      class="px-4 py-2 bg-red-500 text-white rounded-xl text-xs font-black">Confirm Reject</button>
+              <button (click)="selectedRefund = null" class="px-3 py-2 bg-gray-100 text-gray-500 rounded-xl text-xs font-black">Cancel</button>
+            </div>
+
+            <button (click)="markItemsReceived(refund.id)"
+                    class="px-4 py-2 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl text-xs font-black ml-auto">
+              📦 Mark Items Received
+            </button>
+          </div>
+
+          <!-- Info for processed refunds -->
+          <div *ngIf="refund.status !== 'PENDING'" class="pt-4 border-t border-gray-50 text-xs text-gray-400 font-bold">
+            <span *ngIf="refund.approvedAmount">Approved Amount: {{ refund.approvedAmount | number:'1.2-2' }} DT &nbsp;|&nbsp;</span>
+            <span *ngIf="refund.adminNotes">Notes: {{ refund.adminNotes }}</span>
+          </div>
+        </div>
+        <p *ngIf="refunds.length === 0" class="text-center text-gray-400 py-16 font-bold">No refund requests 🎉</p>
+      </div>
+    </div>
+
+  </main>
+</div>

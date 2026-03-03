@@ -1,0 +1,69 @@
+.profile-page {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    min-height: 100vh;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Specific overlapping for Profile Pic */
+@media (min-width: 768px) {
+    .profile-header-container .flex-col {
+        align-items: flex-end;
+    }
+}
+
+.profile-header-container {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+/* Organic transitions */
+.profile-page article {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-page article:hover {
+    transform: translateY(-4px);
+}
+
+/* Glassmorphism utility if not globally defined */
+.backdrop-blur-md {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Custom shadow for nature theme */
+.shadow-forest-sm {
+    box-shadow: 0 4px 20px -5px rgba(27, 54, 44, 0.1);
+}
+
+/* Animation for the wavy profile picture */
+@keyframes float {
+    0% {
+        transform: rotate(3deg) translateY(0px);
+    }
+
+    50% {
+        transform: rotate(4deg) translateY(-5px);
+    }
+
+    100% {
+        transform: rotate(3deg) translateY(0px);
+    }
+}
+
+.wavy-pic {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Custom link underline */
+.decoration-olive\/30 {
+    text-decoration-color: rgba(128, 128, 0, 0.3);
+}

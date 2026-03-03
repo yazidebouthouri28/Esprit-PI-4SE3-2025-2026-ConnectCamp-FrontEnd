@@ -1,0 +1,284 @@
+<div class="py-16 px-4 sm:px-6 lg:px-8 bg-sage-green/10 min-h-screen">
+  <div class="mx-auto max-w-6xl">
+
+    <!-- SUCCESS STATE -->
+    <div *ngIf="orderSuccess" class="max-w-lg mx-auto text-center bg-white rounded-xl shadow-md border border-sage-green/30 p-12">
+      <div class="text-7xl mb-6">✅</div>
+      <h2 class="text-3xl font-bold text-forest-green mb-2">Order Placed Successfully!</h2>
+      <p class="text-olive-green mb-2">Thank you for your purchase.</p>
+      <p class="text-sm font-bold text-forest-green mb-4">Order ID: <span class="text-olive-green">{{ orderId }}</span></p>
+      <div class="bg-sage-green/10 rounded-lg p-4 mb-6">
+        <p class="text-sm text-olive-green mb-1">Loyalty Points Earned:</p>
+        <p class="text-2xl font-bold text-purple-600">💎 +{{ pointsToEarn }} Points</p>
+      </div>
+      <a routerLink="/marketplace"
+         class="inline-block bg-forest-green text-cream-beige px-8 py-3 rounded-lg hover:bg-olive-green transition-colors font-semibold">
+        Continue Shopping
+      </a>
+    </div>
+
+    <!-- CHECKOUT FORM -->
+    <div *ngIf="!orderSuccess">
+
+      <!-- Header -->
+      <div class="flex items-center gap-4 mb-8">
+        <button (click)="goBack()"
+                class="p-2 rounded-lg bg-white border border-sage-green/40 hover:bg-sage-green/10 transition-colors text-forest-green">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </button>
+        <h1 class="text-2xl font-bold text-forest-green">🛒 Checkout</h1>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- LEFT: FORM -->
+        <div class="lg:col-span-2 space-y-6">
+          <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()">
+
+            <!-- SHIPPING INFORMATION -->
+            <div class="bg-white rounded-xl p-6 shadow-md border border-sage-green/30">
+              <h2 class="text-lg font-semibold text-forest-green mb-5">📦 Shipping Information</h2>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <!-- Full Name -->
+                <div>
+                  <label class="block text-sm font-medium text-forest-green mb-2">Full Name *</label>
+                  <input formControlName="fullName" type="text" placeholder="John Doe"
+                         [class.border-red-400]="isFieldInvalid('fullName')"
+                         [class.border-forest-green]="f['fullName'].valid && f['fullName'].touched"
+                         class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 transition-all" />
+                  <p *ngIf="isFieldInvalid('fullName')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('fullName') }}
+                  </p>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label class="block text-sm font-medium text-forest-green mb-2">Email Address *</label>
+                  <input formControlName="email" type="email" placeholder="john@example.com"
+                         [class.border-red-400]="isFieldInvalid('email')"
+                         [class.border-forest-green]="f['email'].valid && f['email'].touched"
+                         class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 transition-all" />
+                  <p *ngIf="isFieldInvalid('email')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('email') }}
+                  </p>
+                </div>
+
+                <!-- Phone -->
+                <div>
+                  <label class="block text-sm font-medium text-forest-green mb-2">Phone Number *</label>
+                  <input formControlName="phone" type="tel" placeholder="12345678"
+                         [class.border-red-400]="isFieldInvalid('phone')"
+                         [class.border-forest-green]="f['phone'].valid && f['phone'].touched"
+                         class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 transition-all" />
+                  <p *ngIf="isFieldInvalid('phone')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('phone') }}
+                  </p>
+                </div>
+
+                <!-- City -->
+                <div>
+                  <label class="block text-sm font-medium text-forest-green mb-2">City *</label>
+                  <input formControlName="city" type="text" placeholder="Tunis"
+                         [class.border-red-400]="isFieldInvalid('city')"
+                         [class.border-forest-green]="f['city'].valid && f['city'].touched"
+                         class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 transition-all" />
+                  <p *ngIf="isFieldInvalid('city')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('city') }}
+                  </p>
+                </div>
+
+                <!-- Address -->
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-forest-green mb-2">Full Address *</label>
+                  <textarea formControlName="address" rows="2"
+                            placeholder="Street, Postal Code, Region..."
+                            [class.border-red-400]="isFieldInvalid('address')"
+                            [class.border-forest-green]="f['address'].valid && f['address'].touched"
+                            class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 resize-none transition-all"></textarea>
+                  <p *ngIf="isFieldInvalid('address')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('address') }}
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- PAYMENT METHOD -->
+            <div class="bg-white rounded-xl p-6 shadow-md border border-sage-green/30">
+              <h2 class="text-lg font-semibold text-forest-green mb-5">💳 Payment Method</h2>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+
+                <!-- Wallet -->
+                <label class="cursor-pointer">
+                  <input type="radio" formControlName="paymentMethod" value="wallet" class="sr-only" />
+                  <div class="p-4 border-2 rounded-lg transition-colors"
+                       [ngClass]="selectedPaymentMethod === 'wallet'
+                      ? 'border-forest-green bg-forest-green text-cream-beige'
+                      : 'border-sage-green/40 text-forest-green hover:border-forest-green'">
+                    <div class="flex items-center gap-3">
+                      <span class="text-2xl">💰</span>
+                      <div>
+                        <p class="font-bold text-sm">ConnectCamp Wallet</p>
+                        <p class="text-xs opacity-70">Balance: {{ walletBalance | number:'1.2-2' }} DT</p>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+
+                <!-- Card -->
+                <label class="cursor-pointer">
+                  <input type="radio" formControlName="paymentMethod" value="card" class="sr-only" />
+                  <div class="p-4 border-2 rounded-lg transition-colors"
+                       [ngClass]="selectedPaymentMethod === 'card'
+                      ? 'border-forest-green bg-forest-green text-cream-beige'
+                      : 'border-sage-green/40 text-forest-green hover:border-forest-green'">
+                    <div class="flex items-center gap-3">
+                      <span class="text-2xl">💳</span>
+                      <div>
+                        <p class="font-bold text-sm">Credit / Debit Card</p>
+                        <p class="text-xs opacity-70">Visa, Mastercard</p>
+                      </div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Wallet insufficient warning -->
+              <div *ngIf="hasInsufficientBalance"
+                   class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-red-600 text-sm font-medium flex items-center gap-2">
+                ⚠️ Insufficient wallet balance. Please top up or use a card.
+              </div>
+
+              <!-- CARD FIELDS -->
+              <div *ngIf="selectedPaymentMethod === 'card'" class="space-y-4 border-t border-sage-green/20 pt-5">
+
+                <!-- Card Holder -->
+                <div>
+                  <label class="block text-sm font-medium text-forest-green mb-2">Cardholder Name *</label>
+                  <input formControlName="cardHolder" type="text" placeholder="JOHN DOE"
+                         [class.border-red-400]="isFieldInvalid('cardHolder')"
+                         [class.border-forest-green]="f['cardHolder'].valid && f['cardHolder'].touched"
+                         class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 transition-all" />
+                  <p *ngIf="isFieldInvalid('cardHolder')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('cardHolder') }}
+                  </p>
+                </div>
+
+                <!-- Card Number -->
+                <div>
+                  <label class="block text-sm font-medium text-forest-green mb-2">Card Number *</label>
+                  <input formControlName="cardNumber" type="text" placeholder="1234567812345678"
+                         maxlength="16"
+                         (input)="formatCardNumber($event)"
+                         [class.border-red-400]="isFieldInvalid('cardNumber')"
+                         [class.border-forest-green]="f['cardNumber'].valid && f['cardNumber'].touched"
+                         class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 font-mono transition-all" />
+                  <p *ngIf="isFieldInvalid('cardNumber')" class="text-red-500 text-xs mt-1">
+                    ⚠️ {{ getErrorMessage('cardNumber') }}
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <!-- Expiry -->
+                  <div>
+                    <label class="block text-sm font-medium text-forest-green mb-2">Expiry Date *</label>
+                    <input formControlName="cardExpiry" type="text" placeholder="MM/YY"
+                           maxlength="5"
+                           (input)="formatExpiry($event)"
+                           [class.border-red-400]="isFieldInvalid('cardExpiry')"
+                           [class.border-forest-green]="f['cardExpiry'].valid && f['cardExpiry'].touched"
+                           class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 font-mono transition-all" />
+                    <p *ngIf="isFieldInvalid('cardExpiry')" class="text-red-500 text-xs mt-1">
+                      ⚠️ {{ getErrorMessage('cardExpiry') }}
+                    </p>
+                  </div>
+
+                  <!-- CVV -->
+                  <div>
+                    <label class="block text-sm font-medium text-forest-green mb-2">CVV *</label>
+                    <input formControlName="cardCvv" type="password" placeholder="•••"
+                           maxlength="4"
+                           [class.border-red-400]="isFieldInvalid('cardCvv')"
+                           [class.border-forest-green]="f['cardCvv'].valid && f['cardCvv'].touched"
+                           class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40 font-mono transition-all" />
+                    <p *ngIf="isFieldInvalid('cardCvv')" class="text-red-500 text-xs mt-1">
+                      ⚠️ {{ getErrorMessage('cardCvv') }}
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- SUBMIT -->
+            <button type="submit"
+                    [disabled]="isLoading || hasInsufficientBalance"
+                    class="w-full bg-forest-green text-cream-beige py-4 rounded-lg hover:bg-olive-green transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center gap-3">
+              <svg *ngIf="isLoading" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+              <span *ngIf="!isLoading">✅ Place Order — {{ total | number:'1.2-2' }} DT</span>
+              <span *ngIf="isLoading">Processing...</span>
+            </button>
+
+          </form>
+        </div>
+
+        <!-- RIGHT: ORDER SUMMARY -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl shadow-md border border-sage-green/30 p-6 sticky top-6">
+            <h2 class="text-lg font-semibold text-forest-green mb-5">🧾 Order Summary</h2>
+
+            <!-- Items -->
+            <div class="space-y-3 mb-5">
+              <div *ngFor="let item of cartItems" class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-lg bg-sage-green/20 overflow-hidden shrink-0">
+                  <img [src]="item.image || 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=80'"
+                       [alt]="item.productName"
+                       class="w-full h-full object-cover" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold text-forest-green truncate">{{ item.productName }}</p>
+                  <p class="text-xs text-olive-green">Qty: {{ item.quantity }}</p>
+                </div>
+                <span class="text-sm font-bold text-forest-green">{{ item.price * item.quantity | number:'1.2-2' }} DT</span>
+              </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="border-t border-sage-green/20 pt-4 space-y-3 text-sm">
+              <div class="flex justify-between">
+                <span class="text-olive-green">Subtotal</span>
+                <span class="font-bold text-forest-green">{{ subtotal | number:'1.2-2' }} DT</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-olive-green">Shipping</span>
+                <span class="font-bold text-forest-green">{{ shipping | number:'1.2-2' }} DT</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-olive-green">Tax (10%)</span>
+                <span class="font-bold text-forest-green">{{ tax | number:'1.2-2' }} DT</span>
+              </div>
+            </div>
+
+            <div class="border-t border-sage-green/20 pt-4 mt-2 flex justify-between items-center">
+              <span class="text-xl font-bold text-forest-green">Total</span>
+              <span class="text-2xl font-bold text-forest-green">{{ total | number:'1.2-2' }} DT</span>
+            </div>
+
+            <div class="mt-3 text-center">
+              <span class="text-sm font-bold text-purple-600">💎 You'll earn {{ pointsToEarn }} loyalty points</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
