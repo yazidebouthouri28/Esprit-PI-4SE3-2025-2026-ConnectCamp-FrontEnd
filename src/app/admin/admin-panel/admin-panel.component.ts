@@ -66,6 +66,11 @@ export class AdminPanelComponent {
   }
 
   setSection(section: string): void {
+    // Navigate to external route for flagged messages
+    if (section === 'flagged_messages') {
+      this.router.navigate(['/admin/flagged-messages']);
+      return;
+    }
     this.activeSection.set(section);
   }
 

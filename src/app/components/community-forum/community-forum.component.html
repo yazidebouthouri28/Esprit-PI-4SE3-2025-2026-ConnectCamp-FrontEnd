@@ -151,6 +151,15 @@
                         {{msg.content}}
                     </div>
 
+                    <!-- Sentiment Badge -->
+                    <div *ngIf="msg.sentimentLabel" class="mt-1 flex items-center gap-1"
+                        [ngClass]="isCurrentUser(msg.senderId) ? 'justify-end' : 'justify-start'">
+                        <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full border"
+                              [ngClass]="getSentimentClass(msg.sentimentLabel)">
+                            {{getSentimentIcon(msg.sentimentLabel)}} {{msg.sentimentLabel}} ({{formatSentimentScore(msg.sentimentScore)}})
+                        </span>
+                    </div>
+
                     <!-- Image Message -->
                     <div *ngIf="msg.type === 'image'" class="flex gap-2">
                         <img *ngFor="let img of msg.imageUrls" [src]="img"

@@ -1,0 +1,71 @@
+/* Sponsorship Assignment Component Styles */
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar for lists */
+.max-h-60::-webkit-scrollbar,
+.max-h-\[800px\]::-webkit-scrollbar {
+  width: 6px;
+}
+
+.max-h-60::-webkit-scrollbar-track,
+.max-h-\[800px\]::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.max-h-60::-webkit-scrollbar-thumb,
+.max-h-\[800px\]::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.max-h-60::-webkit-scrollbar-thumb:hover,
+.max-h-\[800px\]::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Selected item highlight */
+.border-l-4 {
+  transition: all 0.2s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .grid-cols-1.lg\\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Button hover effects */
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Card hover effects */
+.rounded-xl.border {
+  transition: all 0.2s ease;
+}
+
+.rounded-xl.border:hover:not(.border-l-4) {
+  transform: translateX(2px);
+}

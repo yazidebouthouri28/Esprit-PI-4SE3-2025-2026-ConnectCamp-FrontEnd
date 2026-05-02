@@ -22,6 +22,9 @@
         <p class="text-sm text-[#617152] font-medium">Manage your ecological and outdoor partners</p>
       </div>
       <div class="flex gap-3">
+        <button (click)="openDashboardModal()" class="px-4 py-2 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-sm font-bold hover:bg-purple-100">
+          Performance Dashboard
+        </button>
         <button (click)="openLogsModal()" class="px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-100">
           View Schedulers Logs
         </button>
@@ -35,18 +38,16 @@
       </div>
     </div>
 
-    <!-- Sponsors matched to local Events -->
-    <div class="bg-gray-50 border p-4 rounded-xl mb-6">
-      <h3 class="font-bold text-gray-700 mb-2">Local Partner Matches</h3>
-      <div class="flex gap-4 overflow-x-auto pb-2">
-        <div *ngFor="let stat of sponsorStats" class="bg-white border rounded-lg p-3 min-w-[220px]">
-          <p class="font-bold border-b pb-1 text-[#2C4A3C]">{{stat.sponsorName}}</p>
-          <p class="mt-2 text-sm font-semibold">📅 {{stat.eventTitle}}</p>
-          <p class="text-xs text-gray-600 mt-1">📍 Sponsor city: {{stat.sponsorCity}}</p>
-          <p class="text-xs text-gray-500">🏕️ Site: {{stat.siteName}} ({{stat.siteCity}})</p>
-        </div>
-        <div *ngIf="sponsorStats.length === 0" class="text-sm text-gray-500 p-2">No matches found.</div>
-      </div>
+    <!-- Current Sponsorships Button -->
+    <div class="flex justify-end mb-6">
+      <button (click)="goToSponsorshipsView()"
+        class="flex items-center gap-2 px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a] transition-colors"
+        title="View all sponsorships">
+        <span>See current sponsorships</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+      </button>
     </div>
 
     <!-- Stats -->
@@ -69,12 +70,20 @@
       </div>
     </div>
 
-    <!-- Search -->
-    <div class="bg-white p-4 rounded-xl border mb-8">
-      <div class="relative">
+    <!-- Search & Filters -->
+    <div class="bg-white p-4 rounded-xl border mb-8 flex flex-col md:flex-row gap-4">
+      <div class="relative flex-1">
         <input type="text" [(ngModel)]="searchTerm" placeholder="Search by name, email, contact..."
           class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a2e1a]/20">
         <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+      </div>
+      <div class="flex flex-col md:flex-row gap-4">
+        <select [(ngModel)]="selectedTier" class="w-full md:w-auto py-2 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a2e1a]/20 bg-white text-gray-700">
+          <option value="">All Tiers</option>
+          <option *ngFor="let t of tierOptions" [value]="t">{{ t }}</option>
+        </select>
+        <input type="text" [(ngModel)]="selectedLocation" placeholder="Filter by Location..." 
+               class="w-full md:w-48 py-2 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a2e1a]/20">
       </div>
     </div>
 
@@ -85,7 +94,7 @@
         <div class="p-6 border-b flex items-start gap-4">
           <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
             <span *ngIf="!sponsor.logo">{{ sponsor.name?.charAt(0) || 'S' }}</span>
-            <img *ngIf="sponsor.logo" [src]="sponsor.logo" alt="logo" class="w-full h-full object-cover rounded-xl">
+            <img *ngIf="sponsor.logo" [src]="resolveLogo(sponsor.logo)" alt="logo" class="w-full h-full object-cover rounded-xl">
           </div>
           <div class="flex-1">
             <div class="flex items-center gap-2">
@@ -269,7 +278,7 @@
         <input (change)="onFileSelected($event)" accept="image/*" type="file"
           class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/30 text-sm">
         <div *ngIf="editForm.logo" class="mt-3 flex items-center gap-3 bg-gray-50 p-2 rounded border">
-          <img [src]="editForm.logo" class="h-10 w-10 object-cover rounded shadow-sm bg-white" alt="Current logo" />
+          <img [src]="resolveLogo(editForm.logo)" class="h-10 w-10 object-cover rounded shadow-sm bg-white" alt="Current logo" />
           <span class="text-xs text-gray-500 truncate flex-1">{{editForm.logo.split('/').pop()}}</span>
         </div>
       </div>
@@ -333,6 +342,218 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SPONSOR PERFORMANCE DASHBOARD MODAL                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div *ngIf="showDashboardModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col">
+    <div class="flex justify-between items-center p-6 border-b">
+      <div>
+        <h2 class="text-xl font-black text-[#1a2e1a]">Sponsor Performance Dashboard</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Performance metrics and composite scores</p>
+      </div>
+      <button (click)="closeDashboardModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+    </div>
+
+    <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
+      <!-- Loading -->
+      <div *ngIf="isLoadingDashboard" class="text-center py-10">
+        <div class="animate-spin h-8 w-8 border-4 border-[#2C4A3C] border-t-transparent rounded-full mx-auto"></div>
+        <p class="mt-3 text-gray-500 text-sm">Loading dashboard data...</p>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!isLoadingDashboard && sponsorDashboard.length === 0" class="text-center text-gray-500 py-10">
+        <div class="text-4xl mb-3">📊</div>
+        <p class="font-bold">No sponsor data available</p>
+        <p class="text-sm mt-1">Dashboard will populate once sponsors have sponsorships.</p>
+      </div>
+
+      <!-- Chart Cards -->
+      <div *ngIf="!isLoadingDashboard && sponsorDashboard.length > 0" class="space-y-4">
+        <!-- Top performer highlight -->
+        <div *ngIf="sponsorDashboard.length > 0" class="bg-gradient-to-r from-yellow-500 to-orange-400 rounded-2xl p-6 text-white shadow-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-yellow-100 text-sm font-medium">🏆 Top Performer</p>
+              <h3 class="text-2xl font-black">{{ sponsorDashboard[0].sponsorName }}</h3>
+              <p class="text-yellow-100">Score: {{ sponsorDashboard[0].compositeScore }}/100</p>
+            </div>
+            <!-- Circular Score Ring -->
+            <div class="relative w-24 h-24">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <path class="text-white/20"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke="currentColor" stroke-width="3"/>
+                <path stroke="#ffffff"
+                      [attr.stroke-dasharray]="sponsorDashboard[0].compositeScore + ', 100'"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke-width="3" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-3xl font-black">{{ sponsorDashboard[0].compositeScore }}</span>
+                <span class="text-xs opacity-80">Score</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div *ngFor="let item of sponsorDashboard; let i = index"
+               class="bg-white rounded-xl shadow-sm border hover:shadow-md transition-shadow p-5">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center font-black text-lg"
+                     [ngClass]="i === 0 ? 'bg-yellow-100 text-yellow-600' :
+                                 i === 1 ? 'bg-gray-200 text-gray-600' :
+                                 i === 2 ? 'bg-orange-100 text-orange-600' :
+                                 'bg-gray-100 text-gray-500'">
+                  {{ i + 1 }}
+                </div>
+                <div>
+                  <h4 class="font-bold text-gray-900">{{ item.sponsorName }}</h4>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-bold" [ngClass]="{
+                    'bg-yellow-100 text-yellow-700': item.tier === 'GOLD',
+                    'bg-gray-200 text-gray-700': item.tier === 'SILVER',
+                    'bg-orange-100 text-orange-700': item.tier === 'BRONZE',
+                    'bg-purple-100 text-purple-700': item.tier === 'PLATINUM',
+                    'bg-blue-100 text-blue-700': item.tier === 'DIAMOND'
+                  }">{{ item.tier }}</span>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full text-sm font-bold"
+                    [ngClass]="item.statusLabel === 'High Performer' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                {{ item.statusLabel }}
+              </span>
+            </div>
+
+            <!-- Circular Score Display -->
+            <div class="mb-4 flex items-center gap-4">
+              <!-- SVG Circle Progress -->
+              <div class="relative w-20 h-20">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                  <!-- Background circle -->
+                  <path class="text-gray-200"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none" stroke="currentColor" stroke-width="3"/>
+                  <!-- Progress circle -->
+                  <path [attr.stroke]="item.compositeScore >= 70 ? '#22c55e' : item.compositeScore >= 40 ? '#f59e0b' : '#ef4444'"
+                        [attr.stroke-dasharray]="item.compositeScore + ', 100'"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none" stroke-width="3" stroke-linecap="round"
+                        class="transition-all duration-500"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-lg font-black text-gray-800">{{ item.compositeScore }}</span>
+                </div>
+              </div>
+
+              <!-- Score Label -->
+              <div class="flex-1">
+                <div class="text-sm text-gray-600 font-medium mb-1">Composite Score</div>
+                <div class="text-xs text-gray-500">out of 100</div>
+              </div>
+            </div>
+
+            <!-- Linear Progress Bar -->
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+              <div class="h-full rounded-full transition-all duration-500"
+                   [ngClass]="item.compositeScore >= 70 ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                               item.compositeScore >= 40 ? 'bg-gradient-to-r from-yellow-400 to-orange-400' :
+                               'bg-gradient-to-r from-red-400 to-red-500'"
+                   [style.width.%]="item.compositeScore"></div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="grid grid-cols-4 gap-3">
+              <!-- Total Amount -->
+              <div class="bg-blue-50 rounded-lg p-3 text-center">
+                <div class="text-xs text-blue-600 font-medium mb-1">Total Amount</div>
+                <div class="text-lg font-bold text-blue-900">{{ item.totalAmountSponsored | number:'1.0-0' }}</div>
+                <div class="text-xs text-blue-500">TND</div>
+              </div>
+
+              <!-- Avg per Event -->
+              <div class="bg-purple-50 rounded-lg p-3 text-center">
+                <div class="text-xs text-purple-600 font-medium mb-1">Avg/Event</div>
+                <div class="text-lg font-bold text-purple-900">{{ item.averageAmountPerEvent | number:'1.0-0' }}</div>
+                <div class="text-xs text-purple-500">TND</div>
+              </div>
+
+              <!-- Number of Events -->
+              <div class="bg-teal-50 rounded-lg p-3 text-center">
+                <div class="text-xs text-teal-600 font-medium mb-1">Events</div>
+                <div class="text-lg font-bold text-teal-900">{{ item.distinctEventsCount }}</div>
+                <div class="text-xs text-teal-500">count</div>
+              </div>
+
+              <!-- Tenure -->
+              <div class="bg-orange-50 rounded-lg p-3 text-center">
+                <div class="text-xs text-orange-600 font-medium mb-1">Tenure</div>
+                <div class="text-lg font-bold text-orange-900">{{ item.tenureDays }}</div>
+                <div class="text-xs text-orange-500">days</div>
+              </div>
+            </div>
+
+            <!-- Mini bar chart for events -->
+            <div class="mt-4 pt-4 border-t">
+              <div class="flex items-center gap-2">
+                <div class="text-xs text-gray-500">Events:</div>
+                <div class="flex-1 flex gap-1">
+                  <div *ngFor="let _ of [].constructor(item.distinctEventsCount > 10 ? 10 : item.distinctEventsCount || 1)"
+                       class="flex-1 h-6 bg-gradient-to-t from-[#2C4A3C] to-[#4a7c5c] rounded"
+                       [style.height.px]="20 + (item.compositeScore / 5)"></div>
+                  <div *ngIf="item.distinctEventsCount > 10" class="flex items-center px-2 text-xs text-gray-500">
+                    +{{ item.distinctEventsCount - 10 }}
+                  </div>
+                </div>
+                <div class="text-sm font-bold text-gray-700">{{ item.distinctEventsCount }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formula Legend -->
+      <div *ngIf="!isLoadingDashboard && sponsorDashboard.length > 0" class="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-xl">📊</div>
+          <h4 class="font-bold text-blue-900">Score Formula (3 Criteria)</h4>
+        </div>
+        <div class="grid grid-cols-3 gap-3 text-sm">
+          <div class="bg-white/50 rounded-lg p-3 text-center">
+            <div class="w-4 h-4 rounded-full bg-blue-500 mx-auto mb-2"></div>
+            <div class="font-bold text-blue-900">33%</div>
+            <div class="text-xs text-blue-700">Total Amount</div>
+          </div>
+          <div class="bg-white/50 rounded-lg p-3 text-center">
+            <div class="w-4 h-4 rounded-full bg-teal-500 mx-auto mb-2"></div>
+            <div class="font-bold text-teal-900">33%</div>
+            <div class="text-xs text-teal-700">Number of Events</div>
+          </div>
+          <div class="bg-white/50 rounded-lg p-3 text-center">
+            <div class="w-4 h-4 rounded-full bg-orange-500 mx-auto mb-2"></div>
+            <div class="font-bold text-orange-900">34%</div>
+            <div class="text-xs text-orange-700">Tenure</div>
+          </div>
+        </div>
+        <div class="mt-3 text-center text-xs text-blue-700">
+          <span class="text-green-600 font-medium">Green ≥70 = High Performer</span> | 
+          <span class="text-red-500 font-medium">Red &lt;70 = Needs Improvement</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t bg-white">
+      <button (click)="closeDashboardModal()" class="w-full py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a]">
+        Close Dashboard
+      </button>
     </div>
   </div>
 </div>

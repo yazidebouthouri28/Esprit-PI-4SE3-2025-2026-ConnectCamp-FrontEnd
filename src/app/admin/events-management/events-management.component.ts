@@ -12,7 +12,7 @@ import { GamificationService } from '../../services/gamification.service';
 import { Badge } from '../../models/gamification.models';
 import { extractPagedContent, isUnreachableApiRoute } from '../../utils/http-api-fallback';
 import { GamificationManagementComponent } from '../gamification-management/gamification-management.component';
-import { BaseChartDirective } from 'ng2-charts';
+import { BaseChartDirective } from '../../shared/charts/base-chart.directive';
 import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
 import { EventService, MLPredictionResponse } from '../../services/event.service';
 import { NotificationService } from '../../services/notification.service';

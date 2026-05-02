@@ -380,6 +380,11 @@ export class EventDetailComponent {
         const user = this.authService.getCurrentUser();
         if (!user) return;
 
+        if (this.authService.isSponsor()) {
+            alert('Sponsors cannot reserve tickets for themselves. An admin must assign you to this event');
+            return;
+        }
+
         this.isProcessing = true;
         // The backend expects RequestParams
         const guestName = user.name || user.username || 'Guest';

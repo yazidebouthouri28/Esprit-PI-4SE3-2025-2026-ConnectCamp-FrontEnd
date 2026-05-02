@@ -1,0 +1,146 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <button (click)="goBack()" class="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to Dashboard</span>
+      </button>
+      <h1 class="text-2xl font-black text-[#1a2e1a]">Sponsorship Overview</h1>
+      <p class="text-sm text-[#617152] font-medium">View sponsorship matches and platform-wide sponsorship history</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Total</p>
+      <p class="text-3xl font-black text-[#1a2e1a]">{{ stats.total }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Pending</p>
+      <p class="text-3xl font-black text-yellow-600">{{ stats.pending }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Accepted</p>
+      <p class="text-3xl font-black text-green-600">{{ stats.accepted }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Declined</p>
+      <p class="text-3xl font-black text-red-600">{{ stats.declined }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Left Column: Possible Matches (Read-Only) -->
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+      <h2 class="text-lg font-bold text-[#1a2e1a] mb-4 flex items-center gap-2">
+        <span>🔍</span> Possible Local Matches
+      </h2>
+      <p class="text-sm text-gray-600 mb-4">
+        These are potential sponsorship opportunities based on event categories and sponsor interests.
+        <strong>Organizers manage all sponsorship assignments for their own events.</strong>
+      </p>
+      
+      <div class="space-y-3 max-h-[500px] overflow-y-auto">
+        <!-- Mock match entries - in real implementation, these would be dynamic -->
+        <div class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold text-[#1a2e1a]">Tech Conference 2024</div>
+              <div class="text-sm text-gray-600">🎯 Matches with: <span class="font-medium">TechCorp Inc.</span></div>
+              <div class="text-xs text-gray-500 mt-1">Category: Technology • Estimated value: 5,000 TND</div>
+            </div>
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">85% Match</span>
+          </div>
+        </div>
+        
+        <div class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold text-[#1a2e1a]">Music Festival</div>
+              <div class="text-sm text-gray-600">🎯 Matches with: <span class="font-medium">SoundSystems Co.</span></div>
+              <div class="text-xs text-gray-500 mt-1">Category: Entertainment • Estimated value: 8,000 TND</div>
+            </div>
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">92% Match</span>
+          </div>
+        </div>
+        
+        <div class="p-4 rounded-xl border border-gray-200 bg-gray-50">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-bold text-[#1a2e1a]">Community Sports Day</div>
+              <div class="text-sm text-gray-600">🎯 Matches with: <span class="font-medium">FitLife Brands</span></div>
+              <div class="text-xs text-gray-500 mt-1">Category: Sports • Estimated value: 3,000 TND</div>
+            </div>
+            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">78% Match</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-sm text-yellow-800">
+        <strong>💡 Note:</strong> Sponsorship management has been moved to the Organizer portal. 
+        Each organizer can request sponsors for their own events only.
+      </div>
+    </div>
+
+    <!-- Right Column: Sponsorships List -->
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-[#1a2e1a]">Sponsorship Requests</h2>
+        <select [(ngModel)]="statusFilter" (change)="loadSponsorships()"
+                class="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/30">
+          <option value="">All Status</option>
+          <option value="REQUESTED">Requested (Sponsor Initiated)</option>
+          <option value="PENDING">Pending (Awaiting Sponsor)</option>
+          <option value="ACCEPTED">Accepted</option>
+          <option value="DECLINED">Declined</option>
+          <option value="APPROVED">Approved</option>
+        </select>
+      </div>
+
+      <div *ngIf="isLoadingSponsorships" class="text-center py-10">
+        <div class="animate-spin h-8 w-8 border-4 border-[#2C4A3C] border-t-transparent rounded-full mx-auto"></div>
+        <p class="mt-2 text-sm text-gray-500">Loading sponsorships...</p>
+      </div>
+
+      <div *ngIf="!isLoadingSponsorships" class="space-y-3 max-h-[800px] overflow-y-auto">
+        <div *ngFor="let sponsorship of sponsorships" 
+             class="p-4 rounded-xl border transition-all"
+             [ngClass]="{
+               'border-purple-200 bg-purple-50': sponsorship.status === 'REQUESTED',
+               'border-yellow-200 bg-yellow-50': sponsorship.status === 'PENDING',
+               'border-green-200 bg-green-50': sponsorship.status === 'ACCEPTED',
+               'border-red-200 bg-red-50': sponsorship.status === 'DECLINED',
+               'border-blue-200 bg-blue-50': sponsorship.status === 'APPROVED'
+             }">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="font-bold text-[#1a2e1a]">{{ sponsorship.sponsor?.name }}</p>
+              <p class="text-sm text-gray-600">{{ sponsorship.event?.title }}</p>
+            </div>
+            <span class="px-2 py-1 rounded-full text-xs font-bold"
+                  [ngClass]="getStatusClass(sponsorship.status)">
+              {{ sponsorship.status }}
+            </span>
+          </div>
+
+          <div class="text-sm text-gray-600 mb-3">
+            <p><span class="font-semibold">Type:</span> {{ sponsorship.sponsorshipType }} | <span class="font-semibold">Level:</span> {{ sponsorship.sponsorshipLevel }}</p>
+            <p><span class="font-semibold">Amount:</span> {{ sponsorship.amount }} {{ sponsorship.currency }}</p>
+            <p><span class="font-semibold">Duration:</span> {{ sponsorship.startDate }} to {{ sponsorship.endDate }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="sponsorships.length === 0" class="text-center py-10 text-gray-500">
+          <p class="text-4xl mb-3">📋</p>
+          <p>No sponsorship requests found.</p>
+          <p class="text-sm mt-1">Assign an event to a sponsor to get started.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

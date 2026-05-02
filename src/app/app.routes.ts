@@ -71,6 +71,12 @@ export const routes: Routes = [
   { path: 'admin', loadComponent: () => import('./admin/admin-panel/admin-panel.component').then(m => m.AdminPanelComponent), canActivate: [AdminGuard] },
   { path: 'admin/gamification', loadComponent: () => import('./admin/gamification-management/gamification-management.component').then(m => m.GamificationManagementComponent), canActivate: [AdminGuard] },
   { path: 'admin/settings', loadComponent: () => import('./components/account-settings/account-settings.component').then(m => m.AccountSettingsComponent), canActivate: [AdminGuard] },
+  { path: 'admin/flagged-messages', loadComponent: () => import('./admin/flagged-messages/flagged-messages.component').then(m => m.FlaggedMessagesComponent), canActivate: [AdminGuard] },
+  { path: 'admin/sponsors', loadComponent: () => import('./admin/sponsors-management/sponsors-management.component').then(m => m.SponsorsManagementComponent), canActivate: [AdminGuard] },
+  { path: 'admin/sponsorship-assignment', loadComponent: () => import('./admin/sponsorship-assignment/sponsorship-assignment.component').then(m => m.SponsorshipAssignmentComponent), canActivate: [AdminGuard] },
+
+  // --- Sponsor routes ---
+  { path: 'sponsor/events', loadComponent: () => import('./components/sponsor-event-request/sponsor-event-request.component').then(m => m.SponsorEventRequestComponent), canActivate: [AuthGuard], data: { role: 'SPONSOR' } },
 
   // --- Authentication routes ---
   { path: 'auth', loadComponent: () => import('./components/auth/auth.component').then(m => m.AuthComponent) },
@@ -93,6 +99,11 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/events-management/events-management.component').then(m => m.EventsAdminManagementComponent),
     canActivate: [OrganizerGuard],
     data: { defaultTab: 'gamifications' }
+  },
+  {
+    path: 'organizer/sponsorships',
+    loadComponent: () => import('./components/organizer-sponsorships/organizer-sponsorships.component').then(m => m.OrganizerSponsorshipsComponent),
+    canActivate: [OrganizerOnlyGuard]
   },
 
   // --- Catch‑all: redirect to root (which goes to auth) ---

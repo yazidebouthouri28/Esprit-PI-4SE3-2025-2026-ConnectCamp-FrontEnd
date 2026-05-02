@@ -1,0 +1,89 @@
+/* Organizer Sponsorships Component Styles */
+
+/* Smooth scrolling for lists */
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #2C4A3C #f1f1f1;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #2C4A3C;
+  border-radius: 3px;
+}
+
+/* Event card hover effect */
+.cursor-pointer {
+  transition: all 0.2s ease;
+}
+
+.cursor-pointer:hover {
+  transform: translateY(-1px);
+}
+
+/* Form input focus states */
+input:focus, select:focus, textarea:focus {
+  border-color: #2C4A3C;
+  box-shadow: 0 0 0 3px rgba(44, 74, 60, 0.1);
+}
+
+/* Button hover effects */
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status badge styles */
+.bg-purple-100 {
+  background-color: #f3e8ff;
+}
+
+.text-purple-800 {
+  color: #6b21a8;
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Selected state highlight */
+.selected-border {
+  border-color: #2C4A3C;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .grid-cols-5 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .grid-cols-5 {
+    grid-template-columns: 1fr;
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
