@@ -284,7 +284,10 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (Date.now() >= payload.exp * 1000) { this.logout(); return false; }
       return true;
-    } catch { return true; }
+    } catch {
+      // If we can't decode/validate the token, treat the session as unauthenticated.
+      return false;
+    }
   }
 
   isTokenExpiringSoon(thresholdMs = 5 * 60 * 1000): boolean {

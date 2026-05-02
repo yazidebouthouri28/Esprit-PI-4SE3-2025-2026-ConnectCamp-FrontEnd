@@ -1,5 +1,6 @@
 @if (selectedEvent) {
-<app-event-detail [event]="selectedEvent" (back)="clearSelection()"></app-event-detail>
+<app-event-detail [event]="selectedEvent" (back)="clearSelection()"
+  (reservationSuccess)="loadEvents()"></app-event-detail>
 } @else {
 <section id="events" class="py-16 px-4 sm:px-6 lg:px-8 bg-sage/20">
   <div class="mx-auto max-w-7xl">
@@ -37,10 +38,11 @@
       </div>
       } @else {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        @for (event of recommendedEvents; track event.id) {
+        @for (event of rotatingRecommendedEvents; track event.id) {
         <div (click)="selectEvent(event)"
           class="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-forest/5 relative h-[32rem]">
           <img [src]="event.image" [alt]="event.title"
+            (error)="$any($event.target).src='https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1080'"
             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms]">
           <div class="absolute inset-0 bg-gradient-to-t from-forest via-forest/20 to-transparent"></div>
 
@@ -70,6 +72,13 @@
               </button>
             </div>
           </div>
+
+          @if (recommendedEvents.length > 2) {
+          <div class="recommendation-vertical-progress">
+            <div class="recommendation-vertical-progress__fill" [style.height.%]="recommendationProgressPct"></div>
+          </div>
+          <div class="recommendation-vertical-progress__seconds">{{ recommendationSecondsLeft }}s</div>
+          }
         </div>
         }
       </div>
@@ -77,21 +86,162 @@
     </div>
 
     <!-- ALL EVENTS SECTION -->
-    <div class="mb-8 text-center md:text-left border-t border-forest/5 pt-16">
+    <div class="mb-12 border-t border-forest/5 pt-16">
+
+      <!-- Filter Bar -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 mb-8 flex flex-col gap-4 relative z-10 isolate">
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Search -->
+          <div class="relative">
+            <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" placeholder="Search events..."
+              class="pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-forest/30 text-sm font-semibold text-gray-700 w-48 xl:w-64 transition-shadow">
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="sort-dropdown">
+            <button type="button" class="sort-trigger" [class.open]="sortDropdownOpen"
+              (click)="sortDropdownOpen = !sortDropdownOpen">
+              <span class="sort-trigger-icon">✨</span>
+              <span class="sort-trigger-label">{{ sortLabel }}</span>
+              <svg class="sort-chevron" [class.rotated]="sortDropdownOpen" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="sort-panel" [class.visible]="sortDropdownOpen">
+              <button type="button" class="sort-option" [class.active]="sortBy === 'date'" (click)="setSortBy('date')">
+                <span class="sort-option-icon">📅</span> Soonest First
+              </button>
+              <button type="button" class="sort-option" [class.active]="sortBy === 'highestRated'"
+                (click)="setSortBy('highestRated')">
+                <span class="sort-option-icon">⭐</span> Most Liked
+              </button>
+              <button type="button" class="sort-option" [class.active]="sortBy === 'lowestPrice'"
+                (click)="setSortBy('lowestPrice')">
+                <span class="sort-option-icon">💵</span> Lowest Price
+              </button>
+              <button type="button" class="sort-option" [class.active]="sortBy === 'mostRewards'"
+                (click)="setSortBy('mostRewards')">
+                <span class="sort-option-icon">🎁</span> Most Rewards
+              </button>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="h-7 w-px bg-gray-200 hidden sm:block"></div>
+
+          <!-- Type Filters -->
+          <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden sm:inline">Type</span>
+          <label class="filter-chip">
+            <input type="checkbox" [(ngModel)]="typeTrip" (ngModelChange)="applyFilters()" class="sr-only"> 🏕️ Trip
+          </label>
+          <label class="filter-chip">
+            <input type="checkbox" [(ngModel)]="typeWorkshop" (ngModelChange)="applyFilters()" class="sr-only"> 🛠️
+            Workshop
+          </label>
+          <label class="filter-chip">
+            <input type="checkbox" [(ngModel)]="typeFestival" (ngModelChange)="applyFilters()" class="sr-only"> 🎸
+            Festival
+          </label>
+          <label class="filter-chip">
+            <input type="checkbox" [(ngModel)]="tagRewards" (ngModelChange)="applyFilters()" class="sr-only"> 🎁 Rewards
+          </label>
+
+           <!-- Spacer -->
+           <div class="flex-1"></div>
+
+           <!-- Count + View Toggle -->
+           <div class="flex items-center gap-4 border-l border-gray-200 pl-4">
+            @if (pinnedCount > 0) {
+              <button type="button" (click)="openPinnedEvents($event)"
+                class="relative p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 transition-colors border border-amber-200 shadow-sm"
+                title="Voir les événements épinglés">
+                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M12.914 2.5a1.5 1.5 0 0 1 2.121 0l.965.965a1.5 1.5 0 0 1 0 2.121l-2.11 2.11.648 3.244a1 1 0 0 1-.276.894l-1.414 1.414a1 1 0 0 1-1.707-.293l-1.017-2.544-4.197 4.197a.75.75 0 0 1-1.06-1.06l4.197-4.197-2.544-1.017a1 1 0 0 1-.293-1.707l1.414-1.414a1 1 0 0 1 .894-.276l3.244.648 2.11-2.11a1.5 1.5 0 0 1 0-2.121l-.965-.965Z" />
+                </svg>
+                <span
+                  class="absolute -top-1 -right-1 bg-amber-600 text-white text-[10px] font-black rounded-full min-w-5 h-5 px-1 flex items-center justify-center shadow">
+                  {{ pinnedCount }}
+                </span>
+              </button>
+            }
+              <span class="text-sm font-bold text-gray-600 whitespace-nowrap"><span class="text-forest text-lg">{{
+                  filteredEvents.length }}</span> events</span>
+              <button type="button" (click)="toggleViewMode()"
+                class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors border border-gray-200 shadow-sm"
+                [title]="viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'">
+              @if (viewMode === 'list') {
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                </path>
+              </svg>
+              } @else {
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                </path>
+              </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <!-- Price Slider -->
+        <div class="price-slider-panel">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Price Range (DT)</p>
+          <div class="range-inputs">
+            <div class="range-track-bg"></div>
+            <div class="range-track-fill" [style.left.%]="rangeFillLeftPct" [style.width.%]="rangeFillWidthPct"></div>
+            <input type="range" [min]="priceAbsMin" [max]="priceAbsMax" [(ngModel)]="priceRangeLow"
+              (input)="onPriceLowChange()" />
+            <input type="range" [min]="priceAbsMin" [max]="priceAbsMax" [(ngModel)]="priceRangeHigh"
+              (input)="onPriceHighChange()" />
+          </div>
+          <div class="flex justify-between text-xs font-black text-gray-600 mt-2">
+            <span class="px-2 py-0.5 rounded-lg border border-forest/20 text-forest bg-white">{{ priceRangeLow }}
+              DT</span>
+            <span class="px-2 py-0.5 rounded-lg border border-forest/20 text-forest bg-white">{{ priceRangeHigh }}
+              DT</span>
+          </div>
+        </div>
+      </div>
+
       <h2 class="text-4xl font-black text-forest mb-2 tracking-tighter uppercase">Discover All Events</h2>
       <p class="text-olive font-bold text-sm tracking-widest uppercase opacity-60">
-        Loaded from database
+        {{ filteredEvents.length }} events found
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      @for (event of events; track event.id) {
+    <div
+      [ngClass]="viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8' : 'flex flex-col gap-6'">
+      @for (event of filteredEvents; track event.id) {
+
+      @if (viewMode === 'grid') {
       <div (click)="selectEvent(event)"
         class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-sage/30 cursor-pointer group">
         <div class="relative h-48 overflow-hidden">
           <img [src]="event.image" [alt]="event.title"
+            (error)="$any($event.target).src='https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1080'"
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
           <div class="absolute top-4 right-4 flex flex-col gap-2 items-end z-10">
+            <button type="button" (click)="togglePinned(event, $event)"
+              class="p-2 rounded-xl backdrop-blur bg-white/90 border border-gray-200 shadow hover:bg-white transition-colors"
+              [title]="isPinned(event.id) ? 'Désépingler' : 'Épingler'">
+              <svg class="w-4 h-4" viewBox="0 0 20 20" [attr.fill]="isPinned(event.id) ? 'currentColor' : 'none'"
+                stroke="currentColor" stroke-width="1.7" aria-hidden="true"
+                [ngClass]="isPinned(event.id) ? 'text-amber-700' : 'text-gray-500'">
+                <path
+                  d="M12.914 2.5a1.5 1.5 0 0 1 2.121 0l.965.965a1.5 1.5 0 0 1 0 2.121l-2.11 2.11.648 3.244a1 1 0 0 1-.276.894l-1.414 1.414a1 1 0 0 1-1.707-.293l-1.017-2.544-4.197 4.197a.75.75 0 0 1-1.06-1.06l4.197-4.197-2.544-1.017a1 1 0 0 1-.293-1.707l1.414-1.414a1 1 0 0 1 .894-.276l3.244.648 2.11-2.11a1.5 1.5 0 0 1 0-2.121l-.965-.965Z" />
+              </svg>
+            </button>
             <div class="bg-white px-3 py-1 rounded-full shadow-md">
               <span class="text-forest font-bold text-[10px] uppercase tracking-widest">{{ event.type }}</span>
             </div>
@@ -138,10 +288,82 @@
           </button>
         </div>
       </div>
+      } @else {
+      <!-- List View for Events -->
+      <div (click)="selectEvent(event)"
+        class="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all border border-gray-100 flex flex-col md:flex-row h-auto md:h-64 cursor-pointer group">
+        <div class="md:w-1/3 relative h-56 md:h-full flex-shrink-0 overflow-hidden">
+          <img [src]="event.image" [alt]="event.title"
+            (error)="$any($event.target).src='https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1080'"
+            class="w-full h-full object-cover transition-transform duration-[1500ms] group-hover:scale-110" />
+          <div class="absolute top-4 left-4">
+            <div
+              class="bg-forest text-white px-3 py-1 rounded-full shadow-md text-[10px] font-black uppercase tracking-widest">
+              {{ event.type }}
+            </div>
+          </div>
+          <button type="button" (click)="togglePinned(event, $event)"
+            class="absolute top-4 right-4 p-2 rounded-xl backdrop-blur bg-white/90 border border-gray-200 shadow hover:bg-white transition-colors"
+            [title]="isPinned(event.id) ? 'Désépingler' : 'Épingler'">
+            <svg class="w-4 h-4" viewBox="0 0 20 20" [attr.fill]="isPinned(event.id) ? 'currentColor' : 'none'"
+              stroke="currentColor" stroke-width="1.7" aria-hidden="true"
+              [ngClass]="isPinned(event.id) ? 'text-amber-700' : 'text-gray-500'">
+              <path
+                d="M12.914 2.5a1.5 1.5 0 0 1 2.121 0l.965.965a1.5 1.5 0 0 1 0 2.121l-2.11 2.11.648 3.244a1 1 0 0 1-.276.894l-1.414 1.414a1 1 0 0 1-1.707-.293l-1.017-2.544-4.197 4.197a.75.75 0 0 1-1.06-1.06l4.197-4.197-2.544-1.017a1 1 0 0 1-.293-1.707l1.414-1.414a1 1 0 0 1 .894-.276l3.244.648 2.11-2.11a1.5 1.5 0 0 1 0-2.121l-.965-.965Z" />
+            </svg>
+          </button>
+        </div>
+        <div class="p-6 md:p-8 flex flex-col justify-between flex-grow">
+          <div>
+            <div class="flex justify-between items-start mb-2">
+              <h3 class="text-3xl font-black text-forest leading-tight group-hover:text-olive transition-colors">
+                {{ event.title }}
+              </h3>
+              <div class="text-right">
+                <div class="text-2xl font-black text-forest">{{ event.price }} DT</div>
+                <div class="text-[10px] text-gray-400 font-black uppercase tracking-widest text-right mt-0.5">per person
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-4 text-olive mb-4 font-semibold text-sm">
+              <div class="flex items-center gap-2">
+                <span>📅</span> {{ event.date }}
+              </div>
+              <div class="flex items-center gap-2">
+                <span>📍</span> {{ event.location }}
+              </div>
+              <div *ngIf="event.gamifications && event.gamifications.length > 0" class="text-orange-500 font-black">
+                🎁 +{{ event.gamifications.length }} Rewards
+              </div>
+            </div>
+
+            <div class="w-full max-w-xs mb-4">
+              <div class="flex justify-between items-end mb-1.5">
+                <span class="text-[9px] font-black text-sage uppercase tracking-widest">
+                  {{ event.participants }}/{{ event.maxParticipants }} Joined
+                </span>
+              </div>
+              <div class="w-full bg-sage/10 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-forest h-full rounded-full transition-all duration-1000"
+                  [style.width.%]="progressPercent(event)"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              class="bg-forest hover:bg-olive text-white px-10 py-3 rounded-xl font-bold transition-all transform active:scale-[0.98] shadow-lg shadow-forest/20 text-xs uppercase tracking-widest">
+              View Details
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+
       }
     </div>
 
-    @if (events.length === 0) {
+    @if (filteredEvents.length === 0) {
     <div class="mt-10 text-center text-olive font-bold opacity-70">
       No events found in database.
     </div>
@@ -150,4 +372,126 @@
     }
   </div>
 </section>
+
+@if (pinnedEventsOpen) {
+  <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="closePinnedEvents()"></div>
+    <div class="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
+      <div class="px-6 py-5 flex items-center justify-between border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-800">
+            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12.914 2.5a1.5 1.5 0 0 1 2.121 0l.965.965a1.5 1.5 0 0 1 0 2.121l-2.11 2.11.648 3.244a1 1 0 0 1-.276.894l-1.414 1.414a1 1 0 0 1-1.707-.293l-1.017-2.544-4.197 4.197a.75.75 0 0 1-1.06-1.06l4.197-4.197-2.544-1.017a1 1 0 0 1-.293-1.707l1.414-1.414a1 1 0 0 1 .894-.276l3.244.648 2.11-2.11a1.5 1.5 0 0 1 0-2.121l-.965-.965Z" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-lg font-black text-forest">Événements épinglés</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ pinnedCount }} items</div>
+          </div>
+        </div>
+        <button type="button" (click)="closePinnedEvents()"
+          class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200">
+          <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 max-h-[70vh] overflow-auto">
+        @if (pinnedBestFit) {
+          <div class="mb-5 p-5 rounded-3xl border border-amber-200/70 bg-gradient-to-br from-amber-50 via-white to-sage/20 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 border border-amber-200 text-amber-900 text-[10px] font-black uppercase tracking-widest mb-2">
+                  Best match
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  Comparison
+                </div>
+                <div class="text-xl font-black text-forest leading-tight truncate">
+                  {{ pinnedBestFit.event.title }}
+                </div>
+                <div class="mt-2 flex items-center gap-2 text-xs font-bold text-olive">
+                  <span class="px-2 py-1 rounded-full bg-amber-100/70 border border-amber-200 text-amber-900 font-black">
+                    Score {{ pinnedBestFit.score }}
+                  </span>
+                  <span class="text-gray-500 font-semibold">Based on your interests, ratings, and recommendations</span>
+                </div>
+              </div>
+              <button type="button" (click)="selectPinnedEvent(pinnedBestFit.event, $event)"
+                class="px-5 py-2.5 rounded-2xl bg-forest hover:bg-olive text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-forest/10 active:scale-[0.98] transition-transform">
+                Open
+              </button>
+            </div>
+
+            <div class="mt-4">
+              <div class="text-xs font-black text-forest mb-2 uppercase tracking-widest">Why this one?</div>
+              <ul class="space-y-2 text-sm text-gray-700 font-semibold">
+                @for (reason of pinnedBestFit.reasons.slice(0, 4); track reason) {
+                  <li class="flex items-start gap-2">
+                    <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-600 flex-shrink-0"></span>
+                    <span class="min-w-0">{{ reason }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-amber-200/60">
+              <div class="text-xs font-black text-forest mb-3 uppercase tracking-widest">Ranking (your pinned events)</div>
+              <div class="flex flex-col gap-2">
+                @for (fit of pinnedFitRanked; track fit.event.id) {
+                  <div class="flex items-center justify-between gap-3 text-sm p-3 rounded-2xl bg-white/70 border border-gray-100">
+                    <div class="min-w-0">
+                      <div class="font-black text-forest truncate">{{ fit.event.title }}</div>
+                      <div class="text-xs text-gray-500 font-semibold truncate mt-0.5">{{ fit.reasons[0] }}</div>
+                    </div>
+                    <div class="flex-shrink-0 text-[10px] font-black px-2.5 py-1.5 rounded-full border border-amber-200 bg-amber-50 text-amber-900">
+                      {{ fit.score }} pts
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (pinnedEvents.length === 0) {
+          <div class="py-8 text-center text-gray-500 font-semibold">
+            Aucun événement épinglé.
+          </div>
+        } @else {
+          <div class="flex flex-col gap-3">
+            @for (ev of pinnedEvents; track ev.id) {
+              <div (click)="selectPinnedEvent(ev, $event)"
+                class="w-full text-left p-4 rounded-2xl border border-gray-200 hover:border-forest/30 hover:bg-sage/10 transition-colors flex items-center gap-4 cursor-pointer">
+                <img [src]="ev.image" [alt]="ev.title"
+                  (error)="$any($event.target).src='https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1080'"
+                  class="w-14 h-14 rounded-2xl object-cover flex-shrink-0" />
+                <div class="min-w-0 flex-1">
+                  <div class="font-black text-forest truncate">{{ ev.title }}</div>
+                  @if (pinnedFitFor(ev.id); as fit) {
+                    <div class="mt-1 text-[11px] font-bold text-gray-600 truncate">
+                      Score <span class="text-amber-800 font-black">{{ fit.score }}</span> · {{ fit.reasons[0] }}
+                    </div>
+                  }
+                  <div class="text-xs text-olive font-semibold truncate">ðŸ“… {{ ev.date }}  â€¢  ðŸ“ {{ ev.location }}</div>
+                </div>
+                <button type="button" (click)="togglePinned(ev, $event)"
+                  class="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200"
+                  title="Désépingler">
+                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M12.914 2.5a1.5 1.5 0 0 1 2.121 0l.965.965a1.5 1.5 0 0 1 0 2.121l-2.11 2.11.648 3.244a1 1 0 0 1-.276.894l-1.414 1.414a1 1 0 0 1-1.707-.293l-1.017-2.544-4.197 4.197a.75.75 0 0 1-1.06-1.06l4.197-4.197-2.544-1.017a1 1 0 0 1-.293-1.707l1.414-1.414a1 1 0 0 1 .894-.276l3.244.648 2.11-2.11a1.5 1.5 0 0 1 0-2.121l-.965-.965Z" />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
 }

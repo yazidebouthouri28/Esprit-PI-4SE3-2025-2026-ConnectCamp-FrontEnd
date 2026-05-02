@@ -30,6 +30,7 @@ export const routes: Routes = [
   // --- Events: public listing ---
   { path: 'events', loadComponent: () => import('./components/events/events-management.component').then(m => m.EventsManagementComponent) },
   { path: 'events/:id', loadComponent: () => import('./components/event-detail/event-detail.component').then(m => m.EventDetailComponent) },
+  { path: 'gamification', loadComponent: () => import('./admin/gamification-management/gamification-management.component').then(m => m.GamificationManagementComponent) },
 
   // --- Events management for admin/organizer (protected) ---
   { path: 'events/manage', loadComponent: () => import('./admin/events-management/events-management.component').then(m => m.EventsAdminManagementComponent), canActivate: [OrganizerOnlyGuard] },
@@ -89,8 +90,9 @@ export const routes: Routes = [
   },
   {
     path: 'organizer/gamification',
-    loadComponent: () => import('./admin/gamification-management/gamification-management.component').then(m => m.GamificationManagementComponent),
-    canActivate: [OrganizerGuard]
+    loadComponent: () => import('./admin/events-management/events-management.component').then(m => m.EventsAdminManagementComponent),
+    canActivate: [OrganizerGuard],
+    data: { defaultTab: 'gamifications' }
   },
 
   // --- Catch‑all: redirect to root (which goes to auth) ---

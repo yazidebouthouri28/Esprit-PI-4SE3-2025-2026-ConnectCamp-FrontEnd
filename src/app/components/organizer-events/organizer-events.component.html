@@ -90,6 +90,7 @@
                 <option>All Status</option>
                 <option>Published</option>
                 <option>Draft</option>
+                <option>Completed</option>
             </select>
         </div>
     </div>
@@ -240,6 +241,11 @@
                                     class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5 hover:text-[#1a2e1a] transition-all">
                                     <span class="text-base">✏️</span> Edit Event
                                 </button>
+                                <button (click)="openParticipantsModal(event); closeActionMenu()"
+                                    class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5 hover:text-[#1a2e1a] transition-all">
+                                    <span class="text-base">👥</span> Manage Participants
+                                </button>
+
                                 @if (event.status === 'Draft') {
                                 <button (click)="publishEvent(event.id); closeActionMenu()"
                                     class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all border-t border-gray-100">
@@ -299,315 +305,403 @@
     }
 </div>
 
-<!-- Add New Event Modal -->
 @if (showAddForm) {
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="closeAddForm()"></div>
+<div
+    class="fixed inset-0 z-[9999] flex items-center justify-center bg-forest/60 backdrop-blur-sm p-4 text-left animate-in fade-in duration-300">
+    <div
+        class="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl zoom-in duration-300 flex flex-col max-h-[90vh]">
 
-    <!-- Modal -->
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
         <!-- Modal Header -->
-        <div class="sticky top-0 bg-[#2C4A3C] px-8 py-6 rounded-t-2xl z-10">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-xl font-black text-white">{{ editingEventId ? 'Edit Event' : 'Create New Event' }}
-                    </h2>
-                    <p class="text-xs text-white/50 font-medium mt-1">{{ editingEventId ? 'Update the event details
-                        below' : 'Fill in the details below to add a new event' }}</p>
-                </div>
-                <button (click)="closeAddForm()"
-                    class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all">
-                    ✕
-                </button>
+        <div class="bg-[#2C4A3C] p-8 flex items-center justify-between text-white shrink-0">
+            <div class="text-left">
+                <h2 class="text-3xl font-black tracking-tighter uppercase">
+                    {{ editingEventId ? 'Edit Event' : 'Create New Event' }}
+                </h2>
+                <p class="text-sage text-sm font-bold opacity-80">
+                    {{ editingEventId ? 'Update the details of your adventure' : 'Fill in the details below to add a new
+                    event' }}
+                </p>
             </div>
+            <button (click)="closeAddForm()"
+                class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
         </div>
 
-        <!-- Modal Body -->
-        <form #eventForm="ngForm" (ngSubmit)="eventForm.form.valid && submitEvent()" class="p-8 space-y-6">
+        <!-- Modal body (Scrollable) -->
+        <div class="p-8 overflow-y-auto custom-scrollbar space-y-8">
 
             <!-- Global Error Alert -->
             @if (modalErrorMessage) {
-            <div class="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-xl animate-shake">
-                <span class="text-red-500 text-lg">⚠️</span>
-                <p class="text-xs font-bold text-red-600 flex-1">{{ modalErrorMessage }}</p>
-                <button type="button" (click)="modalErrorMessage = ''"
-                    class="text-red-400 hover:text-red-600 text-sm font-black">✕</button>
+            <div
+                class="p-4 bg-red-50 border-2 border-red-100 rounded-2xl flex items-center gap-4 animate-in slide-in-from-top-4">
+                <div class="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white shrink-0">⚠️
+                </div>
+                <p class="text-red-700 font-bold text-xs">{{ modalErrorMessage }}</p>
+                <button (click)="modalErrorMessage = ''"
+                    class="ml-auto text-red-400 hover:text-red-600 font-black">✕</button>
             </div>
             }
 
             <!-- Event Name -->
-            <div>
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Event Name</label>
-                <input [(ngModel)]="newEvent.title" name="name" #name="ngModel" required minlength="3" maxlength="200"
-                    type="text" placeholder="e.g. Wilderness Survival Workshop"
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all"
-                    [ngClass]="{'border-red-500 bg-red-50': name.invalid && (name.touched || eventForm.submitted)}">
-                @if (name.invalid && (name.touched || eventForm.submitted)) {
-                <p class="text-[10px] text-red-500 font-bold mt-1">
-                    @if (name.errors?.['required']) { Le nom est obligatoire }
-                    @if (name.errors?.['minlength']) { Minimum 3 caractères }
-                </p>
-                }
+            <div class="space-y-2 text-left">
+                <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Event
+                    Name</label>
+                <input [(ngModel)]="newEvent.title" type="text" placeholder="e.g. Wilderness Survival Workshop"
+                    class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
             </div>
 
             <!-- Description -->
-            <div>
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Description</label>
-                <textarea [(ngModel)]="newEvent.description" name="description" #description="ngModel" required
-                    minlength="10" maxlength="2000" rows="3" placeholder="Describe your event..."
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all resize-none"
-                    [ngClass]="{'border-red-500 bg-red-50': description.invalid && (description.touched || eventForm.submitted)}"></textarea>
-                @if (description.invalid && (description.touched || eventForm.submitted)) {
-                <p class="text-[10px] text-red-500 font-bold mt-1">La description est obligatoire (min 10 caract.)</p>
-                }
+            <div class="space-y-2 text-left">
+                <label
+                    class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Description</label>
+                <textarea [(ngModel)]="newEvent.description" rows="3" placeholder="Describe your event..."
+                    class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest resize-none"></textarea>
             </div>
 
-            <!-- Event Type + Category (2 cols) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Event
+            <!-- Type & Category (Two Cols) -->
+            <div class="grid grid-cols-2 gap-6 text-left">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Event
                         Type</label>
-                    <select [(ngModel)]="newEvent.eventType" name="eventType" #eventType="ngModel" required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all bg-white cursor-pointer"
-                        [ngClass]="{'border-red-500 bg-red-50': eventType.invalid && (eventType.touched || eventForm.submitted)}">
-                        <option value="" disabled>Select event type</option>
+                    <select [(ngModel)]="newEvent.eventType" (ngModelChange)="onPredictionInputChange()"
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest appearance-none">
+                        <option value="" disabled>Select type</option>
                         @for (type of eventTypes; track type) {
                         <option [value]="type">{{ type }}</option>
                         }
                     </select>
-                    @if (eventType.invalid && (eventType.touched || eventForm.submitted)) {
-                    <p class="text-[10px] text-red-500 font-bold mt-1">Le type d'événement est obligatoire</p>
-                    }
-
-                    <!-- Custom Event Type -->
                     @if (newEvent.eventType === 'Other') {
-                    <div class="mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <input [(ngModel)]="otherEventType" name="otherEventType" type="text"
-                            placeholder="Specify event type (Optional)..."
-                            class="w-full px-4 py-2 border border-emerald-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all bg-emerald-50/30">
-                    </div>
+                    <input [(ngModel)]="otherEventType" (ngModelChange)="onPredictionInputChange()" type="text"
+                        placeholder="Specify event type..." required
+                        class="w-full mt-3 px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
                     }
                 </div>
-                <div>
+                <div class="space-y-2">
                     <label
-                        class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Category</label>
-                    <select [(ngModel)]="newEvent.category" name="category" #category="ngModel" required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all bg-white cursor-pointer"
-                        [ngClass]="{'border-red-500 bg-red-50': category.invalid && (category.touched || eventForm.submitted)}">
+                        class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Category</label>
+                    <select [(ngModel)]="newEvent.category" (ngModelChange)="onPredictionInputChange()"
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest appearance-none">
                         <option value="" disabled>Select category</option>
                         @for (cat of categories; track cat) {
                         <option [value]="cat">{{ cat }}</option>
                         }
                     </select>
-                    @if (category.invalid && (category.touched || eventForm.submitted)) {
-                    <p class="text-[10px] text-red-500 font-bold mt-1">La catégorie est obligatoire</p>
-                    }
-
-                    <!-- Custom Category -->
                     @if (newEvent.category === 'Other') {
-                    <div class="mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <input [(ngModel)]="otherCategory" name="otherCategory" type="text"
-                            placeholder="Specify category (Optional)..."
-                            class="w-full px-4 py-2 border border-emerald-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all bg-emerald-50/30">
-                    </div>
+                    <input [(ngModel)]="otherCategory" (ngModelChange)="onPredictionInputChange()" type="text"
+                        placeholder="Specify category..." required
+                        class="w-full mt-3 px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
                     }
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Start
-                        Date</label>
-                    <input [(ngModel)]="newEvent.startDate" name="startDate" #startDate="ngModel" required
-                        type="datetime-local"
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all"
-                        [ngClass]="{'border-red-500 bg-red-50': startDate.invalid && (startDate.touched || eventForm.submitted)}">
-                    @if (startDate.invalid && (startDate.touched || eventForm.submitted)) {
-                    <p class="text-[10px] text-red-500 font-bold mt-1">La date de début est obligatoire</p>
-                    }
-                </div>
-                <div>
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">End
-                        Date</label>
-                    <input [(ngModel)]="newEvent.endDate" name="endDate" #endDate="ngModel" required
-                        type="datetime-local"
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all"
-                        [ngClass]="{'border-red-500 bg-red-50': endDate.invalid && (endDate.touched || eventForm.submitted)}">
-                    @if (endDate.invalid && (endDate.touched || eventForm.submitted)) {
-                    <p class="text-[10px] text-red-500 font-bold mt-1">La date de fin est obligatoire</p>
-                    }
-                </div>
+            @if (predictionLoading) {
+            <div class="rounded-2xl bg-white border border-forest/10 p-5 text-left">
+                <p class="text-[10px] font-black uppercase tracking-widest text-forest/60">AI Prediction</p>
+                <p class="font-black text-forest mt-1">Calculating prediction…</p>
             </div>
-
-            <!-- Location Row -->
-            <div>
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Location</label>
-                <input [(ngModel)]="newEvent.location" name="location" #location="ngModel"
-                    [required]="['CAMPING', 'HIKING', 'OUTDOOR_ACTIVITY'].includes(newEvent.eventType)" type="text"
-                    list="organizer-campsites-options" (ngModelChange)="onLocationComboboxChange($event)"
-                    placeholder="Search or type location..."
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all"
-                    [ngClass]="{'border-red-500 bg-red-50': location.invalid && (location.touched || eventForm.submitted)}">
-                <datalist id="organizer-campsites-options">
-                    @for (site of availableSites; track site.id) { <option [value]="formatSiteLabel(site)"></option> }
-                </datalist>
-                @if (!newEvent.siteId && newEvent.location && newEvent.eventType === 'CAMPING') {
-                <p class="text-[10px] text-orange-500 font-bold mt-1">⚠️ Veuillez choisir un campsite de la liste pour
-                    valider le lieu.</p>
-                }
-                @if (location.invalid && (location.touched || eventForm.submitted)) {
-                <p class="text-[10px] text-red-500 font-bold mt-1">Le lieu est obligatoire pour ce type d'événement</p>
-                }
-            </div>
-
-            <!-- Max Participants + Price (2 cols) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Max
-                        Participants</label>
-                    <input [(ngModel)]="newEvent.maxParticipants" name="maxParticipants" #maxParticipants="ngModel"
-                        required type="number" min="1" placeholder="e.g. 50"
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all"
-                        [ngClass]="{'border-red-500 bg-red-50': maxParticipants.invalid && (maxParticipants.touched || eventForm.submitted)}">
-                    @if (maxParticipants.invalid && (maxParticipants.touched || eventForm.submitted)) {
-                    <p class="text-[10px] text-red-500 font-bold mt-1">Le nombre de participants est obligatoire</p>
-                    }
+            } @else if (showPrediction) {
+            <div class="rounded-3xl bg-white border border-forest/10 p-6 text-left shadow-sm">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-forest/60">AI Prediction</p>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-forest">ML</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Price
-                        (DT)</label>
-                    <input [(ngModel)]="newEvent.price" name="price" type="number" min="0" step="0.01"
-                        (ngModelChange)="onPriceChange()" placeholder="e.g. 45.00" [disabled]="newEvent.isFree"
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all"
-                        [ngStyle]="newEvent.isFree ? {'background-color': '#f3f4f6', 'color': '#9ca3af', 'cursor': 'not-allowed', 'opacity': '0.7'} : {}">
-                </div>
-            </div>
-
-            <!-- Picture -->
-            <div>
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Event
-                    Picture</label>
-                <input type="file" accept="image/*" (change)="onFileSelected($event)" #fileInput class="hidden">
-                @if (!imagePreview) {
-                <div (click)="fileInput.click()"
-                    class="w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-[#2C4A3C]/40 hover:bg-[#2C4A3C]/5 transition-all group"
-                    [ngClass]="{'border-red-500 bg-red-50': eventForm.submitted && !imagePreview, 'border-gray-200': !eventForm.submitted || imagePreview}">
-                    <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform"
-                        [ngClass]="{'bg-red-100': eventForm.submitted && !imagePreview}">
-                        📷
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                    <div class="rounded-2xl bg-forest/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-forest/60">Attendees</p>
+                        <p class="text-2xl font-black text-forest mt-1">{{ predictedAttendees ?? 0 }}</p>
                     </div>
-                    <div class="text-center">
-                        <p class="text-sm font-bold text-[#1a2e1a]">Click to upload a picture</p>
-                        <p class="text-[10px] text-gray-400 font-medium mt-1">JPG, PNG or WebP • Max 5MB</p>
+                    <div class="rounded-2xl bg-forest/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-forest/60">Popularity</p>
+                        <p class="text-xl font-black text-forest mt-1">{{ predictedPopularity || '—' }}</p>
+                    </div>
+                    <div class="rounded-2xl bg-forest/5 p-4">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-forest/60">Badge</p>
+                        <p class="text-sm font-black text-forest mt-2 truncate">{{ suggestedBadge || '—' }}</p>
                     </div>
                 </div>
-                @if (eventForm.submitted && !imagePreview) {
-                <p class="text-[10px] text-red-500 font-bold mt-1 text-center">L'image de l'événement est obligatoire
-                </p>
-                }
-                } @else {
-                <div class="relative rounded-xl overflow-hidden border border-gray-200 group">
-                    <img [src]="imagePreview" alt="Preview" class="w-full h-48 object-cover">
-                    <div
-                        class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
-                        <button type="button" (click)="fileInput.click()"
-                            class="px-4 py-2 bg-white rounded-lg text-xs font-black text-[#1a2e1a] hover:bg-gray-100 transition-all">
-                            Change
-                        </button>
-                        <button type="button" (click)="removeImage()"
-                            class="px-4 py-2 bg-red-500 rounded-lg text-xs font-black text-white hover:bg-red-600 transition-all">
-                            Remove
-                        </button>
-                    </div>
-                    <div
-                        class="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] font-bold px-2 py-1 rounded-md">
-                        {{ selectedFileName }}
-                    </div>
-                </div>
-                }
-                @if (imageError) {
-                <div class="mt-3 flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-xl">
-                    <span class="text-red-500 text-lg">⚠️</span>
-                    <p class="text-xs font-bold text-red-600 flex-1">{{ imageError }}</p>
-                    <button type="button" (click)="imageError = ''"
-                        class="text-red-400 hover:text-red-600 text-sm font-black">✕</button>
-                </div>
-                }
-            </div>
-
-            <!-- Badges Selection -->
-            @if (availableBadges.length > 0) {
-            <div>
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-3">Event Badges
-                    (Gamification)</label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    @for (badge of availableBadges; track badge.id) {
-                    <div (click)="toggleBadgeSelection(badge.id!)"
-                        class="flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group"
-                        [ngClass]="selectedBadgeIds.has(badge.id!) ? 'bg-[#2C4A3C]/5 border-[#2C4A3C] shadow-sm' : 'bg-white border-gray-100 hover:border-gray-300'">
-                        <div
-                            class="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner">
-                            {{ badge.icon }}
-                        </div>
-                        <div class="min-w-0 text-center">
-                            <p class="text-[11px] font-black text-[#1a2e1a] truncate">{{ badge.name }}</p>
-                        </div>
-                        @if (selectedBadgeIds.has(badge.id!)) {
-                        <div class="ml-auto text-[#2C4A3C] font-black text-xs">✓</div>
-                        }
-                    </div>
-                    }
-                </div>
-                <p class="text-[10px] text-gray-400 font-medium mt-2">Participants will earn these badges upon
-                    completing the event.</p>
             </div>
             }
 
-            <!-- Status -->
-            <div>
-                <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Status</label>
-                <select [(ngModel)]="newEvent.status" name="status"
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all bg-white cursor-pointer">
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                </select>
-            </div>
-
-            <!-- Toggles Row -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100">
-                    <div>
-                        <p class="text-sm font-bold text-[#1a2e1a]">Free Event</p>
-                        <p class="text-[10px] text-gray-400 font-medium">No ticket fee required</p>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" [(ngModel)]="newEvent.isFree" name="isFree"
-                            (ngModelChange)="onFreeToggle()" class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2C4A3C]">
-                        </div>
-                    </label>
+            <!-- Start Date & End Date (Two Cols) -->
+            <div class="grid grid-cols-2 gap-6 text-left">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Start
+                        Date</label>
+                    <input [(ngModel)]="newEvent.startDate" type="datetime-local"
+                        (ngModelChange)="onPredictionInputChange()"
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">End
+                        Date</label>
+                    <input [(ngModel)]="newEvent.endDate" type="datetime-local"
+                        (ngModelChange)="onPredictionInputChange()"
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button type="submit" [disabled]="loading"
-                    class="flex-1 px-6 py-3.5 bg-[#2C4A3C] text-white rounded-xl text-sm font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all shadow-lg shadow-[#2C4A3C]/20 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span class="flex items-center justify-center gap-2">
-                        @if (loading) {
-                        <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <!-- Location & Participants (Two Cols) -->
+            <div class="grid grid-cols-2 gap-6 text-left">
+                <div class="space-y-2">
+                    <label
+                        class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Location</label>
+                    <input [(ngModel)]="newEvent.location" type="text" list="organizer-campsites-options"
+                        (ngModelChange)="onLocationComboboxChange($event); onPredictionInputChange()"
+                        placeholder="Search or type location..."
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
+                    <datalist id="organizer-campsites-options">
+                        @for (site of availableSites; track site.id) { <option [value]="formatSiteLabel(site)"></option>
                         }
-                        {{ editingEventId ? '✓ Update Event' : '✓ Create Event' }}
-                    </span>
-                </button>
-                <button type="button" (click)="closeAddForm()"
-                    class="px-6 py-3.5 bg-gray-100 text-gray-500 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-gray-200 hover:text-[#1a2e1a] transition-all">
-                    Cancel
-                </button>
+                    </datalist>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Max
+                        Participants</label>
+                    <input [(ngModel)]="newEvent.maxParticipants" type="number" placeholder="50"
+                        (ngModelChange)="onPredictionInputChange()"
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest">
+                </div>
             </div>
-        </form>
+
+            <!-- Price & Free Toggle (Two Cols) -->
+            <div class="grid grid-cols-2 gap-6 text-left">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Price
+                        (DT)</label>
+                    <input [(ngModel)]="newEvent.price" type="number" [disabled]="newEvent.isFree"
+                        (ngModelChange)="onPriceChange(); onPredictionInputChange()"
+                        class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest disabled:opacity-50">
+                </div>
+                <div class="space-y-2 flex flex-col justify-end">
+                    <div
+                        class="flex items-center justify-between p-4 bg-forest/5 rounded-2xl border-2 border-transparent">
+                        <span class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60">Free
+                            Event</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" [(ngModel)]="newEvent.isFree"
+                                (ngModelChange)="onFreeToggle(); onPredictionInputChange()" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-forest/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-forest">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="space-y-2 text-left">
+                <label
+                    class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Status</label>
+                <select [(ngModel)]="newEvent.status" name="status"
+                    class="w-full px-6 py-4 rounded-2xl bg-forest/5 border-2 border-transparent focus:border-forest/20 focus:bg-white outline-none transition-all font-bold text-forest cursor-pointer">
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                    <option value="COMPLETED">Completed</option>
+                </select>
+            </div>
+
+            <!-- Picture Selection Grid (Admin style) -->
+            <div>
+                <label
+                    class="block text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2 mb-2">Event
+                    Picture</label>
+                <input type="file" accept="image/*" multiple (change)="onFileSelected($event)" #fileInput
+                    class="hidden">
+                @if (imagePreviews.length === 0) {
+                <div (click)="fileInput.click()"
+                    class="w-full border-2 border-dashed border-forest/20 rounded-3xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-forest/5 transition-all">
+                    <div class="w-14 h-14 bg-forest/5 rounded-2xl flex items-center justify-center text-2xl">📷
+                    </div>
+                    <p class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60">Click to upload
+                        one or more pictures</p>
+                </div>
+                } @else {
+                <div class="grid grid-cols-2 gap-3">
+                    @for (preview of imagePreviews; track preview; let i = $index) {
+                    <div class="relative rounded-2xl overflow-hidden border border-forest/10 group h-32">
+                        <img [src]="preview" alt="Preview" class="w-full h-full object-cover">
+                        <div
+                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+                            <button type="button" (click)="removeImageAtIndex(i)"
+                                class="p-2 bg-red-500 rounded-lg text-white text-xs">🗑️</button>
+                        </div>
+                    </div>
+                    }
+                    <div (click)="fileInput.click()"
+                        class="border-2 border-dashed border-forest/20 rounded-2xl flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-forest/5 h-32 transition-all">
+                        <span class="text-xl text-forest/40">+</span>
+                        <span class="text-[8px] font-black text-forest uppercase tracking-widest opacity-60">Add
+                            More</span>
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2 font-bold uppercase tracking-tighter">{{ imagePreviews.length
+                    }} images selected
+                </p>
+                }
+            </div>
+
+            <!-- Badges Selection with Medal Filters -->
+            @if (availableBadges.length > 0) {
+            <div class="space-y-4 text-left border-t border-forest/5 pt-6">
+                <label class="text-[10px] font-black text-forest uppercase tracking-widest opacity-60 ml-2">Event
+                    Badges (Gamification)</label>
+                <div class="flex flex-wrap gap-2 mb-3 px-2">
+                    <button type="button"
+                        class="px-3 py-1.5 rounded-full text-[8px] font-black border-2 transition-all uppercase tracking-widest"
+                        [ngClass]="selectedBadgeMedalFilter === 'ALL' ? 'bg-[#2C4A3C] text-white border-[#2C4A3C]' : 'bg-white text-forest border-forest/10 hover:border-forest/20'"
+                        (click)="setBadgeMedalFilter('ALL')">All Medals</button>
+                    <button type="button"
+                        class="px-3 py-1.5 rounded-full text-[8px] font-black border-2 transition-all uppercase tracking-widest"
+                        [ngClass]="selectedBadgeMedalFilter === 'COMMUNITY' ? 'bg-[#2C4A3C] text-white border-[#2C4A3C]' : 'bg-white text-forest border-forest/10 hover:border-forest/20'"
+                        (click)="setBadgeMedalFilter('COMMUNITY')">Community Leadership</button>
+                    <button type="button"
+                        class="px-3 py-1.5 rounded-full text-[8px] font-black border-2 transition-all uppercase tracking-widest"
+                        [ngClass]="selectedBadgeMedalFilter === 'SCIENCE' ? 'bg-[#2C4A3C] text-white border-[#2C4A3C]' : 'bg-white text-forest border-forest/10 hover:border-forest/20'"
+                        (click)="setBadgeMedalFilter('SCIENCE')">Science and Arts</button>
+                    <button type="button"
+                        class="px-3 py-1.5 rounded-full text-[8px] font-black border-2 transition-all uppercase tracking-widest"
+                        [ngClass]="selectedBadgeMedalFilter === 'SCOUT' ? 'bg-[#2C4A3C] text-white border-[#2C4A3C]' : 'bg-white text-forest border-forest/10 hover:border-forest/20'"
+                        (click)="setBadgeMedalFilter('SCOUT')">Scout Leadership</button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    @for (badge of filteredAvailableBadges; track badge.id) {
+                    <div (click)="toggleBadgeSelection(badge.id!)"
+                        class="flex items-center gap-3 p-3 rounded-2xl border-2 transition-all cursor-pointer group"
+                        [ngClass]="selectedBadgeIds.has(badge.id!) ? 'bg-forest/5 border-forest shadow-sm' : 'bg-white border-forest/5 hover:border-forest/20'">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-forest/5 flex items-center justify-center overflow-hidden shrink-0">
+                            <img [src]="resolveBadgeIcon(badge.icon)" [alt]="badge.name"
+                                class="w-8 h-8 object-contain group-hover:scale-110 transition-transform">
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-black text-forest truncate uppercase tracking-tighter">{{
+                                badge.name }}</p>
+                            <p class="text-[8px] font-bold text-sage opacity-60 uppercase truncate">{{ badge.medalName
+                                || 'Medal' }}</p>
+                        </div>
+                        @if (selectedBadgeIds.has(badge.id!)) {
+                        <div class="ml-auto text-forest font-black text-xs">✓</div>
+                        }
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-8 bg-forest/5 shrink-0 flex gap-4 text-left">
+            <button (click)="closeAddForm()"
+                class="flex-1 px-8 py-4 rounded-2xl border-2 border-forest/10 text-forest font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all">
+                Cancel
+            </button>
+            <button (click)="submitEvent()" [disabled]="loading"
+                class="flex-[2] px-8 py-4 rounded-2xl bg-[#2C4A3C] text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-forest/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50">
+                @if (loading) {
+                <div class="flex items-center justify-center gap-2">
+                    <div class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                    <span>Processing...</span>
+                </div>
+                } @else {
+                {{ editingEventId ? 'Save Changes' : 'Create Event' }}
+                }
+            </button>
+        </div>
+
+    </div>
+</div>
+}
+
+
+<!-- Participants Modal -->
+@if (showParticipantsModal) {
+<div class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="closeParticipantsModal()"></div>
+    <div
+        class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in duration-300">
+        <div class="bg-[#2C4A3C] p-6 text-white shrink-0">
+            <h2 class="text-xl font-black">Participants: {{ currentParticipantsEvent?.title }}</h2>
+            <p class="text-xs text-white/60">Select participants to award badges</p>
+        </div>
+
+        <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+            <div class="space-y-4 text-left">
+                @for (p of participants; track p.id) {
+                <div
+                    class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:bg-gray-50 transition-all">
+                    <input type="checkbox" [checked]="selectedParticipantIds.has(p.id)"
+                        (change)="toggleParticipantSelection(p.id)"
+                        class="w-5 h-5 rounded border-gray-300 text-[#2C4A3C] focus:ring-[#2C4A3C] cursor-pointer accent-[#2C4A3C]">
+                    <div class="flex-1 min-w-0">
+                        <p class="font-black text-[#1a2e1a] text-sm truncate">{{ p.user?.username || 'Unknown User' }}
+                        </p>
+                        <p class="text-[10px] text-gray-400 font-medium">{{ p.user?.email }}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest"
+                        [ngClass]="p.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'">
+                        {{ p.status }}
+                    </span>
+                </div>
+                } @empty {
+                <div class="py-12 text-center text-gray-400">
+                    <span class="text-4xl block mb-2">👥</span>
+                    <p class="font-bold">No participants yet</p>
+                </div>
+                }
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
+            <div class="flex gap-4">
+                <button (click)="awardBadgeModalOpen = true" [disabled]="selectedParticipantIds.size === 0"
+                    class="flex-1 px-6 py-3 bg-[#2C4A3C] text-white rounded-xl text-sm font-black uppercase disabled:opacity-50 hover:bg-[#1a2e1a] transition-all shadow-lg active:scale-95">
+                    Award Badges ({{ selectedParticipantIds.size }})
+                </button>
+                <button (click)="closeParticipantsModal()"
+                    class="px-6 py-3 bg-white border border-gray-200 rounded-xl text-sm font-black hover:bg-gray-50 transition-all">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Select Badge Modal -->
+@if (awardBadgeModalOpen) {
+<div class="fixed inset-0 z-[10001] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" (click)="awardBadgeModalOpen = false"></div>
+    <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 animate-in zoom-in duration-300">
+        <h3 class="text-lg font-black text-[#1a2e1a] mb-6 uppercase tracking-tighter">Select Badge to Award</h3>
+
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            @for (badge of eventAssociatedBadges; track badge.id) {
+            <div (click)="badgeToAwardId = badge.id!"
+                class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center gap-2 text-center group"
+                [ngClass]="badgeToAwardId === badge.id ? 'border-[#2C4A3C] bg-[#2C4A3C]/5' : 'border-gray-50 hover:border-forest/10 hover:bg-gray-50'">
+                <div class="w-12 h-12 bg-forest/5 rounded-xl flex items-center justify-center overflow-hidden mb-1">
+                    <img [src]="resolveBadgeIcon(badge.icon)"
+                        class="w-10 h-10 object-contain group-hover:scale-110 transition-transform">
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-tighter text-forest">{{ badge.name }}</p>
+            </div>
+            } @empty {
+            <div class="col-span-2 p-8 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                <p class="text-xs text-gray-500 font-medium italic">No badges associated with this event.</p>
+            </div>
+            }
+        </div>
+
+        <div class="flex gap-3">
+            <button (click)="awardBadges()"
+                class="flex-1 px-6 py-4 bg-[#2C4A3C] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-forest/20 hover:scale-[1.02] active:scale-95 transition-all">Confirm
+                Award</button>
+            <button (click)="awardBadgeModalOpen = false"
+                class="px-6 py-4 bg-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all text-gray-500">Cancel</button>
+        </div>
     </div>
 </div>
 }

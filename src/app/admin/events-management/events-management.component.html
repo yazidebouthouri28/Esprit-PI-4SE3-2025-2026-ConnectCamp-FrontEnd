@@ -11,6 +11,10 @@
             </p>
         </div>
         <div class="flex gap-3" *ngIf="activeTab === 'events'">
+            <button (click)="openRevenueChart()"
+                class="px-4 py-2 bg-indigo-500 text-white rounded-lg text-sm font-bold hover:bg-indigo-600 transition-all shadow-sm flex items-center gap-2">
+                <span>📊</span> Revenue Chart
+            </button>
             <button (click)="toggleDeleteMode()"
                 class="px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm flex items-center gap-2"
                 [ngClass]="deleteMode ? 'bg-red-500 text-white hover:bg-red-600 border border-red-500' : 'bg-white border border-gray-200 text-[#1a2e1a] hover:bg-gray-50'">
@@ -23,17 +27,17 @@
         </div>
     </div>
 
-    <!-- Sub-navigation Tabs -->
+    <!-- Sub-navigation Tabs (Events & Gamification) -->
     <div class="flex bg-white/50 p-1 rounded-xl border border-gray-100 shadow-sm max-w-fit">
-        <button (click)="activeTab = 'events'"
+        <button type="button" (click)="setActiveTab('events')"
             class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
             [ngClass]="activeTab === 'events' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
             <span class="text-xs">🎪</span> Events
         </button>
-        <button (click)="activeTab = 'gamifications'"
+        <button type="button" (click)="setActiveTab('gamifications')"
             class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
             [ngClass]="activeTab === 'gamifications' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
-            <span class="text-xs">🏆</span> Gamification
+            <span class="text-xs">🏅</span> Gamification
         </button>
     </div>
 
@@ -99,7 +103,8 @@
         <div
             class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
             <div class="relative flex-1 w-full">
-                <input type="text" [(ngModel)]="searchTerm" placeholder="Search events by name or location..."
+                <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()"
+                    placeholder="Search events by name or location..."
                     class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1a2e1a]/10 focus:border-[#1a2e1a]/30 transition-all">
                 <span class="absolute left-3 top-2.5 text-gray-400">🔍</span>
             </div>
@@ -109,6 +114,7 @@
                     <option>All Status</option>
                     <option>Published</option>
                     <option>Draft</option>
+                    <option>Completed</option>
                 </select>
             </div>
         </div>
@@ -214,10 +220,22 @@
                                     class="absolute right-6 top-12 z-50 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[160px] animate-in fade-in">
                                     <button (click)="editEvent(event)"
                                         class="w-full text-left px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5">✏️
-                                        Edit Event</button>
-                                    <button (click)="toggleEventStatus(event)"
+                                        Edit Event </button>
+                                    <button (click)="openParticipantsModal(event)"
+                                        class="w-full text-left px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5">👥
+                                        Manage Participants</button>
+
+                                    <button (click)="setEventStatus(event, 'DRAFT')"
                                         class="w-full text-left px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5">
-                                        {{ event.status === 'Published' ? '📄 Set as Draft' : '🚀 Set as Published' }}
+                                        📄 Set as Draft
+                                    </button>
+                                    <button (click)="setEventStatus(event, 'PUBLISHED')"
+                                        class="w-full text-left px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5">
+                                        🚀 Set as Published
+                                    </button>
+                                    <button (click)="setEventStatus(event, 'COMPLETED')"
+                                        class="w-full text-left px-4 py-2.5 text-sm font-bold text-gray-600 hover:bg-[#2C4A3C]/5">
+                                        ✅ Mark as Completed
                                     </button>
                                     <button (click)="deleteSingleEvent(event.id)"
                                         class="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50">🗑️
@@ -315,12 +333,13 @@
                             <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Event
                                 Type</label>
                             <select [(ngModel)]="newEvent.eventType" name="eventType" required
+                                (ngModelChange)="onPredictionInputChange()"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm bg-white cursor-pointer">
                                 @for (type of eventTypes; track type) { <option [value]="type">{{ type }}</option> }
                             </select>
                             @if (newEvent.eventType === 'Other') {
                             <input [(ngModel)]="otherEventType" name="otherEventType" #otherType="ngModel" type="text"
-                                placeholder="Specify event type..." required
+                                (ngModelChange)="onPredictionInputChange()" placeholder="Specify event type..." required
                                 class="w-full mt-2 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20"
                                 [ngClass]="{'border-red-500 bg-red-50': otherType.invalid && (otherType.touched || eventForm.submitted)}">
                             @if (otherType.invalid && (otherType.touched || eventForm.submitted)) {
@@ -332,12 +351,13 @@
                             <label
                                 class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Category</label>
                             <select [(ngModel)]="newEvent.category" name="category" required
+                                (ngModelChange)="onPredictionInputChange()"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm bg-white cursor-pointer">
                                 @for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }
                             </select>
                             @if (newEvent.category === 'Other') {
                             <input [(ngModel)]="otherCategory" name="otherCategory" #otherCat="ngModel" type="text"
-                                placeholder="Specify category..." required
+                                (ngModelChange)="onPredictionInputChange()" placeholder="Specify category..." required
                                 class="w-full mt-2 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20"
                                 [ngClass]="{'border-red-500 bg-red-50': otherCat.invalid && (otherCat.touched || eventForm.submitted)}">
                             @if (otherCat.invalid && (otherCat.touched || eventForm.submitted)) {
@@ -347,12 +367,41 @@
                         </div>
                     </div>
 
+                    @if (predictionLoading) {
+                    <div class="mt-4 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600">
+                        <p class="font-black text-[#1a2e1a] text-xs uppercase tracking-widest mb-1">AI Prediction</p>
+                        <p class="font-bold">Calculating prediction…</p>
+                    </div>
+                    } @else if (showPrediction) {
+                    <div class="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="font-black text-[#1a2e1a] text-xs uppercase tracking-widest">AI Prediction</p>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-700">ML</span>
+                        </div>
+                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="rounded-xl bg-white border border-emerald-100 p-3">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Attendees</p>
+                                <p class="text-lg font-black text-[#1a2e1a]">{{ predictedAttendees ?? 0 }}</p>
+                            </div>
+                            <div class="rounded-xl bg-white border border-emerald-100 p-3">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Popularity</p>
+                                <p class="text-lg font-black text-[#1a2e1a]">{{ predictedPopularity || '—' }}</p>
+                            </div>
+                            <div class="rounded-xl bg-white border border-emerald-100 p-3">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Badge</p>
+                                <p class="text-sm font-black text-[#1a2e1a] truncate">{{ suggestedBadge || '—' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    }
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Start
                                 Date</label>
                             <input [(ngModel)]="newEvent.startDate" name="startDate" #startDate="ngModel" required
-                                type="datetime-local" class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
+                                type="datetime-local" (ngModelChange)="onPredictionInputChange()"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
                                 [ngClass]="{'border-red-500 bg-red-50': startDate.invalid && (startDate.touched || eventForm.submitted)}">
                             @if (startDate.invalid && (startDate.touched || eventForm.submitted)) {
                             <p class="text-red-500 text-[10px] font-bold mt-1">Date de début obligatoire</p>
@@ -362,7 +411,8 @@
                             <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">End
                                 Date</label>
                             <input [(ngModel)]="newEvent.endDate" name="endDate" #endDate="ngModel" required
-                                type="datetime-local" class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
+                                (ngModelChange)="onPredictionInputChange()" type="datetime-local"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
                                 [ngClass]="{'border-red-500 bg-red-50': (endDate.invalid || (newEvent.startDate && newEvent.endDate && newEvent.startDate >= newEvent.endDate)) && (endDate.touched || eventForm.submitted)}">
                             @if ((endDate.invalid || (newEvent.startDate && newEvent.endDate && newEvent.startDate >=
                             newEvent.endDate)) && (endDate.touched || eventForm.submitted)) {
@@ -376,7 +426,8 @@
 
                     <div>
                         <input [(ngModel)]="newEvent.location" name="location" #location="ngModel" type="text"
-                            list="campsites-options" (ngModelChange)="onLocationComboboxChange($event)" required
+                            list="campsites-options"
+                            (ngModelChange)="onLocationComboboxChange($event); onPredictionInputChange()" required
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
                             placeholder="Search or type location..."
                             [ngClass]="{'border-red-500 bg-red-50': location.invalid && (location.touched || eventForm.submitted)}">
@@ -398,8 +449,8 @@
                             <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Max
                                 Participants</label>
                             <input [(ngModel)]="newEvent.maxParticipants" name="maxParticipants"
-                                #maxParticipants="ngModel" required type="number" min="1"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
+                                (ngModelChange)="onPredictionInputChange()" #maxParticipants="ngModel" required
+                                type="number" min="1" class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm"
                                 [ngClass]="{'border-red-500 bg-red-50': (maxParticipants.invalid && (maxParticipants.touched || eventForm.submitted)) || (newEvent.maxParticipants !== null && newEvent.maxParticipants < 1)}">
                             @if ((maxParticipants.invalid && (maxParticipants.touched || eventForm.submitted)) ||
                             (newEvent.maxParticipants !== null && newEvent.maxParticipants < 1)) { <p
@@ -410,7 +461,7 @@
                             <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-2">Price
                                 (DT)</label>
                             <input [(ngModel)]="newEvent.price" name="price" #price="ngModel" type="number" min="0"
-                                [disabled]="newEvent.isFree"
+                                [disabled]="newEvent.isFree" (ngModelChange)="onPredictionInputChange()"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm disabled:bg-gray-100"
                                 [ngClass]="{'border-red-500 bg-red-50': !newEvent.isFree && (price.invalid && (price.touched || eventForm.submitted) || (newEvent.price !== null && newEvent.price < 0))}">
                             @if (!newEvent.isFree && ((price.invalid && (price.touched || eventForm.submitted)) ||
@@ -503,6 +554,7 @@
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/20 focus:border-[#2C4A3C]/40 transition-all bg-white cursor-pointer">
                             <option value="DRAFT">Draft</option>
                             <option value="PUBLISHED">Published</option>
+                            <option value="COMPLETED">Completed</option>
                         </select>
                     </div>
 
@@ -515,7 +567,7 @@
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" [(ngModel)]="newEvent.isFree" name="isFree"
-                                    (ngModelChange)="onFreeToggle()" class="sr-only peer">
+                                    (ngModelChange)="onFreeToggle(); onPredictionInputChange()" class="sr-only peer">
                                 <div
                                     class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2C4A3C]">
                                 </div>
@@ -532,6 +584,135 @@
                             class="px-6 py-3.5 bg-gray-100 text-gray-500 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-gray-200 transition-all">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+        }
+
+        <!-- Revenue Chart Modal -->
+        @if (showRevenueChart) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="closeRevenueChart()"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[85vh] p-6 flex flex-col">
+                <div class="flex justify-between items-start gap-6 shrink-0">
+                    <div>
+                        <h2 class="text-2xl font-black text-[#1a2e1a]">Event Revenue Analytics</h2>
+                        <p class="text-sm text-gray-500 font-medium">Financial performance summary for all events</p>
+                    </div>
+                    <button (click)="closeRevenueChart()"
+                        class="text-gray-400 hover:text-gray-600 text-xl leading-none px-2">✕</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 flex-1 min-h-0 overflow-auto">
+                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 flex flex-col min-h-[360px]">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Revenue &
+                            Participation</h3>
+                        <div class="flex-1 min-h-0">
+                            <canvas class="w-full h-full" baseChart [data]="barChartData" [options]="barChartOptions"
+                                [type]="barChartType">
+                            </canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 flex flex-col min-h-[360px]">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">Events by Category
+                        </h3>
+                        @if ((doughnutChartData.datasets[0].data.length || 0) === 0) {
+                        <div class="flex-1 min-h-0 flex items-center justify-center text-sm font-bold text-gray-400">
+                            No category data to display
+                        </div>
+                        } @else {
+                        <div class="flex-1 min-h-0">
+                            <canvas class="w-full h-full" baseChart [data]="doughnutChartData"
+                                [options]="doughnutChartOptions" [type]="doughnutChartType">
+                            </canvas>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Participants Modal -->
+        @if (showParticipantsModal) {
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="closeParticipantsModal()"></div>
+            <div
+                class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+                <div class="bg-[#2C4A3C] p-6 text-white shrink-0">
+                    <h2 class="text-xl font-black">Participants: {{ currentParticipantsEvent?.title }}</h2>
+                    <p class="text-xs text-white/60">Select participants to award badges</p>
+                </div>
+
+                <div class="p-6 overflow-y-auto flex-1">
+                    <div class="space-y-4">
+                        @for (p of participants; track p.id) {
+                        <div
+                            class="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:bg-gray-50 transition-all">
+                            <input type="checkbox" [checked]="selectedParticipantIds.has(p.id)"
+                                (change)="toggleParticipantSelection(p.id)" class="w-5 h-5 rounded accent-[#2C4A3C]">
+                            <div class="w-10 h-10 rounded-full bg-[#1a2e1a]/5 flex items-center justify-center text-lg">
+                                👤</div>
+                            <div class="flex-1">
+                                <p class="font-bold text-[#1a2e1a]">{{ p.user?.username }}</p>
+                                <p class="text-xs text-gray-400">{{ p.user?.email }}</p>
+                            </div>
+                            <span
+                                class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-700">Confirmed</span>
+                        </div>
+                        }
+                    </div>
+
+                    @if (participants.length === 0) {
+                    <div class="text-center py-12">
+                        <span class="text-4xl block mb-2">👤</span>
+                        <p class="font-bold text-gray-400">No participants found for this event.</p>
+                    </div>
+                    }
+                </div>
+
+                <div class="p-6 border-t border-gray-100 bg-gray-50 shrink-0">
+                    <div class="flex gap-4">
+                        <button (click)="awardBadgeModalOpen = true" [disabled]="selectedParticipantIds.size === 0"
+                            class="flex-1 px-6 py-3 bg-[#2C4A3C] text-white rounded-xl text-sm font-black uppercase disabled:opacity-50">
+                            Award Badges ({{ selectedParticipantIds.size }})
+                        </button>
+                        <button (click)="closeParticipantsModal()"
+                            class="px-6 py-3 bg-white border border-gray-200 rounded-xl text-sm font-black">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Select Badge Modal -->
+        @if (awardBadgeModalOpen) {
+        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" (click)="awardBadgeModalOpen = false"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+                <h3 class="text-lg font-black text-[#1a2e1a] mb-6">Select Badge to Award</h3>
+
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    @for (badge of eventAssociatedBadges; track badge.id) {
+                    <div (click)="badgeToAwardId = badge.id!"
+                        class="p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center gap-2 text-center"
+                        [ngClass]="badgeToAwardId === badge.id ? 'border-[#2C4A3C] bg-[#2C4A3C]/5' : 'border-gray-100 hover:border-gray-200'">
+                        <img [src]="resolveBadgeIcon(badge.icon)" class="w-10 h-10 object-contain">
+                        <p class="text-[10px] font-black uppercase">{{ badge.name }}</p>
+                    </div>
+                    } @empty {
+                    <div class="col-span-2 p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                        <p class="text-xs text-gray-500 font-medium italic">No badges associated with this event.</p>
+                    </div>
+                    }
+                </div>
+
+                <div class="flex gap-3">
+                    <button (click)="awardBadges()"
+                        class="flex-1 px-6 py-3 bg-[#2C4A3C] text-white rounded-xl text-sm font-black uppercase">Confirm
+                        Award</button>
+                    <button (click)="awardBadgeModalOpen = false"
+                        class="px-6 py-3 bg-gray-100 rounded-xl text-sm font-black uppercase">Cancel</button>
+                </div>
             </div>
         </div>
         }

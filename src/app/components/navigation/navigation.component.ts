@@ -5,11 +5,12 @@ import { AuthService } from '../../services/auth.service';
 import { AccountProfileService } from '../../services/account-profile.service';
 import { ViewModeService } from '../../services/view-mode.service';
 import { Subscription } from 'rxjs';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-navigation',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NotificationBellComponent],
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.css']
 })
@@ -54,7 +55,17 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   /** True only for organizer role (not admin). */
   get showManageMyEvents(): boolean {
-    return this.authService.hasOrganizerAccess();
+    return this.authService.isOrganizer();
+  }
+
+  get gamificationRoute(): string {
+    if (this.authService.isAdmin()) {
+      return '/admin/gamification';
+    }
+    if (this.authService.hasOrganizerAccess()) {
+      return '/organizer/gamification';
+    }
+    return '/gamification';
   }
 
   get isAdmin(): boolean {

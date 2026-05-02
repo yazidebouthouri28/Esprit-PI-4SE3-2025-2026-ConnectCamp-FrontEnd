@@ -2,7 +2,7 @@ import { Component, HostListener, OnInit, inject, ChangeDetectorRef } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SiteService } from '../../services/site.service';
 import { environment } from '../../../environments/environment';
@@ -10,7 +10,25 @@ import { Site } from '../../models/camping.models';
 import { ApiResponse } from '../../models/api.models';
 import { GamificationService } from '../../services/gamification.service';
 import { Badge } from '../../models/gamification.models';
+import { extractPagedContent, isUnreachableApiRoute } from '../../utils/http-api-fallback';
 import { GamificationManagementComponent } from '../gamification-management/gamification-management.component';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
+import { EventService, MLPredictionResponse } from '../../services/event.service';
+import { NotificationService } from '../../services/notification.service';
+
+interface EventRevenue {
+    eventTitle: string;
+    organizerName: string;
+    totalRevenue: number;
+    participantCount: number;
+}
+
+interface Participant {
+    id: number;
+    user: any;
+    status: string;
+}
 
 interface AdminEvent {
     id: number;
@@ -60,7 +78,7 @@ interface EventForm {
 @Component({
     selector: 'app-events-admin-management',
     standalone: true,
-    imports: [CommonModule, FormsModule, GamificationManagementComponent],
+    imports: [CommonModule, FormsModule, GamificationManagementComponent, BaseChartDirective],
     templateUrl: './events-management.component.html',
     styleUrls: ['./events-management.component.css']
 })
@@ -69,9 +87,12 @@ export class EventsAdminManagementComponent implements OnInit {
     private http = inject(HttpClient);
     private cdr = inject(ChangeDetectorRef);
     private route = inject(ActivatedRoute);
+    private router = inject(Router);
     private authService = inject(AuthService);
     private siteService = inject(SiteService);
     private gamificationService = inject(GamificationService);
+    private eventService = inject(EventService);
+    private notifications = inject(NotificationService);
 
     private apiUrl = `${environment.apiUrl}/api/events`;
     private uploadUrl = `${environment.apiUrl}/api/files/upload`;
@@ -83,6 +104,17 @@ export class EventsAdminManagementComponent implements OnInit {
     }
 
     activeTab: 'events' | 'gamifications' = 'events';
+
+    setActiveTab(tab: 'events' | 'gamifications') {
+        this.activeTab = tab;
+        // Keep URL in sync so refresh/deep links preserve the selected tab.
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { tab },
+            queryParamsHandling: 'merge',
+            replaceUrl: true
+        });
+    }
 
     showAddForm = false;
     deleteMode = false;
@@ -100,9 +132,160 @@ export class EventsAdminManagementComponent implements OnInit {
     otherCategory = '';
     myOrganizerId: number | null = null;
     availableBadges: Badge[] = [];
+    eventAssociatedBadges: Badge[] = [];
     selectedBadgeIds = new Set<number>();
     selectedBadgeMedalFilter: 'ALL' | 'COMMUNITY' | 'SCIENCE' | 'SCOUT' = 'ALL';
     availableSites: Site[] = [];
+
+    showPrediction = false;
+    predictionLoading = false;
+    predictedAttendees: number | null = null;
+    predictedPopularity: string | null = null;
+    suggestedBadge: string | null = null;
+    private predictTimer: any = null;
+
+
+
+    // Revenue Chart state
+    showRevenueChart = false;
+    revenueData: EventRevenue[] = [];
+
+    private truncateLabel(label: string, max = 28): string {
+        const clean = String(label ?? '').trim();
+        if (clean.length <= max) return clean;
+        return clean.slice(0, Math.max(0, max - 1)).trimEnd() + '…';
+    }
+
+    private buildEventLabel(row: EventRevenue): string {
+        const title = String(row?.eventTitle ?? '').trim() || 'Untitled event';
+        const organizer = String(row?.organizerName ?? '').trim() || 'Organizer';
+        return `${title} (${organizer})`;
+    }
+
+    private pickCategoryColors(count: number): string[] {
+        const palette = ['#2C4A3C', '#617152', '#8EA07F', '#B4C1A5', '#D6DED0', '#1a2e1a', '#4a6741', '#6B8E23', '#2F855A', '#4B5563'];
+        const colors: string[] = [];
+        for (let i = 0; i < count; i++) {
+            colors.push(palette[i % palette.length]);
+        }
+        return colors;
+    }
+
+    public barChartOptions: ChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.06)' },
+                ticks: {
+                    precision: 0
+                },
+                title: { display: true, text: 'Revenue (DT)', color: '#6b7280', font: { weight: 'bold' } }
+            },
+            x2: {
+                beginAtZero: true,
+                position: 'top',
+                grid: { drawOnChartArea: false },
+                ticks: { precision: 0 },
+                title: { display: true, text: 'Participants', color: '#6b7280', font: { weight: 'bold' } }
+            },
+            y: {
+                grid: { display: false },
+                ticks: {
+                    autoSkip: false,
+                    callback: (value: any) => {
+                        const idx = Number(value);
+                        const labels = (this.barChartData?.labels as any[]) || [];
+                        const label = Number.isFinite(idx) ? labels[idx] : value;
+                        return this.truncateLabel(String(label ?? ''), 22);
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: { display: true, position: 'bottom' },
+            tooltip: {
+                callbacks: {
+                    title: (items: any[]) => {
+                        const raw = items?.[0]?.label;
+                        return raw ? String(raw) : '';
+                    },
+                    label: (ctx: any) => {
+                        const datasetLabel = String(ctx?.dataset?.label ?? '');
+                        const value = Number(ctx?.parsed?.x ?? ctx?.parsed ?? 0);
+                        if (datasetLabel.toLowerCase().includes('revenue')) {
+                            return `${datasetLabel}: ${value} DT`;
+                        }
+                        return `${datasetLabel}: ${value}`;
+                    }
+                }
+            }
+        }
+    };
+    public barChartType: ChartType = 'bar';
+    public barChartData: ChartConfiguration<'bar'>['data'] = {
+        labels: [],
+        datasets: [
+            {
+                data: [],
+                label: 'Revenue (DT)',
+                xAxisID: 'x',
+                backgroundColor: 'rgba(44, 74, 60, 0.85)',
+                borderColor: '#2C4A3C',
+                borderWidth: 0,
+                borderRadius: 6,
+                barThickness: 14
+            },
+            {
+                data: [],
+                label: 'Participants',
+                xAxisID: 'x2',
+                backgroundColor: 'rgba(97, 113, 82, 0.75)',
+                borderColor: '#617152',
+                borderWidth: 0,
+                borderRadius: 6,
+                barThickness: 14
+            }
+        ]
+    };
+
+    // New Category Chart
+    public doughnutChartOptions: ChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'right', align: 'center' },
+            tooltip: {
+                callbacks: {
+                    label: (ctx: any) => {
+                        const label = ctx?.label ? String(ctx.label) : 'Category';
+                        const val = Number(ctx?.parsed ?? 0);
+                        return `${label}: ${val}`;
+                    }
+                }
+            }
+        }
+    };
+    public doughnutChartType: ChartType = 'doughnut';
+    public doughnutChartData: ChartConfiguration<'doughnut'>['data'] = {
+        labels: [],
+        datasets: [{
+            data: [],
+            backgroundColor: this.pickCategoryColors(0),
+            borderWidth: 0,
+            hoverOffset: 6
+        }]
+    };
+
+    // Participant state
+    showParticipantsModal = false;
+    currentParticipantsEvent: AdminEvent | null = null;
+    participants: Participant[] = [];
+    selectedParticipantIds = new Set<number>();
+    awardBadgeModalOpen = false;
+    badgeToAwardId: number | null = null;
 
     private readonly ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
     private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -164,6 +347,18 @@ export class EventsAdminManagementComponent implements OnInit {
 
         // Handle direct navigation for Add/Edit
         this.route.queryParams.subscribe(params => {
+            const tab = String(params['tab'] ?? '').toLowerCase();
+            if (tab === 'gamifications' || tab === 'gamification') {
+                this.activeTab = 'gamifications';
+            } else if (tab === 'events') {
+                this.activeTab = 'events';
+            } else {
+                const defaultTab = String(this.route.snapshot.data?.['defaultTab'] ?? '').toLowerCase();
+                if (defaultTab === 'gamifications' || defaultTab === 'gamification') {
+                    this.activeTab = 'gamifications';
+                }
+            }
+
             const action = params['action'];
             const id = params['id'];
 
@@ -180,9 +375,92 @@ export class EventsAdminManagementComponent implements OnInit {
                     }
                 }, 100);
                 setTimeout(() => clearInterval(checkInterval), 3000);
+            } else if (action === 'award-badges' && id) {
+                const checkInterval = setInterval(() => {
+                    if (!this.loading) {
+                        const event = this.events.find(e => e.id === Number(id));
+                        if (event) {
+                            this.openParticipantsModal(event);
+                        }
+                        clearInterval(checkInterval);
+                    }
+                }, 100);
+                setTimeout(() => clearInterval(checkInterval), 3000);
             }
         });
     }
+
+    onPredictionInputChange() {
+        if (this.predictTimer) {
+            clearTimeout(this.predictTimer);
+        }
+
+        this.predictTimer = setTimeout(() => this.predictNow(), 350);
+    }
+
+    private predictNow() {
+        const category = (this.newEvent.category === 'Other' ? this.otherCategory : this.newEvent.category) || '';
+        const eventType = (this.newEvent.eventType === 'Other' ? this.otherEventType : this.newEvent.eventType) || '';
+        const start = this.parseLocalDateTime(this.newEvent.startDate);
+        const end = this.parseLocalDateTime(this.newEvent.endDate);
+
+        if (!category || !eventType || !start) {
+            this.showPrediction = false;
+            return;
+        }
+
+        const durationHours = (end && start && end.getTime() > start.getTime())
+            ? Math.max(1, Math.round((end.getTime() - start.getTime()) / 3600000))
+            : 2;
+
+        const state = (this.newEvent.location || '').trim() || 'Tunis';
+        const price = this.newEvent.isFree ? 0 : (this.newEvent.price != null ? Number(this.newEvent.price) : 0);
+
+        const request = {
+            category,
+            event_type: eventType,
+            state,
+            hour: start.getHours(),
+            month: start.getMonth() + 1,
+            day_of_week: this.toMondayFirstDayOfWeek(start.getDay()),
+            duration_hours: durationHours,
+            price
+        };
+
+        this.predictionLoading = true;
+        this.eventService.predictEvent(request).subscribe({
+            next: (prediction: MLPredictionResponse) => {
+                this.showPrediction = true;
+                const rawPred = Number(prediction.predicted_attendees ?? 0);
+                const max = Number(this.newEvent.maxParticipants ?? 0);
+                this.predictedAttendees = (max > 0) ? Math.min(rawPred, max) : rawPred;
+                this.predictedPopularity = String(prediction.popularity ?? '');
+                this.suggestedBadge = String(prediction.badge_suggestion ?? '');
+                this.predictionLoading = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.predictionLoading = false;
+                this.showPrediction = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    private parseLocalDateTime(value: string | null | undefined): Date | null {
+        const raw = String(value ?? '').trim();
+        if (!raw) return null;
+        const d = new Date(raw);
+        return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    private toMondayFirstDayOfWeek(jsDay: number): number {
+        // JS: 0=Sunday..6=Saturday -> ML: 0=Monday..6=Sunday
+        return (jsDay + 6) % 7;
+    }
+
+
+
 
     private loadSites() {
         this.siteService.getAllSites().subscribe({
@@ -233,6 +511,198 @@ export class EventsAdminManagementComponent implements OnInit {
         this.selectedBadgeMedalFilter = filter;
     }
 
+    openRevenueChart() {
+        this.loading = true;
+        this.http.get<ApiResponse<EventRevenue[]>>(`${this.apiUrl}/stats/revenue`).subscribe({
+            next: (res) => {
+                this.revenueData = res.data || [];
+
+                const labels = this.revenueData.map((d) => this.buildEventLabel(d));
+                const revenues = this.revenueData.map((d) => Number(d.totalRevenue ?? 0));
+                const participants = this.revenueData.map((d) => Number(d.participantCount ?? 0));
+
+                // Replace object references so ng2-charts reliably re-renders both charts.
+                this.barChartData = {
+                    labels,
+                    datasets: [
+                        { ...this.barChartData.datasets[0], data: revenues },
+                        { ...this.barChartData.datasets[1], data: participants }
+                    ]
+                };
+
+                // Prepare category distribution (from loaded events list).
+                const catMap = new Map<string, number>();
+                (this.events || []).forEach((e) => {
+                    const raw = (e?.category || '').toString().trim();
+                    const key = raw.length ? raw : 'Uncategorized';
+                    catMap.set(key, (catMap.get(key) || 0) + 1);
+                });
+                const catLabels = Array.from(catMap.keys());
+                const catCounts = Array.from(catMap.values());
+
+                this.doughnutChartData = {
+                    labels: catLabels,
+                    datasets: [{
+                        data: catCounts,
+                        backgroundColor: this.pickCategoryColors(catLabels.length),
+                        borderWidth: 0,
+                        hoverOffset: 6
+                    }]
+                };
+
+                this.showRevenueChart = true;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                if (err?.status === 404 || err?.status === 403 || isUnreachableApiRoute(err)) {
+                    // Legacy backend fallback: compute an estimated chart from loaded events.
+                    this.revenueData = this.events.map((e) => ({
+                        eventTitle: e.name || e.title || `Event #${e.id}`,
+                        organizerName: e.organizerName || 'Organizer',
+                        totalRevenue: (e.price || 0) * (e.participants || 0),
+                        participantCount: e.participants || 0
+                    }));
+
+                    const labels = this.revenueData.map((d) => this.buildEventLabel(d));
+                    const revenues = this.revenueData.map((d) => Number(d.totalRevenue ?? 0));
+                    const participants = this.revenueData.map((d) => Number(d.participantCount ?? 0));
+                    this.barChartData = {
+                        labels,
+                        datasets: [
+                            { ...this.barChartData.datasets[0], data: revenues },
+                            { ...this.barChartData.datasets[1], data: participants }
+                        ]
+                    };
+
+                    const catMap = new Map<string, number>();
+                    (this.events || []).forEach((e) => {
+                        const raw = (e?.category || '').toString().trim();
+                        const key = raw.length ? raw : 'Uncategorized';
+                        catMap.set(key, (catMap.get(key) || 0) + 1);
+                    });
+                    const catLabels = Array.from(catMap.keys());
+                    const catCounts = Array.from(catMap.values());
+                    this.doughnutChartData = {
+                        labels: catLabels,
+                        datasets: [{
+                            data: catCounts,
+                            backgroundColor: this.pickCategoryColors(catLabels.length),
+                            borderWidth: 0,
+                            hoverOffset: 6
+                        }]
+                    };
+                    this.showRevenueChart = true;
+                    this.loading = false;
+                    this.errorMessage = '';
+                    this.cdr.detectChanges();
+                    return;
+                }
+                console.error('Failed to load revenue data:', err);
+                this.loading = false;
+                this.errorMessage = 'Failed to load revenue data.';
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    closeRevenueChart() {
+        this.showRevenueChart = false;
+    }
+
+    openParticipantsModal(event: AdminEvent) {
+        this.currentParticipantsEvent = event;
+        this.loading = true;
+        this.http.get<ApiResponse<Participant[]>>(`${this.apiUrl}/${event.id}/participants`).subscribe({
+            next: (res) => {
+                this.participants = res.data || [];
+                this.eventAssociatedBadges = event.gamifications || [];
+                this.showParticipantsModal = true;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                if (isUnreachableApiRoute(err)) {
+                    this.http.get<any>(`${environment.apiUrl}/api/participants/event/${event.id}?page=0&size=500`).subscribe({
+                        next: (legacyRes) => {
+                            const rows = extractPagedContent(legacyRes);
+                            this.participants = rows.map((p: any) => ({
+                                id: Number(p.id ?? 0),
+                                status: String(p.status ?? 'UNKNOWN'),
+                                user: {
+                                    id: Number(p.userId ?? p.user?.id ?? 0),
+                                    username: p.userName || p.name || p.user?.username || 'Unknown User',
+                                    email: p.email || p.user?.email || ''
+                                }
+                            }));
+                            this.eventAssociatedBadges = event.gamifications || [];
+                            this.showParticipantsModal = true;
+                            this.loading = false;
+                            this.errorMessage = '';
+                            this.cdr.detectChanges();
+                        },
+                        error: (legacyErr) => {
+                            console.error('Failed to load participants (legacy fallback):', legacyErr);
+                            this.loading = false;
+                            this.errorMessage = 'Failed to load participants.';
+                            this.cdr.detectChanges();
+                        }
+                    });
+                    return;
+                }
+                console.error('Failed to load participants:', err);
+                this.loading = false;
+                this.errorMessage = 'Failed to load participants.';
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    closeParticipantsModal() {
+        this.showParticipantsModal = false;
+        this.currentParticipantsEvent = null;
+        this.selectedParticipantIds.clear();
+    }
+
+    toggleParticipantSelection(id: number) {
+        if (this.selectedParticipantIds.has(id)) {
+            this.selectedParticipantIds.delete(id);
+        } else {
+            this.selectedParticipantIds.add(id);
+        }
+    }
+
+    awardBadges() {
+        if (this.selectedParticipantIds.size === 0) return;
+        if (!this.badgeToAwardId) {
+            alert('Please select a badge to award.');
+            return;
+        }
+
+        const participantIds = Array.from(this.selectedParticipantIds);
+        const payload = {
+            userIds: participantIds.map(pid => this.participants.find(p => p.id === pid)?.user?.id).filter(id => !!id),
+            badgeId: this.badgeToAwardId,
+            eventId: this.currentParticipantsEvent?.id
+        };
+
+        this.loading = true;
+        this.gamificationService.awardBulkBadges(payload.userIds as number[], Number(payload.badgeId), Number(payload.eventId)).subscribe({
+            next: () => {
+                alert('Badges awarded successfully!');
+                this.awardBadgeModalOpen = false;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Failed to award badges:', err);
+                alert('Failed to award badges.');
+                this.loading = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
     private setOrganizerId() {
         const user = this.authService.getCurrentUser();
         if (user && user.organizerId !== undefined && user.organizerId !== null) {
@@ -244,13 +714,14 @@ export class EventsAdminManagementComponent implements OnInit {
         }
     }
 
-    loadEvents() {
+    loadEvents(keyword?: string) {
         this.loading = true;
         this.errorMessage = '';
         this.loadTotalViews();
-        this.http.get<any>(`${this.apiUrl}`).subscribe({
+        const url = keyword ? `${this.apiUrl}/search?keyword=${encodeURIComponent(keyword)}` : this.apiUrl;
+        this.http.get<any>(url).subscribe({
             next: (response) => {
-                const data = response.data || response;
+                const data = response.data?.content || response.data || response;
                 this.events = (Array.isArray(data) ? data : [])
                     .map((e: any) => ({
                         id: e.id,
@@ -275,7 +746,8 @@ export class EventsAdminManagementComponent implements OnInit {
                         organizerId: e.organizerId || null,
                         organizerName: e.organizerName || '',
                         siteId: e.siteId || null,
-                        siteName: e.siteName || ''
+                        siteName: e.siteName || '',
+                        gamifications: e.gamifications || []
                     }));
                 this.loading = false;
                 this.cdr.detectChanges();
@@ -287,6 +759,11 @@ export class EventsAdminManagementComponent implements OnInit {
                 this.cdr.detectChanges();
             }
         });
+    }
+
+
+    onSearch() {
+        this.loadEvents(this.searchTerm);
     }
 
     loadTotalViews() {
@@ -301,15 +778,9 @@ export class EventsAdminManagementComponent implements OnInit {
 
     get filteredEvents() {
         return this.events.filter(event => {
-            const matchesSearch = !this.searchTerm ||
-                event.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                event.location.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-                event.organizerName?.toLowerCase().includes(this.searchTerm.toLowerCase());
-
             const matchesStatus = this.statusFilter === 'All Status' ||
                 event.status === this.statusFilter;
-
-            return matchesSearch && matchesStatus;
+            return matchesStatus;
         });
     }
 
@@ -326,12 +797,8 @@ export class EventsAdminManagementComponent implements OnInit {
     private mapStatus(status: string): string {
         const s = (status || '').toUpperCase();
         if (s === 'PUBLISHED') return 'Published';
-        if (s === 'DRAFT') return 'Draft';
         if (s === 'COMPLETED') return 'Completed';
-        if (s === 'CANCELLED') return 'Cancelled';
-        if (s === 'ONGOING') return 'Ongoing';
-        if (s === 'POSTPONED') return 'Postponed';
-        return s.charAt(0) + s.slice(1).toLowerCase();
+        return 'Draft';
     }
 
     getCategoryIcon(category: string): string {
@@ -634,7 +1101,7 @@ export class EventsAdminManagementComponent implements OnInit {
                 }
             });
         } else {
-            this.http.post<any>(`${this.apiUrl}`, payload).subscribe({
+            this.eventService.createEvent(payload).subscribe({
                 next: () => {
                     this.loadEvents();
                     this.showAddForm = false;
@@ -658,12 +1125,8 @@ export class EventsAdminManagementComponent implements OnInit {
     getStatusClass(status: string): string {
         switch (status) {
             case 'Published': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-            case 'Draft': return 'bg-slate-100 text-slate-700 border-slate-200';
             case 'Completed': return 'bg-blue-100 text-blue-700 border-blue-200';
-            case 'Cancelled': return 'bg-rose-100 text-rose-700 border-rose-200';
-            case 'Ongoing': return 'bg-amber-100 text-amber-700 border-amber-200';
-            case 'Postponed': return 'bg-orange-100 text-orange-700 border-orange-200';
-            default: return 'bg-gray-100 text-gray-700';
+            default: return 'bg-slate-100 text-slate-700 border-slate-200';
         }
     }
 
@@ -741,7 +1204,12 @@ export class EventsAdminManagementComponent implements OnInit {
             price: event.price,
             isFree: event.isFree,
             picture: event.picture,
-            status: (event.status || '').toUpperCase() === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT',
+            status: (() => {
+                const s = (event.status || '').toUpperCase();
+                if (s === 'COMPLETED') return 'COMPLETED';
+                if (s === 'PUBLISHED') return 'PUBLISHED';
+                return 'DRAFT';
+            })(),
             organizerId: event.organizerId,
             siteId: event.siteId,
             gamificationIds: []
@@ -809,8 +1277,7 @@ export class EventsAdminManagementComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    toggleEventStatus(event: AdminEvent) {
-        const newStatus = event.status === 'Published' ? 'DRAFT' : 'PUBLISHED';
+    setEventStatus(event: AdminEvent, newStatus: 'DRAFT' | 'PUBLISHED' | 'COMPLETED') {
         this.http.patch(`${this.apiUrl}/${event.id}/status`, null, {
             params: { status: newStatus }
         }).subscribe({
@@ -819,7 +1286,7 @@ export class EventsAdminManagementComponent implements OnInit {
                 this.closeActionMenu();
             },
             error: (err) => {
-                console.error('Status toggle failed:', err);
+                console.error('Status update failed:', err);
                 alert('Échec du changement de statut.');
             }
         });

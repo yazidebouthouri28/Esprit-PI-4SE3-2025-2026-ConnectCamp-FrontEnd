@@ -4,12 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { environment } from '../../../environments/environment';
+import { finalize } from 'rxjs';
 
 export interface Event {
     id: number;
     title: string;
     type: 'workshop' | 'trip' | 'festival';
+    status?: 'DRAFT' | 'PUBLISHED' | 'COMPLETED' | string;
     rawEndDate?: string;
     date: string;
     time: string;
@@ -42,6 +45,7 @@ export class EventDetailComponent {
     public router = inject(Router);
     public authService = inject(AuthService);
     private cdr = inject(ChangeDetectorRef);
+    private notifications = inject(NotificationService);
 
     newComment: string = '';
     newCommentRating: number = 0;
@@ -63,19 +67,29 @@ export class EventDetailComponent {
         // Clone the object to avoid mutating the parent's state (fixes NG0100)
         const clonedValue = value ? { ...value } : null;
 
-        if (clonedValue && clonedValue.image && !clonedValue.image.startsWith('http') && !clonedValue.image.startsWith('blob')) {
-            clonedValue.image = clonedValue.image.startsWith('/uploads/')
-                ? `${this.apiUrl}${clonedValue.image}`
-                : `${this.apiUrl}/uploads/${clonedValue.image}`;
+        if (clonedValue && clonedValue.image) {
+            if (clonedValue.image.startsWith('assets/') || clonedValue.image.startsWith('/assets/')) {
+                // Angular frontend asset — serve relative to frontend origin
+                clonedValue.image = clonedValue.image.startsWith('/') ? clonedValue.image : `/${clonedValue.image}`;
+            } else if (!clonedValue.image.startsWith('http') && !clonedValue.image.startsWith('blob')) {
+                clonedValue.image = clonedValue.image.startsWith('/uploads/')
+                    ? `${this.apiUrl}${clonedValue.image}`
+                    : `${this.apiUrl}/uploads/${clonedValue.image}`;
+            }
         }
         if (clonedValue && clonedValue.images) {
-            clonedValue.images = clonedValue.images.map(img =>
-                (img && !img.startsWith('http') && !img.startsWith('blob'))
-                    ? (img.startsWith('/uploads/')
+            clonedValue.images = clonedValue.images.map(img => {
+                if (!img) return img;
+                if (img.startsWith('assets/') || img.startsWith('/assets/')) {
+                    return img.startsWith('/') ? img : `/${img}`;
+                }
+                if (!img.startsWith('http') && !img.startsWith('blob')) {
+                    return img.startsWith('/uploads/')
                         ? `${this.apiUrl}${img}`
-                        : `${this.apiUrl}/uploads/${img}`)
-                    : img
-            );
+                        : `${this.apiUrl}/uploads/${img}`;
+                }
+                return img;
+            });
         }
         this._event = clonedValue;
         // Reset reaction state each time a new event is opened
@@ -93,6 +107,7 @@ export class EventDetailComponent {
     @Output() edit = new EventEmitter<Event>();
     @Output() add = new EventEmitter<void>();
     @Output() uploadImage = new EventEmitter<number>();
+    @Output() reservationSuccess = new EventEmitter<void>();
 
     get progressPercent(): number {
         if (!this.event) return 0;
@@ -170,10 +185,16 @@ export class EventDetailComponent {
     }
 
     // Interactions
+    private getNumericUserId(): number | null {
+        const raw = this.authService.getCurrentUser()?.id;
+        const parsed = Number(raw);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
     private loadUserReaction() {
         if (!this._event || !this.authService.isAuthenticated()) return;
-        const userId = this.authService.getCurrentUser()?.id;
-        if (!userId) return;
+        const userId = this.getNumericUserId();
+        if (userId == null) return;
         this.http.get<{ liked: boolean; disliked: boolean }>(
             `${this.apiUrl}/api/events/${this._event.id}/my-reaction?userId=${userId}`
         ).subscribe({
@@ -193,13 +214,18 @@ export class EventDetailComponent {
             this.router.navigate(['/auth/login']);
             return;
         }
-        const userId = this.authService.getCurrentUser()?.id;
-        if (!userId) return;
+        const userId = this.getNumericUserId();
+        if (userId == null) {
+            alert('Votre session ne contient pas un identifiant utilisateur valide. Veuillez vous reconnecter.');
+            return;
+        }
 
         this.isProcessing = true;
-        // Optimistic update
+        // Optimistic update — save ALL original values for rollback
         const originalLiked = this.userLiked;
         const originalDisliked = this.userDisliked;
+        const originalLikesCount = this._event!.likesCount ?? 0;
+        const originalDislikesCount = this._event!.dislikesCount ?? 0;
 
         if (this.userLiked) {
             this.userLiked = false;
@@ -214,19 +240,23 @@ export class EventDetailComponent {
         }
         this.cdr.detectChanges();
 
-        this.http.post(`${this.apiUrl}/api/events/${this.event.id}/like?userId=${userId}`, {}).subscribe({
-            next: () => {
-                this.refreshEventData();
-                this.loadUserReaction();
-                this.isProcessing = false;
-            },
-            error: () => {
-                this.userLiked = originalLiked;
-                this.userDisliked = originalDisliked;
-                this.refreshEventData();
-                this.isProcessing = false;
-            }
-        });
+        this.http
+            .post(`${this.apiUrl}/api/events/${this.event.id}/like`, null, { params: { userId } })
+            .pipe(finalize(() => { this.isProcessing = false; }))
+            .subscribe({
+                next: () => {
+                    this.refreshEventData();
+                    this.loadUserReaction();
+                },
+                error: (err) => {
+                    this.userLiked = originalLiked;
+                    this.userDisliked = originalDisliked;
+                    this._event!.likesCount = originalLikesCount;
+                    this._event!.dislikesCount = originalDislikesCount;
+                    this.cdr.detectChanges();
+                    this.notifications.error(err?.error?.message || err?.message || 'Erreur lors du like. Veuillez réessayer.');
+                }
+            });
     }
 
     dislikeEvent() {
@@ -236,13 +266,18 @@ export class EventDetailComponent {
             this.router.navigate(['/auth/login']);
             return;
         }
-        const userId = this.authService.getCurrentUser()?.id;
-        if (!userId) return;
+        const userId = this.getNumericUserId();
+        if (userId == null) {
+            alert('Votre session ne contient pas un identifiant utilisateur valide. Veuillez vous reconnecter.');
+            return;
+        }
 
         this.isProcessing = true;
-        // Optimistic update
+        // Optimistic update — save ALL original values for rollback
         const originalLiked = this.userLiked;
         const originalDisliked = this.userDisliked;
+        const originalLikesCount = this._event!.likesCount ?? 0;
+        const originalDislikesCount = this._event!.dislikesCount ?? 0;
 
         if (this.userDisliked) {
             this.userDisliked = false;
@@ -257,19 +292,23 @@ export class EventDetailComponent {
         }
         this.cdr.detectChanges();
 
-        this.http.post(`${this.apiUrl}/api/events/${this.event.id}/dislike?userId=${userId}`, {}).subscribe({
-            next: () => {
-                this.refreshEventData();
-                this.loadUserReaction();
-                this.isProcessing = false;
-            },
-            error: () => {
-                this.userLiked = originalLiked;
-                this.userDisliked = originalDisliked;
-                this.refreshEventData();
-                this.isProcessing = false;
-            }
-        });
+        this.http
+            .post(`${this.apiUrl}/api/events/${this.event.id}/dislike`, null, { params: { userId } })
+            .pipe(finalize(() => { this.isProcessing = false; }))
+            .subscribe({
+                next: () => {
+                    this.refreshEventData();
+                    this.loadUserReaction();
+                },
+                error: (err) => {
+                    this.userLiked = originalLiked;
+                    this.userDisliked = originalDisliked;
+                    this._event!.likesCount = originalLikesCount;
+                    this._event!.dislikesCount = originalDislikesCount;
+                    this.cdr.detectChanges();
+                    this.notifications.error(err?.error?.message || err?.message || 'Erreur lors du dislike. Veuillez réessayer.');
+                }
+            });
     }
 
     setCommentRating(rating: number) {
@@ -330,6 +369,10 @@ export class EventDetailComponent {
     }
 
     buyTickets() {
+        if (this.event?.status === 'COMPLETED') {
+            this.notifications.warning('Cet événement est terminé. Les réservations sont fermées.');
+            return;
+        }
         if (!this.event || !this.authService.isAuthenticated()) {
             this.router.navigate(['/auth/login']);
             return;
@@ -339,29 +382,33 @@ export class EventDetailComponent {
 
         this.isProcessing = true;
         // The backend expects RequestParams
+        const guestName = user.name || user.username || 'Guest';
+        const guestEmail = user.email || '';
+        const guestPhone = user.phone || '00000000';
         const params = {
             userId: user.id.toString(),
             eventId: this.event.id.toString(),
-            guestName: user.name || user.username || 'Guest',
-            guestEmail: user.email || '',
-            guestPhone: user.phone || '00000000'
+            quantity: this.ticketCount.toString(),
+            notes: `Guest: ${guestName} | Email: ${guestEmail} | Phone: ${guestPhone}`
         };
 
-        this.http.post(`${this.apiUrl}/api/reservations/event`, null, { params }).subscribe({
+        this.http.post(`${this.apiUrl}/api/ticket-reservations/event`, null, { params }).subscribe({
             next: () => {
                 this.purchaseSuccess = true;
                 this.isProcessing = false;
+                this.notifications.success('Tickets réservés avec succès.');
                 this.cdr.detectChanges();
                 setTimeout(() => {
                     this.purchaseSuccess = false;
                     this.cdr.detectChanges();
                 }, 5000);
                 this.refreshEventData();
+                this.reservationSuccess.emit();
             },
             error: (err) => {
                 this.isProcessing = false;
                 console.error('Reservation failed:', err);
-                alert(err.error?.message || 'Erreur lors de la réservation. Veuillez réessayer.');
+                this.notifications.error(err.error?.message || 'Erreur lors de la réservation. Veuillez réessayer.');
                 this.cdr.detectChanges();
             }
         });
@@ -382,7 +429,7 @@ export class EventDetailComponent {
                 this.showClaimForm = false;
                 this.claimSubject = '';
                 this.claimDescription = '';
-                alert('Réclamation soumise avec succès.');
+                this.notifications.success('Réclamation soumise avec succès.');
             },
             error: (err) => console.error('Claim failed', err)
         });

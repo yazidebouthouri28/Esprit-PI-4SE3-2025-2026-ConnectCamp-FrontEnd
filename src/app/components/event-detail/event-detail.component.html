@@ -420,17 +420,6 @@
                                         {{ comment.content }}
                                     </p>
 
-                                    <!-- Helpful Button (Aesthetic only) -->
-                                    <div class="mt-4 flex items-center gap-4">
-                                        <span class="text-[9px] font-black text-sage uppercase tracking-widest">Was this
-                                            helpful?</span>
-                                        <div class="flex items-center gap-2">
-                                            <button
-                                                class="px-3 py-1 rounded-full border border-gray-100 text-[9px] font-black text-forest hover:bg-gray-50 transition-colors uppercase">Yes</button>
-                                            <button
-                                                class="px-3 py-1 rounded-full border border-gray-100 text-[9px] font-black text-forest hover:bg-gray-50 transition-colors uppercase">No</button>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -485,10 +474,10 @@
                         </div>
                     </div>
 
-                    <button (click)="buyTickets()" [disabled]="purchaseSuccess"
+                    <button (click)="buyTickets()" [disabled]="purchaseSuccess || isProcessing || event.status === 'COMPLETED'"
                         class="w-full bg-forest text-white font-black text-lg py-5 rounded-2xl hover:bg-olive transition-all transform active:scale-[0.98] mb-6 shadow-xl shadow-forest/10 uppercase tracking-widest text-xs disabled:opacity-50"
                         [ngClass]="{'bg-sage': purchaseSuccess}">
-                        {{ purchaseSuccess ? 'Success!' : 'Get Your Tickets' }}
+                        {{ event.status === 'COMPLETED' ? 'Event Completed' : (purchaseSuccess ? 'Success!' : 'Get Your Tickets') }}
                     </button>
 
                     <p *ngIf="purchaseSuccess" class="text-center text-[10px] text-olive font-bold mb-4 animate-bounce">

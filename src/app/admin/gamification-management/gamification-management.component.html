@@ -14,36 +14,69 @@
         </div>
 
         <ng-container *ngIf="!loading && viewMode === 'organizer'">
-            <div class="strategy-card">
-                <div class="strategy-card__head">
-                    <h3>🏅 Un systeme de progression inspire des scouts</h3>
-                    <p>
-                        Notre systeme de gamification repose sur une logique de medailles thematiques.
-                        Chaque effort compte, chaque badge valide une progression reelle, et chaque medal t'amene plus haut.
-                    </p>
+            <!-- New Premium Achievement Roadmap -->
+            <div class="roadmap-container animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div class="roadmap-header">
+                    <div class="roadmap-badge shadow-xl">🏅</div>
+                    <div class="roadmap-titles text-left">
+                        <h3 class="font-black text-2xl tracking-tighter uppercase text-forest">Un système de progression
+                            inspiré des scouts</h3>
+                        <p class="text-sage font-bold text-sm opacity-80">Notre système de gamification repose sur une
+                            logique de médailles thématiques. Chaque effort compte, chaque badge valide une progression
+                            réelle.</p>
+                    </div>
                 </div>
 
-                <div class="strategy-card__steps">
-                    <article *ngFor="let step of progressionSteps" [class]="'step step--' + step.tone">
-                        <span class="step__icon">{{ step.icon }}</span>
-                        <div>
-                            <h4>{{ step.level }}</h4>
-                            <p>{{ step.requirement }}</p>
+                <div class="roadmap-steps">
+                    <!-- Step 1: Bronze -->
+                    <div class="roadmap-step roadmap-step--bronze">
+                        <div class="step-point">
+                            <span class="step-icon">🥉</span>
+                            <div class="step-line"></div>
                         </div>
-                    </article>
+                        <div class="step-content shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
+                            <h4>Bronze</h4>
+                            <p>Collect at least 3 badges in the medal</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Silver -->
+                    <div class="roadmap-step roadmap-step--silver">
+                        <div class="step-point">
+                            <span class="step-icon">🥈</span>
+                            <div class="step-line"></div>
+                        </div>
+                        <div class="step-content shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
+                            <h4>Silver</h4>
+                            <p>Collect at least 6 badges in the medal</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Gold -->
+                    <div class="roadmap-step roadmap-step--gold">
+                        <div class="step-point">
+                            <span class="step-icon">🥇</span>
+                        </div>
+                        <div class="step-content shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]">
+                            <h4>Gold</h4>
+                            <p>Collect all badges in the medal</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="strategy-card__eagle">
-                    <p class="title">🦅 Eagle of Carthage</p>
-                    <p>Obtiens les 3 medailles Or et prouve que tu as tout accompli.</p>
+                <!-- Final Tier: Eagle of Carthage -->
+                <div class="eagle-banner shadow-2xl animate-in zoom-in-95 duration-1000">
+                    <div class="eagle-decoration left">🦅</div>
+                    <div class="eagle-content">
+                        <h4>Eagle of Carthage</h4>
+                        <p>Obtiens les 3 médailles Or et prouve que tu as tout accompli.</p>
+                    </div>
+                    <div class="eagle-decoration right">⭐</div>
                 </div>
             </div>
 
             <div class="medal-chips">
-                <button
-                    type="button"
-                    class="chip"
-                    *ngFor="let filter of organizerFilters"
+                <button type="button" class="chip" *ngFor="let filter of organizerFilters"
                     [class.chip--active]="selectedOrganizerFilter === filter.key"
                     (click)="setOrganizerFilter(filter.key)">
                     <span class="chip__icon">🏅</span>
@@ -56,10 +89,7 @@
                 <article class="badge-card" *ngFor="let badge of organizerFilteredBadges; trackBy: trackByBadgeId"
                     (click)="openBadgeRules(badge)">
                     <div class="badge-card__icon-wrap">
-                        <img
-                            class="badge-card__icon"
-                            [src]="getBadgeImageSrc(badge)"
-                            [alt]="badge.name"
+                        <img class="badge-card__icon" [src]="getBadgeImageSrc(badge)" [alt]="badge.name"
                             (error)="onImageError($event, 'badge')">
                     </div>
                     <h3>{{ badge.name }}</h3>
@@ -107,7 +137,8 @@
                     <div class="list">
                         <article class="row-card" *ngFor="let medal of medals; trackBy: trackByMedalId">
                             <div class="row-card__left">
-                                <img [src]="getMedalImageSrc(medal)" [alt]="medal.name" (error)="onImageError($event, 'medal')">
+                                <img [src]="getMedalImageSrc(medal)" [alt]="medal.name"
+                                    (error)="onImageError($event, 'medal')">
                                 <div>
                                     <h4>{{ medal.name }}</h4>
                                     <p>{{ medal.type || 'DEFAULT' }}</p>
@@ -115,7 +146,8 @@
                             </div>
                             <div class="row-card__right">
                                 <button class="mini-btn" (click)="openEditMedal(medal)">Edit</button>
-                                <button class="mini-btn mini-btn--danger" [disabled]="deleting" (click)="deleteMedal(medal)">Delete</button>
+                                <button class="mini-btn mini-btn--danger" [disabled]="deleting"
+                                    (click)="deleteMedal(medal)">Delete</button>
                             </div>
                         </article>
                     </div>
@@ -128,7 +160,8 @@
                     <div class="list">
                         <article class="row-card" *ngFor="let badge of badges; trackBy: trackByBadgeId">
                             <div class="row-card__left">
-                                <img [src]="getBadgeImageSrc(badge)" [alt]="badge.name" (error)="onImageError($event, 'badge')">
+                                <img [src]="getBadgeImageSrc(badge)" [alt]="badge.name"
+                                    (error)="onImageError($event, 'badge')">
                                 <div>
                                     <h4>{{ badge.name }}</h4>
                                     <p>{{ badge.medalName || 'No medal linked' }}</p>
@@ -136,7 +169,8 @@
                             </div>
                             <div class="row-card__right">
                                 <button class="mini-btn" (click)="openEditBadge(badge)">Edit</button>
-                                <button class="mini-btn mini-btn--danger" [disabled]="deleting" (click)="deleteBadge(badge)">Delete</button>
+                                <button class="mini-btn mini-btn--danger" [disabled]="deleting"
+                                    (click)="deleteBadge(badge)">Delete</button>
                             </div>
                         </article>
                     </div>
@@ -180,7 +214,8 @@
             <label>Linked medal</label>
             <select [(ngModel)]="currentBadge.medalId">
                 <option [ngValue]="null">No medal</option>
-                <option *ngFor="let medal of medals; trackBy: trackByMedalId" [ngValue]="medal.id">{{ medal.name }}</option>
+                <option *ngFor="let medal of medals; trackBy: trackByMedalId" [ngValue]="medal.id">{{ medal.name }}
+                </option>
             </select>
         </ng-container>
 
