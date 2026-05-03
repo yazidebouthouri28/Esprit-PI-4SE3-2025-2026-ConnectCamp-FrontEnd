@@ -1,0 +1,343 @@
+.throttle-monitor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+    
+    h1 {
+      color: #1f2937;
+      margin: 0 0 8px 0;
+      font-size: 2.5rem;
+    }
+    
+    .subtitle {
+      color: #6b7280;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+  }
+
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+
+    h3 {
+      margin: 0 0 20px 0;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  }
+
+  .user-selection {
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      
+      label {
+        font-weight: 500;
+        color: #374151;
+      }
+      
+      .user-input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        width: 100px;
+        
+        &:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+      }
+      
+      .test-btn {
+        padding: 8px 16px;
+        background: #8b5cf6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+        
+        &:hover {
+          background: #7c3aed;
+        }
+      }
+    }
+  }
+
+  .status-section {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .status-card {
+    .loading, .error {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+    
+    .error {
+      color: #ef4444;
+    }
+  }
+
+  .status-display {
+    .status-badge {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: inline-block;
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+  }
+
+  .progress-container {
+    margin-bottom: 24px;
+    
+    .progress-label {
+      font-size: 14px;
+      color: #374151;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #f3f4f6;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 4px;
+      
+      .progress-fill {
+        height: 100%;
+        transition: width 0.3s ease, background-color 0.3s ease;
+        border-radius: 10px;
+      }
+    }
+    
+    .progress-percentage {
+      font-size: 12px;
+      color: #6b7280;
+      text-align: right;
+    }
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+      
+      .label {
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+      }
+      
+      .value {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1f2937;
+        
+        &.warning {
+          color: #f59e0b;
+        }
+      }
+      
+      &.ban-info {
+        border-left: 4px solid #ef4444;
+      }
+      
+      .ban-type {
+        &.hard-ban {
+          color: #dc2626;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      
+      &.btn-danger {
+        background: #ef4444;
+        color: white;
+        
+        &:hover {
+          background: #dc2626;
+        }
+      }
+      
+      &.btn-warning {
+        background: #f59e0b;
+        color: white;
+        
+        &:hover {
+          background: #d97706;
+        }
+      }
+      
+      &.btn-primary {
+        background: #3b82f6;
+        color: white;
+        
+        &:hover {
+          background: #2563eb;
+        }
+      }
+      
+      &.btn-small {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .admin-actions {
+    .action-group {
+      margin-bottom: 20px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 8px;
+      }
+      
+      .input-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        
+        .small-input {
+          padding: 6px 10px;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+          font-size: 14px;
+          width: 80px;
+          
+          &:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+        }
+      }
+    }
+  }
+
+  .banned-users {
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .banned-table {
+      width: 100%;
+      border-collapse: collapse;
+      
+      th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+      
+      th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+      }
+      
+      td {
+        font-size: 14px;
+        color: #1f2937;
+        
+        .warning {
+          color: #f59e0b;
+          font-weight: 600;
+        }
+        
+        .ban-type {
+          font-weight: 600;
+          
+          &.hard-ban {
+            color: #dc2626;
+          }
+        }
+      }
+      
+      tr:hover {
+        background: #f9fafb;
+      }
+    }
+    
+    .no-banned {
+      text-align: center;
+      color: #6b7280;
+      font-style: italic;
+      padding: 40px;
+    }
+  }
+
+  .system-stats {
+    .stats-text {
+      background: #f3f4f6;
+      padding: 16px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #374151;
+      white-space: pre-wrap;
+      margin: 0;
+    }
+  }
+}
