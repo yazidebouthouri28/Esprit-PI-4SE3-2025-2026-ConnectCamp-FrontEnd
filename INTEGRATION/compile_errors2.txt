@@ -1,0 +1,585 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------< tn.esprit:projet-integre >----------------------
+[INFO] Building Projet Spring Intégré 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ projet-integre ---
+[INFO] Deleting C:\Users\ahmed\OneDrive\Desktop\test ahmed\backConnect\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ projet-integre ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ projet-integre ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 474 source files with javac [debug release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Alert.java:[33,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Alert.java:[55,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Coupon.java:[30,27] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Coupon.java:[42,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Coupon.java:[43,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Coupon.java:[45,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Coupon.java:[46,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Promotion.java:[45,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Promotion.java:[50,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Promotion.java:[55,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Promotion.java:[60,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/UserAchievement.java:[30,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatMessage.java:[35,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatMessage.java:[45,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatMessage.java:[46,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatMessage.java:[47,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/request/TimeSlotRequest.java:[21,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyProtocol.java:[55,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyProtocol.java:[80,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyProtocol.java:[81,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Cart.java:[29,28] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Cart.java:[32,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Cart.java:[35,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[61,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[66,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[71,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[73,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[74,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[75,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[78,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceReview.java:[81,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/EmergencyAlertDTO.java:[50,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/ChatRoomDTO.java:[34,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/ChatRoomDTO.java:[36,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/ChatRoomDTO.java:[37,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Category.java:[33,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Category.java:[34,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Category.java:[41,28] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Category.java:[44,27] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ProductReview.java:[45,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ProductReview.java:[47,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ProductReview.java:[48,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ProductReview.java:[49,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ServiceApplication.java:[44,38] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/request/ShippingAddressRequest.java:[35,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[68,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[73,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[78,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[83,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[85,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[86,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[87,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[92,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[96,20] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[98,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Pack.java:[113,34] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Transaction.java:[48,27] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Wishlist.java:[27,20] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Wishlist.java:[28,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Wishlist.java:[36,27] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumArticle.java:[39,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumArticle.java:[42,32] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumArticle.java:[44,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumArticle.java:[45,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumArticle.java:[46,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumArticle.java:[47,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/UserMission.java:[29,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/UserMission.java:[30,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/UserMission.java:[31,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/CartItem.java:[30,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/PackDTO.java:[48,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/PackDTO.java:[49,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Sponsor.java:[48,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Sponsor.java:[51,31] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[54,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[56,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[57,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[58,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[74,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[82,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ChatRoom.java:[85,31] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/ChatMessageDTO.java:[23,29] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/AuthResponse.java:[15,20] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Achievement.java:[37,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumComment.java:[36,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/ForumComment.java:[37,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyIntervention.java:[53,20] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyIntervention.java:[71,26] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyIntervention.java:[73,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyIntervention.java:[74,21] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/EmergencyIntervention.java:[105,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[34,29] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[37,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[40,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[43,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[46,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[49,24] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[52,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/entities/Order.java:[55,27] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[WARNING] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/dto/request/MessageRequest.java:[12,25] @Builder will ignore the initializing expression entirely. If you want the initializing expression to serve as default, add @Builder.Default. If it is not supposed to be settable during building, make the field final.
+[INFO] 100 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/EventInteractionService.java:[103,14] cannot find symbol
+  symbol:   method setLikesCount(int)
+  location: variable event of type tn.esprit.projetintegre.entities.Event
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/EventInteractionService.java:[104,14] cannot find symbol
+  symbol:   method setDislikesCount(int)
+  location: variable event of type tn.esprit.projetintegre.entities.Event
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/DtoMapper.java:[396,33] cannot find symbol
+  symbol:   method getVerified()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/DtoMapper.java:[397,31] cannot find symbol
+  symbol:   method getAverageRating()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/VirtualTourService.java:[24,74] cannot find symbol
+  symbol:   method findBySite_Id(java.lang.Long)
+  location: variable virtualTourRepository of type tn.esprit.projetintegre.repositories.VirtualTourRepository
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[38,37] cannot find symbol
+  symbol:   method getCheckInTime()
+  location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[39,38] cannot find symbol
+  symbol:   method getCheckOutTime()
+  location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[40,36] cannot find symbol
+  symbol:   method getHouseRules()
+  location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[64,33] cannot find symbol
+  symbol:   method getVerified()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[65,31] cannot find symbol
+  symbol:   method getAverageRating()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[68,36] cannot find symbol
+  symbol:   method getCheckInTime()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[69,37] cannot find symbol
+  symbol:   method getCheckOutTime()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[70,35] cannot find symbol
+  symbol:   method getHouseRules()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[100,33] cannot find symbol
+  symbol:   method getVerified()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[101,31] cannot find symbol
+  symbol:   method getAverageRating()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[103,36] cannot find symbol
+  symbol:   method getCheckInTime()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[104,37] cannot find symbol
+  symbol:   method getCheckOutTime()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[105,35] cannot find symbol
+  symbol:   method getHouseRules()
+  location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[138,38] cannot find symbol
+  symbol:   method getCheckInTime()
+  location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[139,39] cannot find symbol
+  symbol:   method getCheckOutTime()
+  location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[140,37] cannot find symbol
+  symbol:   method getHouseRules()
+  location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[257,17] cannot find symbol
+  symbol:   method originCity(java.lang.String)
+  location: class tn.esprit.projetintegre.entities.RouteGuide.RouteGuideBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[275,15] cannot find symbol
+  symbol:   method setOriginCity(java.lang.String)
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[276,15] cannot find symbol
+  symbol:   method setDistanceKm(java.lang.Double)
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[279,15] cannot find symbol
+  symbol:   method setInstructions(java.lang.String)
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[280,15] cannot find symbol
+  symbol:   method setMapUrl(java.lang.String)
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[295,35] cannot find symbol
+  symbol:   method getOriginCity()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[296,35] cannot find symbol
+  symbol:   method getDistanceKm()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[298,39] cannot find symbol
+  symbol:   method getDistanceKm()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[298,72] cannot find symbol
+  symbol:   method getDistanceKm()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[300,37] cannot find symbol
+  symbol:   method getInstructions()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[301,31] cannot find symbol
+  symbol:   method getMapUrl()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[304,31] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[304,58] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[324,17] cannot find symbol
+  symbol:   method site(tn.esprit.projetintegre.entities.Site)
+  location: class tn.esprit.projetintegre.entities.Review.ReviewBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[353,33] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.Review
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[353,60] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.Review
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[381,17] cannot find symbol
+  symbol:   method expiryDate(java.time.LocalDate)
+  location: class tn.esprit.projetintegre.entities.Certification.CertificationBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[397,15] cannot find symbol
+  symbol:   method setExpiryDate(java.time.LocalDate)
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[413,39] cannot find symbol
+  symbol:   method getExpiryDate()
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[418,31] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[418,58] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[419,31] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[419,58] cannot find symbol
+  symbol:   method getSite()
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[421,62] cannot find symbol
+  symbol:   method getCertificationItems()
+  location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[444,17] cannot find symbol
+  symbol:   method criteriaName(tn.esprit.projetintegre.enums.CriterieName)
+  location: class tn.esprit.projetintegre.entities.CertificationItem.CertificationItemBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[460,15] cannot find symbol
+  symbol:   method setCriteriaName(tn.esprit.projetintegre.enums.CriterieName)
+  location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[461,15] cannot find symbol
+  symbol:   method setComment(java.lang.String)
+  location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[475,37] cannot find symbol
+  symbol:   method getCriteriaName()
+  location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[476,32] cannot find symbol
+  symbol:   method getComment()
+  location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/InventoryService.java:[88,20] cannot find symbol
+  symbol:   method getReservedQuantity()
+  location: variable request of type tn.esprit.projetintegre.dto.request.InventoryRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/InventoryService.java:[88,89] cannot find symbol
+  symbol:   method getReservedQuantity()
+  location: variable request of type tn.esprit.projetintegre.dto.request.InventoryRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[31,63] cannot find symbol
+  symbol:   method toEventCommentResponseList(java.util.List<tn.esprit.projetintegre.entities.EventComment>)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[38,63] cannot find symbol
+  symbol:   method toEventCommentResponseList(java.util.List<tn.esprit.projetintegre.entities.EventComment>)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[45,63] cannot find symbol
+  symbol:   method toEventCommentResponse(tn.esprit.projetintegre.entities.EventComment)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[57,82] cannot find symbol
+  symbol:   method toEventCommentResponse(tn.esprit.projetintegre.entities.EventComment)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[67,82] cannot find symbol
+  symbol:   method toEventCommentResponse(tn.esprit.projetintegre.entities.EventComment)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[45,58] invalid method reference
+  cannot find symbol
+    symbol:   method toInventoryResponse()
+    location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[54,22] invalid method reference
+  cannot find symbol
+    symbol:   method toInventoryResponse()
+    location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[63,63] cannot find symbol
+  symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[71,22] invalid method reference
+  cannot find symbol
+    symbol:   method toInventoryResponse()
+    location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[81,22] invalid method reference
+  cannot find symbol
+    symbol:   method toInventoryResponse()
+    location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[91,22] invalid method reference
+  cannot find symbol
+    symbol:   method toInventoryResponse()
+    location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[101,22] invalid method reference
+  cannot find symbol
+    symbol:   method toInventoryResponse()
+    location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[112,97] cannot find symbol
+  symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[122,97] cannot find symbol
+  symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[133,94] cannot find symbol
+  symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[143,94] cannot find symbol
+  symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[153,103] cannot find symbol
+  symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+  location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/RouteGuideService.java:[27,72] cannot find symbol
+  symbol:   method findBySite_Id(java.lang.Long)
+  location: variable routeGuideRepository of type tn.esprit.projetintegre.repositories.RouteGuideRepository
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/RouteGuideService.java:[31,72] cannot find symbol
+  symbol:   method findByOriginCityIgnoreCase(java.lang.String)
+  location: variable routeGuideRepository of type tn.esprit.projetintegre.repositories.RouteGuideRepository
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/Scene360Service.java:[25,59] cannot find symbol
+  symbol:   method findByVirtualTour_IdOrderByOrderIndexAsc(java.lang.Long)
+  location: variable scene360Repository of type tn.esprit.projetintegre.repositories.Scene360Repository
+[INFO] 72 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  8.846 s
+[INFO] Finished at: 2026-03-25T22:52:36+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project projet-integre: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/EventInteractionService.java:[103,14] cannot find symbol
+[ERROR]   symbol:   method setLikesCount(int)
+[ERROR]   location: variable event of type tn.esprit.projetintegre.entities.Event
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/EventInteractionService.java:[104,14] cannot find symbol
+[ERROR]   symbol:   method setDislikesCount(int)
+[ERROR]   location: variable event of type tn.esprit.projetintegre.entities.Event
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/DtoMapper.java:[396,33] cannot find symbol
+[ERROR]   symbol:   method getVerified()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/DtoMapper.java:[397,31] cannot find symbol
+[ERROR]   symbol:   method getAverageRating()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/VirtualTourService.java:[24,74] cannot find symbol
+[ERROR]   symbol:   method findBySite_Id(java.lang.Long)
+[ERROR]   location: variable virtualTourRepository of type tn.esprit.projetintegre.repositories.VirtualTourRepository
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[38,37] cannot find symbol
+[ERROR]   symbol:   method getCheckInTime()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[39,38] cannot find symbol
+[ERROR]   symbol:   method getCheckOutTime()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[40,36] cannot find symbol
+[ERROR]   symbol:   method getHouseRules()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[64,33] cannot find symbol
+[ERROR]   symbol:   method getVerified()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[65,31] cannot find symbol
+[ERROR]   symbol:   method getAverageRating()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[68,36] cannot find symbol
+[ERROR]   symbol:   method getCheckInTime()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[69,37] cannot find symbol
+[ERROR]   symbol:   method getCheckOutTime()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[70,35] cannot find symbol
+[ERROR]   symbol:   method getHouseRules()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[100,33] cannot find symbol
+[ERROR]   symbol:   method getVerified()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[101,31] cannot find symbol
+[ERROR]   symbol:   method getAverageRating()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[103,36] cannot find symbol
+[ERROR]   symbol:   method getCheckInTime()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[104,37] cannot find symbol
+[ERROR]   symbol:   method getCheckOutTime()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[105,35] cannot find symbol
+[ERROR]   symbol:   method getHouseRules()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Site
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[138,38] cannot find symbol
+[ERROR]   symbol:   method getCheckInTime()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[139,39] cannot find symbol
+[ERROR]   symbol:   method getCheckOutTime()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[140,37] cannot find symbol
+[ERROR]   symbol:   method getHouseRules()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.SiteRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[257,17] cannot find symbol
+[ERROR]   symbol:   method originCity(java.lang.String)
+[ERROR]   location: class tn.esprit.projetintegre.entities.RouteGuide.RouteGuideBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[275,15] cannot find symbol
+[ERROR]   symbol:   method setOriginCity(java.lang.String)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[276,15] cannot find symbol
+[ERROR]   symbol:   method setDistanceKm(java.lang.Double)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[279,15] cannot find symbol
+[ERROR]   symbol:   method setInstructions(java.lang.String)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[280,15] cannot find symbol
+[ERROR]   symbol:   method setMapUrl(java.lang.String)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[295,35] cannot find symbol
+[ERROR]   symbol:   method getOriginCity()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[296,35] cannot find symbol
+[ERROR]   symbol:   method getDistanceKm()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[298,39] cannot find symbol
+[ERROR]   symbol:   method getDistanceKm()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[298,72] cannot find symbol
+[ERROR]   symbol:   method getDistanceKm()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[300,37] cannot find symbol
+[ERROR]   symbol:   method getInstructions()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[301,31] cannot find symbol
+[ERROR]   symbol:   method getMapUrl()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[304,31] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[304,58] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.RouteGuide
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[324,17] cannot find symbol
+[ERROR]   symbol:   method site(tn.esprit.projetintegre.entities.Site)
+[ERROR]   location: class tn.esprit.projetintegre.entities.Review.ReviewBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[353,33] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Review
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[353,60] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Review
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[381,17] cannot find symbol
+[ERROR]   symbol:   method expiryDate(java.time.LocalDate)
+[ERROR]   location: class tn.esprit.projetintegre.entities.Certification.CertificationBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[397,15] cannot find symbol
+[ERROR]   symbol:   method setExpiryDate(java.time.LocalDate)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[413,39] cannot find symbol
+[ERROR]   symbol:   method getExpiryDate()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[418,31] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[418,58] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[419,31] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[419,58] cannot find symbol
+[ERROR]   symbol:   method getSite()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[421,62] cannot find symbol
+[ERROR]   symbol:   method getCertificationItems()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.Certification
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[444,17] cannot find symbol
+[ERROR]   symbol:   method criteriaName(tn.esprit.projetintegre.enums.CriterieName)
+[ERROR]   location: class tn.esprit.projetintegre.entities.CertificationItem.CertificationItemBuilder
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[460,15] cannot find symbol
+[ERROR]   symbol:   method setCriteriaName(tn.esprit.projetintegre.enums.CriterieName)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[461,15] cannot find symbol
+[ERROR]   symbol:   method setComment(java.lang.String)
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[475,37] cannot find symbol
+[ERROR]   symbol:   method getCriteriaName()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/mapper/SiteModuleMapper.java:[476,32] cannot find symbol
+[ERROR]   symbol:   method getComment()
+[ERROR]   location: variable entity of type tn.esprit.projetintegre.entities.CertificationItem
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/InventoryService.java:[88,20] cannot find symbol
+[ERROR]   symbol:   method getReservedQuantity()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.InventoryRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/InventoryService.java:[88,89] cannot find symbol
+[ERROR]   symbol:   method getReservedQuantity()
+[ERROR]   location: variable request of type tn.esprit.projetintegre.dto.request.InventoryRequest
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[31,63] cannot find symbol
+[ERROR]   symbol:   method toEventCommentResponseList(java.util.List<tn.esprit.projetintegre.entities.EventComment>)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[38,63] cannot find symbol
+[ERROR]   symbol:   method toEventCommentResponseList(java.util.List<tn.esprit.projetintegre.entities.EventComment>)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[45,63] cannot find symbol
+[ERROR]   symbol:   method toEventCommentResponse(tn.esprit.projetintegre.entities.EventComment)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[57,82] cannot find symbol
+[ERROR]   symbol:   method toEventCommentResponse(tn.esprit.projetintegre.entities.EventComment)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/EventCommentController.java:[67,82] cannot find symbol
+[ERROR]   symbol:   method toEventCommentResponse(tn.esprit.projetintegre.entities.EventComment)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[45,58] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method toInventoryResponse()
+[ERROR]     location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[54,22] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method toInventoryResponse()
+[ERROR]     location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[63,63] cannot find symbol
+[ERROR]   symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[71,22] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method toInventoryResponse()
+[ERROR]     location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[81,22] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method toInventoryResponse()
+[ERROR]     location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[91,22] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method toInventoryResponse()
+[ERROR]     location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[101,22] invalid method reference
+[ERROR]   cannot find symbol
+[ERROR]     symbol:   method toInventoryResponse()
+[ERROR]     location: class tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[112,97] cannot find symbol
+[ERROR]   symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[122,97] cannot find symbol
+[ERROR]   symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[133,94] cannot find symbol
+[ERROR]   symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[143,94] cannot find symbol
+[ERROR]   symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/controllers/InventoryController.java:[153,103] cannot find symbol
+[ERROR]   symbol:   method toInventoryResponse(tn.esprit.projetintegre.entities.Inventory)
+[ERROR]   location: variable dtoMapper of type tn.esprit.projetintegre.mapper.DtoMapper
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/RouteGuideService.java:[27,72] cannot find symbol
+[ERROR]   symbol:   method findBySite_Id(java.lang.Long)
+[ERROR]   location: variable routeGuideRepository of type tn.esprit.projetintegre.repositories.RouteGuideRepository
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/RouteGuideService.java:[31,72] cannot find symbol
+[ERROR]   symbol:   method findByOriginCityIgnoreCase(java.lang.String)
+[ERROR]   location: variable routeGuideRepository of type tn.esprit.projetintegre.repositories.RouteGuideRepository
+[ERROR] /C:/Users/ahmed/OneDrive/Desktop/test ahmed/backConnect/src/main/java/tn/esprit/projetintegre/services/Scene360Service.java:[25,59] cannot find symbol
+[ERROR]   symbol:   method findByVirtualTour_IdOrderByOrderIndexAsc(java.lang.Long)
+[ERROR]   location: variable scene360Repository of type tn.esprit.projetintegre.repositories.Scene360Repository
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

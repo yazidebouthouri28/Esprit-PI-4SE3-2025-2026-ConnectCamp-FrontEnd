@@ -1,0 +1,45 @@
+<<<<<<< Updated upstream
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+=======
+target/
+!.mvn/wrapper/maven-wrapper.jar
+/index.html
+/final_complaint_verification_screenshot_1772316644627.webp
+/verify_swagger_ui_1772312673605.webp
+/testing_event_management_module_1772316025808.webp
+>>>>>>> Stashed changes
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+<<<<<<< Updated upstream
+!**/src/main/**/build/
+!**/src/test/**/build/
+=======
+>>>>>>> Stashed changes
+
+### VS Code ###
+.vscode/
