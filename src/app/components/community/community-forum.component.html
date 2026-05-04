@@ -1,0 +1,311 @@
+<div class="community-hub-container flex h-screen bg-cream-beige overflow-hidden">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- LEFT SIDEBAR — Room List                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <aside class="w-80 border-r border-olive-green/20 flex flex-col bg-white/50 backdrop-blur-md">
+
+    <!-- Header -->
+    <div class="p-6 border-b border-olive-green/10 flex items-center justify-between">
+      <div>
+        <h2 class="font-bold text-forest-green text-lg">Community</h2>
+        <p class="text-xs text-olive-green">{{ rooms.length }} group{{ rooms.length !== 1 ? 's' : '' }}</p>
+      </div>
+      <!-- Create button — organizers only -->
+      <button *ngIf="isOrganizer"
+        (click)="openCreateModal()"
+        class="w-9 h-9 bg-forest-green text-white rounded-xl flex items-center justify-center hover:bg-forest-green/80 transition-all shadow-md"
+        title="Create new group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Loading rooms -->
+    <div *ngIf="isLoadingRooms" class="flex-1 flex items-center justify-center">
+      <div class="animate-spin h-8 w-8 border-4 border-forest-green border-t-transparent rounded-full"></div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!isLoadingRooms && rooms.length === 0" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
+      <div class="text-4xl mb-3">💬</div>
+      <p class="font-bold text-forest-green">No groups yet</p>
+      <p class="text-xs text-olive-green mt-1" *ngIf="isOrganizer">Click + to create your first group</p>
+      <p class="text-xs text-olive-green mt-1" *ngIf="!isOrganizer">You haven't joined any groups yet</p>
+    </div>
+
+    <!-- Room list -->
+    <div *ngIf="!isLoadingRooms && rooms.length > 0" class="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+      <div *ngFor="let room of rooms"
+        (click)="selectRoom(room)"
+        class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer hover:bg-cream-beige/80 transition-all"
+        [ngClass]="{'bg-cream-beige/80 shadow-sm': activeRoom?.id === room.id}">
+
+        <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 border-2"
+          [ngClass]="activeRoom?.id === room.id ? 'border-forest-green' : 'border-transparent'">
+          <img [src]="room.image || getAvatar(room.name)" [alt]="room.name" class="w-full h-full object-cover">
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-sm text-forest-green truncate">{{ room.name }}</h4>
+            <span *ngIf="room.lastMessageAt" class="text-[10px] text-olive-green/60 ml-1 flex-shrink-0">
+              {{ formatTime(room.lastMessageAt) }}
+            </span>
+          </div>
+          <p class="text-xs text-olive-green truncate">
+            {{ room.lastMessageContent || room.description || 'No messages yet' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- MAIN — Chat Area                                   -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <main class="flex-1 flex flex-col bg-white">
+
+    <!-- No room selected -->
+    <div *ngIf="!activeRoom" class="flex-1 flex flex-col items-center justify-center text-center p-8">
+      <div class="text-6xl mb-4">🏕️</div>
+      <h2 class="text-xl font-black text-forest-green">Welcome to CampConnect Community</h2>
+      <p class="text-olive-green mt-2">Select a group from the left to start chatting</p>
+    </div>
+
+    <!-- Active room -->
+    <ng-container *ngIf="activeRoom">
+
+      <!-- Chat Header -->
+      <header class="h-20 border-b border-olive-green/10 px-8 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-4">
+          <img [src]="activeRoom.image || getAvatar(activeRoom.name)"
+            class="w-12 h-12 rounded-full border-2 border-olive-green/20 object-cover">
+          <div>
+            <h2 class="font-bold text-forest-green">{{ activeRoom.name }}</h2>
+            <p class="text-xs text-olive-green">{{ activeRoom.memberCount }} members • {{ activeRoom.description }}</p>
+          </div>
+        </div>
+
+        <!-- Edit/Delete — only creator who is organizer -->
+        <div *ngIf="isOrganizer && isCreator()" class="flex gap-2">
+          <button (click)="openEditModal()"
+            class="px-3 py-1.5 text-sm font-bold text-forest-green border border-forest-green/30 rounded-lg hover:bg-forest-green/10 transition-colors">
+            ✏️ Edit
+          </button>
+          <button (click)="openDeleteConfirm()"
+            class="px-3 py-1.5 text-sm font-bold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+            🗑️ Delete
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Area -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+        <!-- Loading messages -->
+        <div *ngIf="isLoadingMessages" class="flex justify-center py-10">
+          <div class="animate-spin h-8 w-8 border-4 border-forest-green border-t-transparent rounded-full"></div>
+        </div>
+
+        <!-- Empty messages -->
+        <div *ngIf="!isLoadingMessages && messages.length === 0"
+          class="flex flex-col items-center justify-center h-full text-center text-olive-green">
+          <div class="text-4xl mb-2">👋</div>
+          <p class="font-bold">Be the first to say something!</p>
+        </div>
+
+        <!-- Message bubbles -->
+        <div *ngFor="let msg of messages"
+          class="flex items-end gap-3"
+          [ngClass]="{'flex-row-reverse': isCurrentUser(msg.senderId)}">
+
+          <img [src]="getAvatar(msg.senderName || 'User')"
+            class="w-9 h-9 rounded-full object-cover cursor-pointer flex-shrink-0 mb-1"
+            (click)="viewProfile(msg.senderId)">
+
+          <div class="max-w-[65%]" [ngClass]="{'items-end flex flex-col': isCurrentUser(msg.senderId)}">
+            <span class="text-xs font-bold text-forest-green mb-1 block"
+              [ngClass]="{'text-right': isCurrentUser(msg.senderId)}">
+              {{ isCurrentUser(msg.senderId) ? 'You' : msg.senderName }}
+            </span>
+            <div class="px-4 py-3 rounded-2xl text-sm shadow-sm"
+              [ngClass]="isCurrentUser(msg.senderId)
+                ? 'bg-forest-green text-white rounded-br-none'
+                : 'bg-cream-beige/60 text-forest-green rounded-bl-none'">
+              <span *ngIf="!msg.isDeleted">{{ msg.content }}</span>
+              <span *ngIf="msg.isDeleted" class="italic opacity-60">Message deleted</span>
+            </div>
+            <span class="text-[10px] text-olive-green/50 mt-1 block"
+              [ngClass]="{'text-right': isCurrentUser(msg.senderId)}">
+              {{ formatTime(msg.sentAt || msg.createdAt) }}
+              <span *ngIf="msg.isEdited" class="ml-1">(edited)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input -->
+      <footer class="p-6 flex-shrink-0">
+        <div class="bg-cream-beige/30 border border-olive-green/10 rounded-[2rem] px-5 py-3 flex items-center gap-4">
+          <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()"
+            placeholder="Your message..."
+            class="flex-1 bg-transparent border-none text-forest-green placeholder:text-olive-green/40 focus:outline-none text-sm">
+          <button (click)="sendMessage()"
+            class="bg-forest-green text-white w-10 h-10 flex items-center justify-center rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>
+            </svg>
+          </button>
+        </div>
+      </footer>
+    </ng-container>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- RIGHT SIDEBAR — About                              -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <aside class="w-72 border-l border-olive-green/20 bg-white/50 backdrop-blur-md hidden xl:flex flex-col">
+    <ng-container *ngIf="activeRoom">
+
+      <!-- Group image -->
+      <div class="p-8 text-center border-b border-olive-green/5 bg-cream-beige/20">
+        <img [src]="activeRoom.image || getAvatar(activeRoom.name)"
+          class="w-24 h-24 rounded-3xl border-4 border-white shadow-xl object-cover mx-auto mb-4">
+        <h2 class="text-lg font-black text-forest-green">{{ activeRoom.name }}</h2>
+        <p class="text-xs font-bold text-olive-green mt-1 uppercase tracking-widest">
+          {{ activeRoom.memberCount }} Members
+        </p>
+        <span class="inline-block mt-2 text-xs px-2 py-0.5 rounded-full font-bold"
+          [ngClass]="activeRoom.isPublic ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'">
+          {{ activeRoom.isPublic ? '🌍 Public' : '🔒 Private' }}
+        </span>
+      </div>
+
+      <!-- About -->
+      <div class="p-6 border-b border-olive-green/5">
+        <h3 class="text-xs font-black text-forest-green uppercase tracking-widest mb-2 opacity-50">About</h3>
+        <p class="text-sm text-forest-green/80 leading-relaxed">
+          {{ activeRoom.description || 'No description provided.' }}
+        </p>
+      </div>
+
+      <!-- Details -->
+      <div class="p-6 space-y-3">
+        <h3 class="text-xs font-black text-forest-green uppercase tracking-widest mb-2 opacity-50">Details</h3>
+        <div class="flex justify-between text-sm">
+          <span class="text-olive-green">Type</span>
+          <span class="font-bold text-forest-green">{{ activeRoom.type }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-olive-green">Created by</span>
+          <span class="font-bold text-forest-green">{{ activeRoom.creatorName }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-olive-green">Max members</span>
+          <span class="font-bold text-forest-green">{{ activeRoom.maxMembers }}</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-olive-green">Open to join</span>
+          <span class="font-bold text-forest-green">{{ activeRoom.allowJoin ? 'Yes' : 'No' }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- No room selected -->
+    <div *ngIf="!activeRoom" class="flex-1 flex items-center justify-center text-center p-6">
+      <p class="text-sm text-olive-green">Select a group to see details</p>
+    </div>
+  </aside>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- CREATE / EDIT ROOM MODAL                               -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div *ngIf="showRoomModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+
+    <div class="flex justify-between items-center p-6 border-b">
+      <h2 class="text-xl font-black text-forest-green">
+        {{ isEditMode ? 'Edit Group' : 'Create New Group' }}
+      </h2>
+      <button (click)="closeRoomModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-1">Group Name *</label>
+        <input [(ngModel)]="roomForm.name" type="text" placeholder="e.g. Hiking Enthusiasts"
+          class="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-forest-green/30">
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-1">Description</label>
+        <textarea [(ngModel)]="roomForm.description" rows="3" placeholder="What's this group about?"
+          class="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-forest-green/30"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-1">Image URL</label>
+        <input [(ngModel)]="roomForm.image" type="text" placeholder="https://..."
+          class="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-forest-green/30">
+      </div>
+      <div *ngIf="!isEditMode">
+        <label class="block text-sm font-bold text-gray-700 mb-1">Type *</label>
+        <select [(ngModel)]="roomForm.type"
+          class="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-forest-green/30">
+          <option *ngFor="let t of roomTypes" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-gray-700 mb-1">Max Members</label>
+        <input [(ngModel)]="roomForm.maxMembers" type="number" min="2" max="1000"
+          class="w-full border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-forest-green/30">
+      </div>
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="roomForm.isPublic" class="rounded">
+          <span class="text-sm font-bold text-gray-700">Public</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="roomForm.allowJoin" class="rounded">
+          <span class="text-sm font-bold text-gray-700">Allow Join</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex gap-3 p-6 border-t">
+      <button (click)="closeRoomModal()" class="flex-1 py-2 border rounded-xl text-sm font-bold hover:bg-gray-50">
+        Cancel
+      </button>
+      <button (click)="saveRoom()" [disabled]="isSavingRoom || !roomForm.name"
+        class="flex-1 py-2 bg-forest-green text-white rounded-xl text-sm font-bold hover:bg-forest-green/80 disabled:opacity-50">
+        {{ isSavingRoom ? 'Saving...' : (isEditMode ? 'Save Changes' : 'Create Group') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- DELETE CONFIRMATION MODAL                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div *ngIf="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+    <div class="text-5xl mb-4">⚠️</div>
+    <h2 class="text-xl font-black text-forest-green mb-2">Delete Group?</h2>
+    <p class="text-gray-600 text-sm mb-6">
+      Are you sure you want to delete <strong>{{ activeRoom?.name }}</strong>?
+      All messages will be lost permanently.
+    </p>
+    <div class="flex gap-3">
+      <button (click)="cancelDelete()" class="flex-1 py-2 border rounded-xl text-sm font-bold hover:bg-gray-50">
+        Cancel
+      </button>
+      <button (click)="deleteRoom()"
+        class="flex-1 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700">
+        Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>

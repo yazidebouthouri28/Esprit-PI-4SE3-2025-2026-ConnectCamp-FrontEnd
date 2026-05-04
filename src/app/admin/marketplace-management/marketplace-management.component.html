@@ -1,0 +1,559 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+    <!-- Dynamic Header Section -->
+    <div class="flex justify-between items-center">
+        <div>
+            @if (activePortalSection === 'products_categories') {
+            <h1 class="text-2xl font-black text-[#1a2e1a]">
+                {{ activeTab === 'categories' ? 'Category Management' : 'Product Catalog' }}
+            </h1>
+            <p class="text-sm text-[#617152] font-medium">
+                {{ activeTab === 'categories' ? 'Organize your product catalog Select a category to add products' :
+                'Showing all products' }}
+            </p>
+            } @else if (activePortalSection === 'inventory') {
+            <h1 class="text-2xl font-black text-[#1a2e1a]">Inventory & Warehouse Management</h1>
+            <p class="text-sm text-[#617152] font-medium">Manage stock levels, movements, and warehouse locations</p>
+            } @else if (activePortalSection === 'orders') {
+            <h1 class="text-2xl font-black text-[#1a2e1a]">Orders Management</h1>
+            <p class="text-sm text-[#617152] font-medium">Monitor equipment transactions and deployments.</p>
+            } @else if (activePortalSection === 'rentals_management') {
+            <h1 class="text-2xl font-black text-[#1a2e1a]">Rentals Management</h1>
+            <p class="text-sm text-[#617152] font-medium">Track active rentals and manage returns</p>
+            }
+        </div>
+        <div class="flex gap-3">
+            <button (click)="onAddAction()"
+                class="px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a] transition-all shadow-sm flex items-center gap-2">
+                <span>+</span>
+                @if (activePortalSection === 'products_categories') { {{ activeTab === 'categories' ? 'Add Category' :
+                'Add Product' }} }
+                @else if (activePortalSection === 'inventory') { Record Movement }
+                @else { Create Manifest }
+            </button>
+        </div>
+    </div>
+
+    <!-- Sub-navigation Tabs (Products & Categories) -->
+    @if (activePortalSection === 'products_categories') {
+    <div class="flex bg-white/50 p-1 rounded-xl border border-gray-100 shadow-sm max-w-fit">
+        <button (click)="activeTab = 'categories'"
+            class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+            [ngClass]="activeTab === 'categories' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
+            <span class="text-xs">🏷️</span> Categories
+        </button>
+        <button (click)="activeTab = 'products'"
+            class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+            [ngClass]="activeTab === 'products' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
+            <span class="text-xs">📦</span> Products
+        </button>
+    </div>
+    }
+
+    <!-- Content Area -->
+    @if (activePortalSection === 'products_categories') {
+    @if (activeTab === 'categories') {
+    <!-- Categories Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (cat of categories; track cat.id) {
+        <div
+            class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all group relative">
+            <button class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition-colors">🗑️</button>
+            <div class="flex items-center gap-4 mb-6">
+                <div
+                    class="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    {{ cat.icon }}
+                </div>
+                <div>
+                    <h3 class="font-black text-[#1a2e1a] text-lg leading-tight">{{ cat.name }}</h3>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-tighter">{{ cat.description }}</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50/50 rounded-xl p-4 mb-6 flex justify-between items-center border border-gray-100">
+                <span class="text-xs font-bold text-gray-500">Products</span>
+                <span class="text-lg font-black text-[#1a2e1a]">{{ cat.count }}</span>
+            </div>
+
+            @if (cat.subcategories) {
+            <div class="mb-6 space-y-2">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Subcategories:</p>
+                @for (sub of cat.subcategories; track sub) {
+                <div class="bg-white border border-gray-100 rounded-lg px-4 py-2 text-xs font-bold text-[#1a2e1a]">
+                    {{ sub }}
+                </div>
+                }
+            </div>
+            }
+
+            <button
+                class="w-full py-3 bg-[#2C4A3C] text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all flex items-center justify-center gap-2">
+                <span>+</span> Add Product to this Category
+            </button>
+        </div>
+        }
+    </div>
+    } @else {
+    <!-- Products Table View -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-gray-50 bg-gray-50/20 flex gap-4">
+            <div class="relative flex-1">
+                <input type="text" placeholder="Search products..."
+                    class="w-full pl-10 pr-4 py-2 bg-white border border-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/10 transition-all">
+                <span class="absolute left-3 top-2.5 opacity-30">🔍</span>
+            </div>
+            <select
+                class="px-4 py-2 bg-white border border-gray-100 rounded-xl text-sm font-bold text-[#1a2e1a] focus:outline-none">
+                <option>All Categories</option>
+            </select>
+            <select
+                class="px-4 py-2 bg-white border border-gray-100 rounded-xl text-sm font-bold text-[#1a2e1a] focus:outline-none">
+                <option>All Status</option>
+            </select>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr
+                        class="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                        <th class="px-8 py-5">SKU</th>
+                        <th class="px-8 py-5">Product Name</th>
+                        <th class="px-8 py-5">Category</th>
+                        <th class="px-8 py-5">Price</th>
+                        <th class="px-8 py-5">Rental</th>
+                        <th class="px-8 py-5 text-center">Stock</th>
+                        <th class="px-8 py-5 text-center">Status</th>
+                        <th class="px-8 py-5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @for (prod of products; track prod.id) {
+                    <tr class="hover:bg-gray-50/30 transition-colors group">
+                        <td class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ prod.sku
+                            }}</td>
+                        <td class="px-8 py-6">
+                            <p class="font-bold text-[#1a2e1a]">{{ prod.name }}</p>
+                            <p class="text-[10px] text-gray-400 italic font-medium">Perfect for family camping</p>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs">⛺</span>
+                                <span class="text-xs font-bold text-gray-500">{{ prod.category }}</span>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 font-black text-[#1a2e1a]">{{ prod.price }} DT</td>
+                        <td class="px-8 py-6">
+                            @if (prod.rental) {
+                            <span
+                                class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full text-[9px] font-black uppercase tracking-tighter">{{
+                                prod.rental }} DT/wk</span>
+                            } @else {
+                            <span class="text-gray-300">-</span>
+                            }
+                        </td>
+                        <td class="px-8 py-6 text-center font-black"
+                            [ngClass]="prod.stock < 15 ? 'text-red-500' : 'text-emerald-500'">{{ prod.stock }}</td>
+                        <td class="px-8 py-6 text-center">
+                            <span
+                                class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">✓
+                                Active</span>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            <div class="flex gap-2 justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                                <button class="p-2 hover:text-[#2C4A3C]">✏️</button>
+                                <button class="p-2 hover:text-amber-500">⚡</button>
+                                <button class="p-2 hover:text-red-500">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    }
+    } @if (activePortalSection === 'inventory') {
+    <div class="space-y-6">
+        <!-- Sub-navigation Tabs (Inventory) -->
+        <div class="flex bg-white/50 p-1 rounded-xl border border-gray-100 shadow-sm max-w-fit">
+            <button (click)="activeInventoryTab = 'stock'"
+                class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                [ngClass]="activeInventoryTab === 'stock' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
+                <span class="text-xs">📦</span> Stock Levels
+            </button>
+            <button (click)="activeInventoryTab = 'movements'"
+                class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                [ngClass]="activeInventoryTab === 'movements' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
+                <span class="text-xs">📜</span> Stock Movements
+            </button>
+            <button (click)="activeInventoryTab = 'warehouses'"
+                class="px-8 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2"
+                [ngClass]="activeInventoryTab === 'warehouses' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-500 hover:bg-white'">
+                <span class="text-xs">🏢</span> Warehouses
+            </button>
+        </div>
+
+        <!-- Global Alert Config -->
+        <div
+            class="bg-amber-50/50 border border-amber-100 rounded-3xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-2xl shadow-sm">⚙️</div>
+                <div>
+                    <h4 class="font-black text-amber-900 text-lg leading-tight">Global Stock Alert Configuration</h4>
+                    <p class="text-sm text-amber-700 font-medium italic">Set a default minimum stock threshold for all
+                        products</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <input type="number" value="15"
+                    class="w-20 px-4 py-3 bg-white border border-amber-200 rounded-xl text-center font-black focus:outline-none">
+                <button
+                    class="px-6 py-3 bg-[#E67E22] text-white rounded-xl text-sm font-black uppercase tracking-widest hover:brightness-110 transition-all">Apply
+                    to All</button>
+            </div>
+        </div>
+
+        <!-- Alert Notification -->
+        <div class="bg-red-50/50 border border-red-100 rounded-2xl p-6 flex flex-col gap-2">
+            <div class="flex items-center gap-2 text-red-600">
+                <span class="text-lg">⚠️</span>
+                <span class="text-sm font-black uppercase tracking-widest">1 Items below threshold</span>
+            </div>
+            <p class="text-xs font-bold text-red-400 italic">Premium Sleeping Bag -20°C (9 left)</p>
+        </div>
+
+        <!-- Inventory Table View -->
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-gray-50 bg-gray-50/20 flex justify-between items-center">
+                <select
+                    class="px-4 py-2 bg-white border border-gray-100 rounded-xl text-sm font-bold text-[#1a2e1a] focus:outline-none">
+                    <option>All Warehouses</option>
+                </select>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr
+                            class="bg-gray-50/50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                            <th class="px-8 py-5">SKU</th>
+                            <th class="px-8 py-5">Product</th>
+                            <th class="px-8 py-5">Location</th>
+                            <th class="px-8 py-5 text-center">Current</th>
+                            <th class="px-8 py-5 text-center">Reserved</th>
+                            <th class="px-8 py-5 text-center">Available</th>
+                            <th class="px-8 py-5 text-center">Alert At</th>
+                            <th class="px-8 py-5 text-center">Status</th>
+                            <th class="px-8 py-5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @for (item of inventory; track item.id) {
+                        <tr class="hover:bg-gray-50/30 transition-colors group">
+                            <td class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                TENT-FAM-00{{ item.id }}</td>
+                            <td class="px-8 py-6 font-bold text-[#1a2e1a]">{{ item.productName }}</td>
+                            <td class="px-8 py-6">
+                                <p class="text-xs font-bold text-gray-400">{{ item.warehouse }}</p>
+                                <p class="text-[10px] font-black text-gray-300 uppercase leading-none">{{ item.location
+                                    }}</p>
+                            </td>
+                            <td class="px-8 py-6 text-center font-black text-[#1a2e1a]">{{ item.current }}</td>
+                            <td class="px-8 py-6 text-center font-black text-gray-400">{{ item.reserved }}</td>
+                            <td class="px-8 py-6 text-center font-black text-emerald-600">{{ item.available }}</td>
+                            <td class="px-8 py-6 text-center font-black text-amber-600">{{ item.alertAt }}</td>
+                            <td class="px-8 py-6 text-center">
+                                <span
+                                    class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border"
+                                    [ngClass]="item.status === 'ok' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'">
+                                    • {{ item.status === 'ok' ? 'OK' : 'Low' }}
+                                </span>
+                            </td>
+                            <td class="px-8 py-6 text-right">
+                                <div
+                                    class="flex gap-2 justify-end opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <button class="p-2 bg-gray-50 rounded-lg text-sm">📦</button>
+                                    <button class="p-2 bg-gray-50 rounded-lg text-sm">🔄</button>
+                                    <button class="p-2 bg-gray-50 rounded-lg text-sm">⚙️</button>
+                                </div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (activePortalSection === 'orders') {
+    <div class="space-y-6">
+        <!-- Stats Bar (Matching Screenshot) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div
+                class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center group hover:border-[#1a2e1a] transition-all">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Total Orders</p>
+                <p class="text-3xl font-black text-[#1a2e1a]">3</p>
+            </div>
+            <div
+                class="bg-amber-50/50 p-6 rounded-2xl border border-amber-100 shadow-sm text-center group hover:border-amber-400 transition-all">
+                <p class="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em] mb-2">Pending</p>
+                <p class="text-3xl font-black text-amber-700">1</p>
+            </div>
+            <div
+                class="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-sm text-center group hover:border-emerald-400 transition-all">
+                <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Revenue</p>
+                <p class="text-3xl font-black text-emerald-700 italic">669,97 DT</p>
+            </div>
+            <div
+                class="bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100 shadow-sm text-center group hover:border-indigo-400 transition-all">
+                <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">Avg Rating</p>
+                <p class="text-3xl font-black text-indigo-700">4.8★</p>
+            </div>
+        </div>
+
+        <!-- Order Tabs -->
+        <div
+            class="flex flex-wrap gap-2 mb-8 bg-white/50 p-1.5 rounded-2xl border border-gray-100 shadow-sm inline-flex">
+            @for (status of ['All', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled']; track status) {
+            <button class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                [class]="status === 'All' ? 'bg-[#2C4A3C] text-white shadow-lg' : 'text-gray-400 hover:text-[#1a2e1a] hover:bg-white'">
+                {{ status }}
+            </button>
+            }
+        </div>
+
+        <!-- Order Cards -->
+        <div class="space-y-6">
+            @for (order of gearOrders; track order.id) {
+            <div
+                class="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-xl transition-all group">
+                <div class="p-8 border-b border-gray-50 flex justify-between items-start">
+                    <div class="flex items-center gap-5">
+                        <div
+                            class="w-12 h-12 bg-[#f8f5e6] rounded-xl flex items-center justify-center text-2xl shadow-inner group-hover:rotate-3 transition-transform">
+                            📋</div>
+                        <div>
+                            <h4 class="text-xl font-black text-[#1a2e1a] tracking-tight">Order #{{ order.id }}</h4>
+                            <div class="mt-2 flex gap-4">
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Customer:
+                                    <span class="text-[#1a2e1a]">{{ order.customer }}</span>
+                                </p>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">
+                                    Temporal: <span class="text-indigo-400">{{ order.date }}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-black text-[#1a2e1a] italic tracking-tighter">{{
+                            order.total.toLocaleString() }} DT</p>
+                        <span
+                            class="mt-2 inline-block px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-amber-50 text-amber-600 border border-amber-100">
+                            • {{ order.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="p-8 bg-gray-50/20">
+                    <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em] mb-4">Inventory Manifest:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div
+                            class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">⛺</div>
+                                <div>
+                                    <p class="text-xs font-black text-[#1a2e1a]">4-Person Family Tent</p>
+                                    <p class="text-[10px] font-bold text-gray-400">Logistics ID: SKU-TENT-4P</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-black text-[#1a2e1a]">QTY: 1</p>
+                                <p class="text-[10px] font-bold text-emerald-600">299.99 DT</p>
+                            </div>
+                        </div>
+                        <!-- Conditional mock for multi-item orders -->
+                        @if (order.id === 'ORD-001') {
+                        <div
+                            class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">🔥</div>
+                                <div>
+                                    <p class="text-xs font-black text-[#1a2e1a]">Portable Camp Stove</p>
+                                    <p class="text-[10px] font-bold text-gray-400">Logistics ID: SKU-COOK-PR</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs font-black text-[#1a2e1a]">QTY: 1</p>
+                                <p class="text-[10px] font-bold text-emerald-600">89.99 DT</p>
+                            </div>
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Shipping/Logistics Metadata -->
+                    <div class="mt-6 flex flex-wrap gap-4">
+                        <div
+                            class="px-4 py-3 bg-blue-50/50 rounded-2xl border border-blue-100/50 flex items-center gap-3">
+                            <span class="text-blue-500">📍</span>
+                            <p class="text-[10px] font-black text-blue-800 uppercase tracking-tight">789 Main St, Tunis,
+                                Tunisia 1001</p>
+                        </div>
+                        <div
+                            class="px-4 py-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 flex items-center gap-3">
+                            <span class="text-indigo-500">📧</span>
+                            <p class="text-[10px] font-black text-indigo-800 lowercase tracking-tight">{{ order.email }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white border-t border-gray-50 flex flex-wrap gap-3">
+                    <select
+                        class="px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-[10px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/10 transition-all cursor-pointer">
+                        <option>Pending</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                    </select>
+                    <button
+                        class="px-6 py-2.5 bg-[#2C4A3C] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#1a2e1a] shadow-lg shadow-[#2C4A3C]/10 transition-all active:scale-95">Update
+                        Status</button>
+                    <button
+                        class="px-6 py-2.5 bg-indigo-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 shadow-lg shadow-indigo-500/10 transition-all flex items-center gap-2 active:scale-95">
+                        <span>📄</span> View Manifest
+                    </button>
+                    <div class="flex-1"></div>
+                    <button
+                        class="px-6 py-2.5 border border-red-50 text-red-400 bg-red-50/30 hover:bg-red-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 italic">✕
+                        Revoke Manifest</button>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    @if (activePortalSection === 'rentals_management') {
+    <div class="space-y-6">
+        <!-- Stats Context for Rentals (Simplified for now) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Active Rentals</p>
+                    <p class="text-3xl font-black text-[#1a2e1a]">1</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-xl">✓
+                </div>
+            </div>
+            <div class="bg-red-50/50 border border-red-100 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">Overdue</p>
+                    <p class="text-3xl font-black text-[#1a2e1a]">1</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-white text-xl">⚠️
+                </div>
+            </div>
+            <div class="bg-blue-50/50 border border-blue-100 rounded-2xl p-6 flex justify-between items-center">
+                <div>
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Total Revenue</p>
+                    <p class="text-3xl font-black text-[#1a2e1a]">$230</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-600/10 rounded-xl flex items-center justify-center text-2xl">💰</div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex gap-2">
+            @for (f of ['All', 'Active', 'Overdue', 'Completed', 'Cancelled']; track f) {
+            <button class="px-6 py-2 rounded-lg text-xs font-bold transition-all border border-gray-100"
+                [ngClass]="f === 'All' ? 'bg-[#2C4A3C] text-white' : 'bg-white text-gray-500 hover:bg-gray-50'">
+                {{ f }}
+            </button>
+            }
+        </div>
+
+        <!-- Rentals Cards View -->
+        <div class="space-y-4">
+            @for (res of gearRentals; track res.id) {
+            <div
+                class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all">
+                <div class="p-8">
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h3 class="font-black text-[#1a2e1a] text-xl leading-tight mb-1">{{ res.id }}</h3>
+                            <p class="text-xs font-bold text-gray-400">Product: <span class="text-[#1a2e1a]">{{
+                                    res.product }}</span></p>
+                            <p class="text-xs font-bold text-gray-400">Customer: <span class="text-[#1a2e1a]">{{
+                                    res.customer }}</span></p>
+                            <p class="text-xs font-bold text-gray-400">Email: <span class="text-gray-300 italic">{{
+                                    res.email }}</span></p>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest mb-2"
+                                [ngClass]="res.status === 'active' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'">
+                                {{ res.status }}
+                            </span>
+                            <span class="text-[11px] font-black"
+                                [ngClass]="res.daysLeft < 0 ? 'text-red-500' : 'text-emerald-500'">Days Left: {{
+                                res.daysLeft }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 py-6 border-t border-gray-50">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Start Date</p>
+                            <p class="text-sm font-bold text-[#1a2e1a]">{{ res.startDate }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">End Date</p>
+                            <p class="text-sm font-bold text-[#1a2e1a]">{{ res.endDate }}</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Total Cost</p>
+                            <p class="text-sm font-black text-[#1a2e1a]">{{ res.total }} DT</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Deposit</p>
+                            <p class="text-sm font-black text-amber-600">{{ res.deposit }} DT (Held)</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-6 border-t border-gray-50">
+                        <button
+                            class="px-6 py-2.5 bg-blue-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center gap-2">
+                            <span>📜</span> View Details
+                        </button>
+                        <button
+                            class="px-6 py-2.5 bg-emerald-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center gap-2">
+                            <span>✓</span> Mark Returned
+                        </button>
+                        @if (res.status === 'active') {
+                        <button
+                            class="px-6 py-2.5 bg-purple-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all">
+                            <span>📅</span> Extend Rental
+                        </button>
+                        } @else {
+                        <button
+                            class="px-6 py-2.5 bg-orange-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all">
+                            <span>🔔</span> Send Reminder
+                        </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Inventory Footer -->
+<div
+    class="px-8 py-6 border-t border-gray-100 bg-[#1a2e1a] text-white/50 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+    <div class="flex gap-6">
+        <span>Active Skus: 1,420</span>
+        <span class="text-emerald-400">Yield Optimized</span>
+    </div>
+    <div>
+        <span class="italic text-white/20">Operational Ledger Verified</span>
+    </div>
+</div>

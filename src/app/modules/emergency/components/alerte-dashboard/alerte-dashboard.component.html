@@ -1,0 +1,276 @@
+<div class="min-h-screen bg-[#f8f9fa] py-8 px-6 lg:px-12">
+    <!-- Premium Header -->
+    <div class="max-w-7xl mx-auto mb-12">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-12">
+            <div class="space-y-1">
+                <div
+                    class="inline-flex items-center px-3 py-1 bg-red-50 rounded-full border border-red-100 space-x-2 mb-2">
+                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black text-red-700 uppercase tracking-[0.2em]">Live Support
+                        Dashboard</span>
+                </div>
+                <h1 class="text-4xl font-extrabold text-forest tracking-tight">Emergency <span
+                        class="text-red-600">Intelligence</span></h1>
+                <p class="text-gray-500 font-medium tracking-tight">Real-time command center for system-wide alerts and
+                    rapid response.</p>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex flex-wrap gap-4">
+                <button routerLink="/admin/emergency/protocols"
+                    class="bg-white hover:bg-forest hover:text-white px-6 py-2 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 transition-all group/prot">
+                    <div
+                        class="w-10 h-10 bg-sage/10 rounded-xl flex items-center justify-center text-forest group-hover/prot:bg-white/20 group-hover/prot:text-white transition-colors">
+                        <i class="fas fa-shield-virus"></i>
+                    </div>
+                    <div class="text-left">
+                        <span class="block text-[8px] font-black uppercase tracking-widest opacity-40">Manage</span>
+                        <span class="block text-xs font-bold uppercase tracking-tight">Safety Protocols</span>
+                    </div>
+                </button>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col min-w-[140px]">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total
+                        Alerts</span>
+                    <span class="text-2xl font-black text-forest">{{ alerts.length }}</span>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col min-w-[140px]">
+                    <span class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Active Now</span>
+                    <span class="text-2xl font-black text-red-600">{{ activeAlertsCount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI SITREP — Admin uniquement, à la demande -->
+        <div class="mb-8">
+
+            <!-- Bouton déclencheur — visible seulement si pas encore généré -->
+            <div *ngIf="!sitrep && !sitrepLoading"
+                class="flex items-center justify-between bg-[#0f172a] border border-violet-900/40 rounded-2xl px-6 py-4 cursor-pointer hover:border-violet-600/60 transition-all"
+                (click)="generateSitrep()">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center text-violet-400">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black text-white uppercase tracking-widest">AI SITREP</p>
+                        <p class="text-[10px] text-white/40">Analyser la situation globale des alertes actives</p>
+                    </div>
+                </div>
+                <span class="text-[10px] font-black text-violet-400 uppercase tracking-wider flex items-center gap-2">
+                    Générer <i class="fas fa-arrow-right"></i>
+                </span>
+            </div>
+
+            <!-- Génération en cours -->
+            <div *ngIf="sitrepLoading"
+                class="flex items-center gap-4 bg-[#0f172a] border border-violet-900/40 rounded-2xl px-6 py-4 animate-pulse">
+                <i class="fas fa-circle-notch fa-spin text-violet-400"></i>
+                <p class="text-xs font-bold text-white/50">Analyse IA en cours sur {{ activeAlertsCount }} alertes actives...</p>
+            </div>
+
+            <!-- SITREP généré -->
+            <div *ngIf="sitrep" class="bg-[#0f172a] border rounded-2xl p-6 space-y-5"
+                [class]="'border-' + (sitrep.threatLevel === 'CRITICAL' ? 'red' : sitrep.threatLevel === 'DANGER' ? 'orange' : sitrep.threatLevel === 'WATCH' ? 'amber' : 'green') + '-700/40'">
+
+                <!-- Threat level + refresh -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center text-violet-400">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-black text-violet-400 uppercase tracking-widest">AI SITREP — {{ sitrep.alertCount }} alertes analysées</p>
+                            <p class="text-base font-black uppercase tracking-tight"
+                                [class]="threatColor(sitrep.threatLevel)">
+                                Niveau de menace : {{ sitrep.threatLevel }}
+                            </p>
+                        </div>
+                    </div>
+                    <button (click)="generateSitrep()" class="text-white/30 hover:text-white/60 transition-colors text-xs">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+
+                <!-- Résumé -->
+                <p class="text-sm text-white/70 leading-relaxed font-medium border-l-2 border-violet-600/40 pl-4">
+                    {{ sitrep.summary }}
+                </p>
+
+                <!-- Priorités -->
+                <div *ngIf="sitrep?.priorities && sitrep.priorities.length > 0">
+                    <p class="text-[9px] font-black text-white/30 uppercase tracking-widest mb-2">Actions prioritaires</p>
+                    <div class="space-y-1.5">
+                        <div *ngFor="let p of sitrep.priorities; let i = index"
+                            class="flex items-start gap-3 bg-white/5 rounded-lg px-3 py-2">
+                            <span class="w-5 h-5 rounded-full bg-violet-600/30 text-violet-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
+                                {{ i + 1 }}
+                            </span>
+                            <p class="text-xs text-white/70 font-medium">{{ p }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risque d'escalade + protocole -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/5 rounded-xl px-4 py-3">
+                        <p class="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Risque escalade</p>
+                        <p class="text-xl font-black" [class]="threatColor(sitrep.threatLevel)">
+                            {{ sitrep.escalationRisk }}%
+                        </p>
+                    </div>
+                    <div *ngIf="sitrep.recommendedProtocol" class="bg-white/5 rounded-xl px-4 py-3">
+                        <p class="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1">Protocole</p>
+                        <p class="text-xs font-bold text-white/70">{{ sitrep.recommendedProtocol }}</p>
+                    </div>
+                </div>
+
+                <!-- Warning doublons -->
+                <div *ngIf="sitrep.duplicateWarning"
+                    class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-4 py-2">
+                    <i class="fas fa-copy text-amber-400 text-xs"></i>
+                    <p class="text-[10px] text-amber-300 font-bold">{{ sitrep.duplicateWarning }}</p>
+                </div>
+            </div>
+
+            <!-- Erreur -->
+            <div *ngIf="sitrepError"
+                class="flex items-center gap-3 bg-gray-900/50 border border-gray-700 rounded-2xl px-6 py-4">
+                <i class="fas fa-robot text-gray-500"></i>
+                <p class="text-xs font-bold text-gray-500">SITREP indisponible. Vérifiez la clé GROQ API.</p>
+                <button (click)="generateSitrep()" class="ml-auto text-xs text-violet-400 hover:underline font-bold">Réessayer</button>
+            </div>
+        </div>
+
+        <!-- Search & Control Bar -->
+        <div
+            class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
+            <!-- Advanced Search -->
+            <div class="relative w-full md:max-w-md group">
+                <i
+                    class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-red-600 transition-colors"></i>
+                <input type="text" (input)="onSearch($event)" placeholder="Search by title, location, reporter..."
+                    class="w-full bg-gray-50 border-0 rounded-xl py-3.5 pl-14 pr-6 focus:ring-2 focus:ring-red-600/10 focus:bg-white transition-all outline-none font-medium text-forest text-sm">
+            </div>
+
+            <!-- Enhanced Filters -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 w-full md:w-auto">
+                <button (click)="applyFilter('ALL')" [class.bg-forest]="activeFilter === 'ALL'"
+                    [class.text-white]="activeFilter === 'ALL'"
+                    class="whitespace-nowrap px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-sage/10 hover:bg-forest/5">
+                    All
+                </button>
+                <button (click)="applyFilter('ACTIVE')" [class.bg-red-600]="activeFilter === 'ACTIVE'"
+                    [class.text-white]="activeFilter === 'ACTIVE'"
+                    class="whitespace-nowrap px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-red-600/20 text-red-600 hover:bg-red-50">
+                    Active
+                </button>
+                <button (click)="applyFilter('ACKNOWLEDGED')" [class.bg-blue-500]="activeFilter === 'ACKNOWLEDGED'"
+                    [class.text-white]="activeFilter === 'ACKNOWLEDGED'"
+                    class="whitespace-nowrap px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-blue-500/20 text-blue-600 hover:bg-blue-50">
+                    Acked
+                </button>
+                <button (click)="applyFilter('RESOLVED')" [class.bg-green-600]="activeFilter === 'RESOLVED'"
+                    [class.text-white]="activeFilter === 'RESOLVED'"
+                    class="whitespace-nowrap px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all border border-green-600/20 text-green-600 hover:bg-green-50">
+                    Resolved
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-40 animate-pulse">
+        <div class="w-16 h-16 border-4 border-gray-100 border-t-red-600 rounded-full animate-spin mb-6"></div>
+        <p class="text-sm font-black text-forest uppercase tracking-widest">Scanning Network...</p>
+    </div>
+
+    <!-- Alert Grid -->
+    <div *ngIf="!loading && !error"
+        class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 pb-12">
+        <div *ngFor="let alert of filteredAlerts"
+            class="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative group flex flex-col overflow-hidden">
+
+            <!-- Urgency Bar -->
+            <div [ngClass]="getSeverityClass(alert.severity)" class="w-full absolute top-0 left-0"></div>
+
+            <div class="p-8 pt-10 flex-1 flex flex-col">
+                <!-- Status Badge -->
+                <div class="flex justify-between items-start mb-6">
+                    <div [ngClass]="getStatusClass(alert.status)"
+                        class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border border-current shadow-sm h-fit">
+                        {{ alert.status }}
+                    </div>
+                    <div
+                        class="bg-gray-50 p-3 rounded-2xl text-forest border border-gray-100 group-hover:scale-110 transition-transform">
+                        <i class="fas" [ngClass]="getTypeIcon(alert.emergencyType)"></i>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="mb-6">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{{
+                        alert.emergencyType }}</p>
+                    <h3
+                        class="text-xl font-bold text-forest group-hover:text-red-600 transition-colors uppercase leading-tight">
+                        {{ alert.title }}</h3>
+                </div>
+
+                <div class="relative bg-gray-50/50 rounded-2xl p-4 border border-gray-100 mb-6">
+                    <p class="text-xs font-medium text-gray-500 line-clamp-3 leading-relaxed">"{{ alert.description }}"
+                    </p>
+                    <div
+                        class="absolute -right-1 -top-1 w-6 h-6 bg-white rounded-full flex items-center justify-center border border-gray-100">
+                        <i class="fas fa-quote-right text-[8px] text-gray-300"></i>
+                    </div>
+                </div>
+
+                <!-- Metadata -->
+                <div class="space-y-3 mb-8">
+                    <div class="flex items-center gap-3 text-gray-500">
+                        <i class="fas fa-map-marker-alt text-[10px] text-red-500/50 w-4"></i>
+                        <span class="text-[11px] font-bold tracking-tight">{{ alert.location || 'Unknown Coordinates'
+                            }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-500">
+                        <i class="fas fa-user-circle text-[10px] text-gray-300 w-4"></i>
+                        <span class="text-[11px] font-bold tracking-tight">Reported by <span class="text-forest">{{
+                                alert.reportedByName }}</span></span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-400">
+                        <i class="far fa-clock text-[10px] w-4"></i>
+                        <span class="text-[10px] font-medium italic">{{ alert.reportedAt | date:'medium' }}</span>
+                    </div>
+                </div>
+
+                <!-- Full Actions -->
+                <div class="mt-auto pt-6 border-t border-gray-50 flex flex-col gap-3">
+                    <div class="flex gap-2" *ngIf="alert.status !== 'RESOLVED'">
+                        <button *ngIf="alert.status === 'ACTIVE'" (click)="onAcknowledge(alert.id)"
+                            class="flex-1 bg-blue-500 hover:bg-black text-white py-3.5 rounded-xl font-black text-[9px] transition-all uppercase tracking-widest shadow-md">
+                            Acknowledge
+                        </button>
+                        <button (click)="onResolve(alert.id)"
+                            class="flex-1 bg-green-600 hover:bg-black text-white py-3.5 rounded-xl font-black text-[9px] transition-all uppercase tracking-widest shadow-md">
+                            Mark Resolved
+                        </button>
+                    </div>
+                    <button [routerLink]="['/admin/emergency/detail', alert.id]"
+                        class="w-full bg-forest hover:bg-black text-cream py-3.5 rounded-xl font-black text-[9px] transition-all uppercase tracking-widest flex items-center justify-center gap-2 group/btn">
+                        Investigate Incident <i
+                            class="fas fa-chevron-right text-[8px] group-hover/btn:translate-x-1 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty Results -->
+        <div *ngIf="filteredAlerts.length === 0"
+            class="col-span-full py-20 flex flex-col items-center justify-center bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
+            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-search text-gray-200 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-black text-forest mb-2 uppercase tracking-tight">No Alerts Found</h3>
+            <p class="text-gray-400 font-medium">Try adjusting your search terms or status filters.</p>
+        </div>
+    </div>
+</div>

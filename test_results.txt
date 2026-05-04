@@ -1,0 +1,34 @@
+- Generating browser application bundles (phase: setup)...
+✔ Browser application bundle generation complete.
+[32m31 03 2026 09:43:25.187:INFO [karma-server]: [39mKarma v6.4.4 server started at http://localhost:9877/
+[32m31 03 2026 09:43:25.188:INFO [launcher]: [39mLaunching browsers Chrome with concurrency unlimited
+[32m31 03 2026 09:43:25.195:INFO [launcher]: [39mStarting browser Chrome
+[32m31 03 2026 09:43:25.861:INFO [Chrome 146.0.0.0 (Windows 10)]: [39mConnected on socket pzL4p7aOJSyK-2c5AAAB with id 25996643
+Chrome 146.0.0.0 (Windows 10): Executed 0 of 14[32m SUCCESS[39m (0 secs / 0 secs)
+[1A[2KLOG: [36m'submitEvent called'[39m
+Chrome 146.0.0.0 (Windows 10): Executed 0 of 14[32m SUCCESS[39m (0 secs / 0 secs)
+LOG: 'submitEvent called'
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 1 of 14[32m SUCCESS[39m (0 secs / 0.186 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 2 of 14[32m SUCCESS[39m (0 secs / 0.195 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 3 of 14[32m SUCCESS[39m (0 secs / 0.203 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 4 of 14[32m SUCCESS[39m (0 secs / 0.211 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 5 of 14[32m SUCCESS[39m (0 secs / 0.351 secs)
+[1A[2KLOG: [36m'submitEvent called'[39m
+Chrome 146.0.0.0 (Windows 10): Executed 5 of 14[32m SUCCESS[39m (0 secs / 0.351 secs)
+LOG: 'submitEvent called'
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 6 of 14[32m SUCCESS[39m (0 secs / 0.368 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 7 of 14[32m SUCCESS[39m (0 secs / 0.381 secs)
+[1A[2KLOG: [36m'submitEvent called'[39m
+Chrome 146.0.0.0 (Windows 10): Executed 7 of 14[32m SUCCESS[39m (0 secs / 0.381 secs)
+LOG: 'submitEvent called'
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 8 of 14[32m SUCCESS[39m (0 secs / 0.392 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 9 of 14[32m SUCCESS[39m (0 secs / 0.594 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 10 of 14[32m SUCCESS[39m (0 secs / 0.601 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 11 of 14[32m SUCCESS[39m (0 secs / 0.61 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 12 of 14[32m SUCCESS[39m (0 secs / 0.645 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 13 of 14[32m SUCCESS[39m (0 secs / 0.65 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 14 of 14[32m SUCCESS[39m (0 secs / 0.655 secs)
+[1A[2KChrome 146.0.0.0 (Windows 10): Executed 14 of 14[32m SUCCESS[39m (0.389 secs / 0.655 secs)
+[32mTOTAL: 14 SUCCESS[39m
+✔ Browser application bundle generation complete.
+✔ Browser application bundle generation complete.

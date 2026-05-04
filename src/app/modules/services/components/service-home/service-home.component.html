@@ -1,0 +1,281 @@
+<div class="service-home min-h-screen bg-cream">
+    <!-- Hero Section -->
+    <section class="relative h-[60vh] flex items-center overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105 hover:scale-100"
+            style="background-image: url('https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=2070&auto=format&fit=crop')">
+            <div class="absolute inset-0 bg-forest/40 backdrop-blur-[2px]"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-3xl animate-fade-in-up">
+                <span
+                    class="inline-block px-4 py-1.5 bg-sage/90 text-forest text-xs font-black uppercase tracking-[0.2em] rounded-full mb-6">Explore
+                    the Wilderness</span>
+                <h1 class="text-6xl md:text-7xl font-black text-white mb-6 leading-[1.1]">
+                    <span *ngIf="!isOrganizer()">Elevate Your <br><span class="text-sage">Camping
+                            Experience.</span></span>
+                    <span *ngIf="isOrganizer()">Empower Your <br><span class="text-sage">Event Logistics.</span></span>
+                </h1>
+                <p class="text-xl text-white/90 font-medium mb-10 leading-relaxed max-w-2xl">
+                    <span *ngIf="!isOrganizer()">From expert medical care to rugged transportation and premium gear, we
+                        provide everything you need for a safe and unforgettable adventure.</span>
+                    <span *ngIf="isOrganizer()">Access professional B2B services to staff and secure your events. From
+                        medical teams to security and specialized transport.</span>
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                    <button routerLink="/services/list"
+                        class="bg-white text-forest px-10 py-4 rounded-2xl font-black shadow-2xl hover:bg-forest hover:text-white transition-all transform hover:-translate-y-1">
+                        Browse All Services
+                    </button>
+                    <button routerLink="/preferences"
+                        class="bg-olive text-white px-10 py-4 rounded-2xl font-black shadow-2xl hover:bg-forest transition-all transform hover:-translate-y-1 flex items-center gap-2">
+                        <i class="fas fa-sparkles"></i>
+                        Personalize My Trip
+                    </button>
+                    <button routerLink="/emergency"
+                        class="bg-red-500/20 backdrop-blur-md border border-red-400/30 text-red-100 px-10 py-4 rounded-2xl font-black hover:bg-red-500 transition-all">
+                        SOS Assistance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Highlights -->
+    <section class="py-24 container mx-auto px-6">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div>
+                <h2 class="text-4xl font-black text-forest mb-4">
+                    {{ isOrganizer() ? 'Available B2B Services' : 'Recommended For You' }}
+                </h2>
+                <div class="h-1.5 w-24 bg-olive rounded-full"></div>
+            </div>
+            <div class="text-right">
+                <p class="text-gray-500 font-medium max-w-md mb-4">
+                    {{ isOrganizer() ? 'Professional services ready to be assigned to your organized events.' : 'Our
+                    most popular premium services tailored for modern outdoor explorers.' }}
+                </p>
+                <button routerLink="/preferences"
+                    class="inline-flex items-center gap-2 text-olive font-black text-sm uppercase tracking-widest hover:text-forest transition-colors group/cta">
+                    Refine Your Recommendations
+                    <svg class="w-4 h-4 group-hover/cta:translate-x-1 transition-transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Recommendations Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Medical Service -->
+            <div
+                class="group bg-white rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:rotate-1">
+                <div class="h-56 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=2070&auto=format&fit=crop"
+                        alt="Medical"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 group-hover:rotate-3">
+                    <div
+                        class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                        24/7 Support</div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-xl font-black text-forest mb-2">Medical Assistance</h3>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">Our Chief Doctor is always
+                        on standby for your safety.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-black text-forest">50 <small class="text-xs">DT</small></span>
+                        <button (click)="onBook(1, 'service')"
+                            class="w-12 h-12 bg-cream text-forest rounded-xl flex items-center justify-center hover:bg-forest hover:text-white transition-all group-hover:rotate-12">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transport -->
+            <div
+                class="group bg-white rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:-rotate-1">
+                <div class="h-56 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2070&auto=format&fit=crop"
+                        alt="Transport"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 group-hover:-rotate-3">
+                    <div
+                        class="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Rugged 4x4</div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-xl font-black text-forest mb-2">Mountain Transport</h3>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">Reliable off-road transport to
+                        secluded peaks.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-black text-forest">80 <small class="text-xs">DT</small></span>
+                        <button (click)="onBook(2, 'service')"
+                            class="w-12 h-12 bg-cream text-forest rounded-xl flex items-center justify-center hover:bg-forest hover:text-white transition-all group-hover:-rotate-12">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gear -->
+            <div
+                class="group bg-white rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:rotate-1">
+                <div class="h-56 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=2070&auto=format&fit=crop"
+                        alt="Gear"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 group-hover:rotate-3">
+                    <div
+                        class="absolute top-4 left-4 bg-olive text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Quality Gear</div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-xl font-black text-forest mb-2">Pro Camping Kit</h3>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">Rent high-quality survival equipment for your
+                        trip.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-black text-forest">120 <small class="text-xs">DT</small></span>
+                        <button (click)="onBook(3, 'service')"
+                            class="w-12 h-12 bg-cream text-forest rounded-xl flex items-center justify-center hover:bg-forest hover:text-white transition-all group-hover:rotate-12">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tours -->
+            <div
+                class="group bg-white rounded-[2.5rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:-rotate-1">
+                <div class="h-56 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?q=80&w=2070&auto=format&fit=crop"
+                        alt="Hiking"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125 group-hover:-rotate-3">
+                    <div
+                        class="absolute top-4 left-4 bg-sage text-forest px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                        Expert Guides</div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-xl font-black text-forest mb-2">Guided Expeditions</h3>
+                    <p class="text-gray-400 text-sm mb-6 leading-relaxed">Discover secret trails and hidden waterfalls
+                        with our experts.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-black text-forest">45 <small class="text-xs">DT</small></span>
+                        <button (click)="onBook(4, 'service')"
+                            class="w-12 h-12 bg-cream text-forest rounded-xl flex items-center justify-center hover:bg-forest hover:text-white transition-all group-hover:-rotate-12">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seasonal Promo Packs Section -->
+    <section class="py-24 bg-white/50 backdrop-blur-sm">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-olive font-black tracking-widest uppercase text-sm mb-4 block">
+                    Curated For Your Next Adventure
+                </span>
+                <h2 class="text-5xl font-black text-forest mb-6 italic">Specials & Bundles</h2>
+                <div class="h-1.5 w-32 bg-sage mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div *ngFor="let pack of recommendedPacks"
+                    class="group relative bg-forest rounded-[3rem] p-8 md:p-12 overflow-hidden flex flex-col md:flex-row gap-8 shadow-2xl hover:shadow-sage/20 transition-all duration-500 transform hover:scale-[1.02]">
+                    <!-- Glow effect -->
+                    <div
+                        class="absolute -top-20 -right-20 w-64 h-64 bg-sage/20 rounded-full blur-[80px] group-hover:bg-sage/40 transition-all duration-700">
+                    </div>
+
+                    <div class="w-full md:w-48 h-48 rounded-[2rem] overflow-hidden shadow-2xl relative z-10 shrink-0">
+                        <!-- Recommendation Badge -->
+                        <div *ngIf="pack.score && pack.score >= 5"
+                            class="absolute top-4 left-4 z-20 bg-sage text-forest px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl animate-pulse">
+                            Matched for you
+                        </div>
+                        <img [src]="getImageUrl(pack.image || (pack.images && pack.images.length > 0 ? pack.images[0] : ''))"
+                            class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-125">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <div
+                            class="absolute bottom-4 left-0 right-0 text-center text-white text-[10px] font-black uppercase tracking-tighter">
+                            {{ pack.promotion }}</div>
+                    </div>
+
+                    <div class="relative z-10 flex flex-col justify-center">
+                        <h3 class="text-3xl font-black text-white mb-4 group-hover:text-sage transition-colors">{{
+                            pack.name }}</h3>
+                        <p class="text-white/60 text-sm mb-8 line-clamp-2">{{ pack.description }}</p>
+                        <div class="flex items-center gap-6">
+                            <button (click)="onBook(pack.id!, 'pack')"
+                                class="bg-sage text-forest px-8 py-3 rounded-xl font-black hover:bg-white transition-all transform active:scale-95 shadow-lg shadow-black/20">
+                                Book Bundle
+                            </button>
+                            <span class="text-3xl font-black text-white italic">{{ pack.price }} <small
+                                    class="text-base">DT</small></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Banner -->
+    <section class="py-12 container mx-auto px-6">
+        <div
+            class="bg-forest rounded-[3rem] p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 group">
+            <div
+                class="absolute top-0 right-0 w-1/2 h-full opacity-10 pointer-events-none transition-transform duration-1000 group-hover:scale-110">
+                <i class="fas fa-campground text-[400px]"></i>
+            </div>
+
+            <div class="relative z-10 max-w-xl text-center md:text-left">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-6">Exclusive Bundles. <br><span
+                        class="text-sage">Save Up To 40%.</span></h2>
+                <p class="text-white/80 text-lg font-medium mb-10">Get the best value by choosing our curated service
+                    packs. Gear, transport, and insurance included in one simple price.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <button routerLink="/services/packs"
+                        class="bg-sage text-forest px-8 py-4 rounded-2xl font-black text-lg hover:bg-white transition-all shadow-xl shadow-black/20">
+                        View Bundles
+                    </button>
+                    <button routerLink="/services/promotions"
+                        class="bg-transparent border-2 border-sage text-sage px-8 py-4 rounded-2xl font-black text-lg hover:bg-sage hover:text-forest transition-all shadow-xl shadow-black/20">
+                        View Promotions
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[2.5rem] w-full max-w-sm rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <div class="flex justify-between items-start mb-10">
+                    <div class="bg-sage text-forest p-4 rounded-2xl text-2xl font-black shadow-lg shadow-black/30">
+                        PRM24
+                    </div>
+                    <div class="text-right">
+                        <span class="block text-white/50 text-xs font-black uppercase tracking-widest mb-1">Promo
+                            Code</span>
+                        <span class="text-sage font-black text-2xl">Active</span>
+                    </div>
+                </div>
+                <p class="text-white text-sm font-medium leading-relaxed italic border-l-2 border-sage pl-4">"Apply this
+                    code at checkout to unlock ultimate savings on your first premium reservation."</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Info -->
+    <section class="py-24 bg-forest text-center">
+        <div class="container mx-auto px-6">
+            <h3 class="text-3xl font-black text-white mb-8">Ready for your next trip?</h3>
+            <div class="flex justify-center gap-8 text-white/40 text-sm font-bold uppercase tracking-widest">
+                <span class="flex items-center gap-2"><i class="fas fa-shield-alt text-sage"></i> Fully Insured</span>
+                <span class="flex items-center gap-2"><i class="fas fa-headset text-sage"></i> 24/7 Support</span>
+                <span class="flex items-center gap-2"><i class="fas fa-star text-sage"></i> Best Quality</span>
+            </div>
+        </div>
+    </section>
+</div>

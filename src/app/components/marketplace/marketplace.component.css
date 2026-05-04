@@ -1,0 +1,138 @@
+.product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232C4A3C'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 1em;
+    padding-right: 1.5rem;
+}
+
+/* Custom Checkbox Styles */
+input[type="checkbox"] {
+    @apply rounded border-sage/40 text-olive focus:ring-olive/30;
+}
+
+/* Marketplace Redesign Styles */
+.hero-gradient {
+    background: linear-gradient(rgba(44, 74, 60, 0.95), rgba(44, 74, 60, 0.95)),
+        url('https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1920');
+    background-size: cover;
+    background-position: center;
+}
+
+.category-tab {
+    @apply flex items-center gap-3 px-8 py-3.5 rounded-full bg-white border border-sage/10 text-forest font-bold transition-all hover:shadow-lg cursor-pointer whitespace-nowrap shadow-sm;
+}
+
+.category-tab.active {
+    @apply bg-forest text-white border-forest shadow-xl shadow-forest/20;
+}
+
+.category-tab .count {
+    @apply text-[11px] opacity-60 ml-2 font-medium;
+}
+
+.category-tab.active .count {
+    @apply opacity-80;
+}
+
+.search-container {
+    @apply relative max-w-2xl mx-auto;
+}
+
+.search-input {
+    @apply w-full h-14 pl-8 pr-36 rounded-full border-none shadow-2xl focus:ring-2 focus:ring-sage/40 text-forest placeholder:text-forest/30 text-lg;
+}
+
+.search-button {
+    @apply absolute right-2.5 top-2.5 bottom-2.5 px-10 rounded-full bg-forest text-white font-black flex items-center gap-3 hover:bg-[#1a2e25] transition-all hover:scale-105 active:scale-95;
+}
+
+.product-card {
+    @apply relative bg-white rounded-[2.5rem] overflow-hidden transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl border border-white;
+}
+
+.badge {
+    @apply absolute px-4 py-1.5 rounded-full text-[10px] font-black text-white shadow-lg flex items-center gap-2 backdrop-blur-md;
+}
+
+.badge-featured {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.badge-discount {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+}
+
+.badge-rental {
+    background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+}
+
+.filter-bar {
+    @apply bg-white border border-sage/5 rounded-[1.25rem] px-8 py-4 flex flex-wrap items-center gap-8 shadow-xl shadow-black/[0.02];
+}
+
+.filter-item {
+    @apply flex items-center gap-3 text-sm text-forest font-bold;
+}
+
+.filter-select {
+    @apply bg-transparent border-none text-forest font-black focus:ring-0 cursor-pointer text-sm py-0 pl-1 pr-8;
+}
+
+/* Custom Checkbox Styles */
+.custom-checkbox {
+    @apply appearance-none w-5 h-5 rounded border-2 cursor-pointer transition-all relative flex items-center justify-center;
+}
+
+.checkbox-stock {
+    @apply border-red-500 checked:bg-red-500;
+}
+
+.checkbox-rental {
+    @apply border-sage/30 checked:bg-sage/10;
+}
+
+.custom-checkbox:checked::after {
+    content: '✓';
+    @apply text-white text-[12px] font-black;
+}
+
+.checkbox-rental:checked::after {
+    @apply text-forest;
+}
+
+.price-indicator {
+    @apply ml-auto text-sm font-black text-forest flex items-center gap-1.5;
+}
+
+.view-toggle {
+    @apply p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 transition-colors border border-gray-100;
+}
+
+/* Scrollbar styling for sidebar */
+aside .bg-white {
+    scrollbar-width: thin;
+    scrollbar-color: #5D7B5F transparent;
+}
+
+aside .bg-white::-webkit-scrollbar {
+    width: 4px;
+}
+
+aside .bg-white::-webkit-scrollbar-thumb {
+    background-color: #5D7B5F;
+    border-radius: 10px;
+}
+
+@media (max-width: 1024px) {
+    aside {
+        position: static;
+    }
+}

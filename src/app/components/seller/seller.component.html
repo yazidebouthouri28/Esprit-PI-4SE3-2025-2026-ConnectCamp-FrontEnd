@@ -1,0 +1,1187 @@
+<div class="min-h-screen bg-cream-beige">
+  <div class="flex">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="w-64 bg-forest-green min-h-screen p-6 sticky top-0 h-screen overflow-y-auto">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-cream-beige mb-1">🛍️ Seller Portal</h2>
+        <p class="text-sage-green text-sm">E-Commerce Management</p>
+      </div>
+      <nav class="space-y-2">
+        <button *ngFor="let item of menuItems"
+                [class.bg-olive-green]="activeSection === item.id"
+                (click)="activeSection = item.id"
+                class="w-full text-left px-4 py-3 rounded text-cream-beige hover:bg-olive-green transition-colors flex items-center gap-3">
+          <span class="text-xl">{{item.icon}}</span>
+          <span>{{item.label}}</span>
+        </button>
+      </nav>
+      <div class="mt-8 pt-8 border-t border-sage-green/30 space-y-2">
+        <a routerLink="/" class="block text-sage-green hover:text-cream-beige transition-colors">← Back to Store</a>
+      </div>
+    </aside>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="flex-1 p-8 overflow-y-auto">
+
+      <!-- ==================== DASHBOARD ==================== -->
+      <div *ngIf="activeSection === 'dashboard'">
+        <h1 class="text-4xl font-bold text-forest-green mb-8">📊 Dashboard Overview</h1>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="flex items-center justify-between mb-2"><h3 class="text-olive-green text-sm font-medium">Products</h3><span class="text-2xl">📦</span></div>
+            <p class="text-3xl font-bold text-forest-green">{{stats.totalProducts}}</p>
+            <p class="text-xs text-olive-green mt-1">{{stats.activeProducts}} active</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="flex items-center justify-between mb-2"><h3 class="text-olive-green text-sm font-medium">Stock Value</h3><span class="text-2xl">📊</span></div>
+            <p class="text-3xl font-bold text-forest-green">${{stats.stockValue.toLocaleString()}}</p>
+            <p class="text-xs text-olive-green mt-1">{{stats.totalStock}} units</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="flex items-center justify-between mb-2"><h3 class="text-olive-green text-sm font-medium">Orders</h3><span class="text-2xl">📋</span></div>
+            <p class="text-3xl font-bold text-forest-green">{{stats.totalOrders}}</p>
+            <p class="text-xs text-orange-600 mt-1">{{stats.pendingOrders}} pending</p>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="flex items-center justify-between mb-2"><h3 class="text-olive-green text-sm font-medium">Revenue</h3><span class="text-2xl">💰</span></div>
+            <p class="text-3xl font-bold text-green-600">${{stats.totalRevenue.toLocaleString()}}</p>
+            <p class="text-xs text-olive-green mt-1">This month</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-purple-50 rounded-xl p-4 shadow-md">
+            <div class="flex items-center justify-between"><div><p class="text-sm text-purple-600 font-medium">Active Rentals</p><p class="text-2xl font-bold text-purple-800">{{stats.activeRentals}}</p></div><span class="text-3xl">📅</span></div>
+          </div>
+          <div class="bg-red-50 rounded-xl p-4 shadow-md">
+            <div class="flex items-center justify-between"><div><p class="text-sm text-red-600 font-medium">Overdue Rentals</p><p class="text-2xl font-bold text-red-800">{{stats.overdueRentals}}</p></div><span class="text-3xl">⚠️</span></div>
+          </div>
+          <div class="bg-blue-50 rounded-xl p-4 shadow-md">
+            <div class="flex items-center justify-between"><div><p class="text-sm text-blue-600 font-medium">Rental Revenue</p><p class="text-2xl font-bold text-blue-800">${{stats.rentalRevenue}}</p></div><span class="text-3xl">💰</span></div>
+          </div>
+        </div>
+        <div *ngIf="lowStockItems.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl">⚠️</span>
+            <div><p class="font-bold text-red-800">Low Stock Alert!</p><p class="text-sm text-red-600">{{lowStockItems.length}} products need restocking</p></div>
+            <button (click)="activeSection = 'inventory'" class="ml-auto bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">View Items</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <h2 class="text-xl font-bold text-forest-green mb-4">⚡ Quick Actions</h2>
+            <div class="grid grid-cols-2 gap-3">
+              <button (click)="activeSection = 'products'" class="bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green text-sm">📦 Add Product</button>
+              <button (click)="activeSection = 'inventory'" class="bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green text-sm">📊 Restock</button>
+              <button (click)="activeSection = 'orders'" class="bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green text-sm">📋 View Orders</button>
+              <button (click)="activeSection = 'rentals'" class="bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green text-sm">📅 Rentals</button>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <h2 class="text-xl font-bold text-forest-green mb-4">📊 Key Metrics</h2>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center"><span class="text-olive-green">Active Products</span><span class="font-bold text-forest-green">{{stats.activeProducts}}</span></div>
+              <div class="flex justify-between items-center"><span class="text-olive-green">Total Stock Units</span><span class="font-bold text-forest-green">{{stats.totalStock}}</span></div>
+              <div class="flex justify-between items-center"><span class="text-olive-green">Pending Orders</span><span class="font-bold text-orange-600">{{stats.pendingOrders}}</span></div>
+              <div class="flex justify-between items-center"><span class="text-olive-green">Low Stock Items</span><span class="font-bold text-red-600">{{lowStockItems.length}}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== PRODUCTS & CATEGORIES ==================== -->
+      <div *ngIf="activeSection === 'products'">
+        <div class="bg-white rounded-xl shadow-md mb-6 p-2">
+          <div class="flex gap-2">
+            <button (click)="activeSubSection = 'categories'; selectedCategoryId = null"
+                    [class.bg-forest-green]="activeSubSection === 'categories'"
+                    [class.text-cream-beige]="activeSubSection === 'categories'"
+                    [class.text-forest-green]="activeSubSection !== 'categories'"
+                    class="flex-1 py-3 px-4 rounded-lg transition-colors font-medium">🏷️ Categories</button>
+            <button (click)="activeSubSection = 'products'"
+                    [class.bg-forest-green]="activeSubSection === 'products'"
+                    [class.text-cream-beige]="activeSubSection === 'products'"
+                    [class.text-forest-green]="activeSubSection !== 'products'"
+                    class="flex-1 py-3 px-4 rounded-lg transition-colors font-medium">📦 Products</button>
+          </div>
+        </div>
+
+        <!-- CATEGORIES VIEW -->
+        <div *ngIf="activeSubSection === 'categories'">
+          <div class="flex justify-between items-center mb-8">
+            <div><h1 class="text-4xl font-bold text-forest-green mb-2">🏷️ Category Management</h1><p class="text-olive-green">Organize your product catalog</p></div>
+            <button (click)="showCategoryForm = true" class="bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">+ Add Category</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div *ngFor="let category of categories" class="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-shadow cursor-pointer" (click)="selectCategoryToAddProduct(category)">
+              <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center gap-3 flex-1">
+                  <span class="text-4xl">{{category.icon}}</span>
+                  <div class="flex-1"><h3 class="text-xl font-bold text-forest-green">{{category.name}}</h3><p class="text-sm text-olive-green">{{category.description}}</p></div>
+                </div>
+                <button (click)="deleteCategory(category.id); $event.stopPropagation()" class="text-red-600 hover:text-red-800">🗑️</button>
+              </div>
+              <div class="bg-sage-green/10 rounded-lg p-3 mb-4">
+                <div class="flex justify-between items-center"><span class="text-sm text-olive-green">Products</span><span class="font-bold text-forest-green">{{category.productCount}}</span></div>
+              </div>
+              <button (click)="selectCategoryToAddProduct(category); $event.stopPropagation()" class="w-full bg-forest-green text-cream-beige py-2 rounded-lg hover:bg-olive-green transition-colors">➕ Add Product to this Category</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCTS VIEW -->
+        <div *ngIf="activeSubSection === 'products'">
+          <div class="flex justify-between items-center mb-8">
+            <div>
+              <h1 class="text-4xl font-bold text-forest-green mb-2">📦 Product Catalog</h1>
+              <p class="text-olive-green">
+                <span *ngIf="selectedCategoryId">Showing products in: <strong>{{getCategoryName(selectedCategoryId)}}</strong><button (click)="selectedCategoryId = null" class="text-blue-600 hover:underline ml-2">(View All)</button></span>
+                <span *ngIf="!selectedCategoryId">Showing all products</span>
+              </p>
+            </div>
+            <button (click)="openProductForm()" class="bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">+ Add Product</button>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="mb-6">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" placeholder="🔍 Search products..." [(ngModel)]="searchTerm" class="px-4 py-2 border border-sage-green rounded-lg">
+                <select [(ngModel)]="filterCategory" class="px-4 py-2 border border-sage-green rounded-lg">
+                  <option value="">All Categories</option>
+                  <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
+                </select>
+                <select [(ngModel)]="filterStatus" class="px-4 py-2 border border-sage-green rounded-lg">
+                  <option value="">All Status</option>
+                  <option value="active">Active Only</option>
+                  <option value="inactive">Inactive Only</option>
+                </select>
+                <select [(ngModel)]="filterRental" class="px-4 py-2 border border-sage-green rounded-lg">
+                  <option value="">All Products</option>
+                  <option value="rental">Rental Only</option>
+                  <option value="sale">Sale Only</option>
+                </select>
+              </div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-sage-green/20">
+                <tr>
+                  <th class="px-4 py-3 text-left text-forest-green">SKU</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Product Name</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Category</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Price</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Rental</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Stock</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Status</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let product of getFilteredProductsByCategory()" class="border-b border-sage-green/20">
+                  <td class="px-4 py-3 font-mono text-sm">{{product.sku}}</td>
+                  <td class="px-4 py-3"><div><p class="font-medium text-forest-green">{{product.name}}</p><p class="text-xs text-olive-green">{{product.shortDescription}}</p></div></td>
+                  <td class="px-4 py-3">{{product.categoryName}}</td>
+                  <td class="px-4 py-3"><div><p class="font-bold text-forest-green">${{product.price}}</p><p *ngIf="product.compareAtPrice" class="text-xs text-olive-green line-through">${{product.compareAtPrice}}</p></div></td>
+                  <td class="px-4 py-3">
+                    <span *ngIf="product.rentalAvailable" class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">${{product.rentalPrice}}/wk</span>
+                    <span *ngIf="!product.rentalAvailable" class="text-xs text-olive-green">-</span>
+                  </td>
+                  <td class="px-4 py-3"><span class="text-olive-green text-sm">See Inventory</span></td>
+                  <td class="px-4 py-3">
+                    <span [class]="product.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'" class="px-2 py-1 rounded-full text-xs font-medium">{{product.isActive ? '✓ Active' : '○ Inactive'}}</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex gap-2">
+                      <button (click)="editProduct(product)" class="text-blue-600 hover:text-blue-800" title="Edit">✏️</button>
+                      <button (click)="toggleProductStatus(product)" class="text-orange-600 hover:text-orange-800" title="Toggle">⚡</button>
+                      <button (click)="deleteProduct(product.id)" class="text-red-600 hover:text-red-800" title="Delete">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== INVENTORY & WAREHOUSES ==================== -->
+      <div *ngIf="activeSection === 'inventory'">
+        <div class="mb-8"><h1 class="text-4xl font-bold text-forest-green mb-2">📊 Inventory & Warehouse Management</h1><p class="text-olive-green">Manage stock levels, movements, and warehouse locations</p></div>
+        <div class="bg-white rounded-xl shadow-md mb-6 p-2">
+          <div class="flex gap-2">
+            <button (click)="inventorySubSection = 'stock'" [class.bg-forest-green]="inventorySubSection === 'stock'" [class.text-cream-beige]="inventorySubSection === 'stock'" [class.text-forest-green]="inventorySubSection !== 'stock'" class="flex-1 py-3 px-4 rounded-lg transition-colors font-medium">📦 Stock Levels</button>
+            <button (click)="inventorySubSection = 'movements'" [class.bg-forest-green]="inventorySubSection === 'movements'" [class.text-cream-beige]="inventorySubSection === 'movements'" [class.text-forest-green]="inventorySubSection !== 'movements'" class="flex-1 py-3 px-4 rounded-lg transition-colors font-medium">📜 Stock Movements</button>
+            <button (click)="inventorySubSection = 'warehouses'" [class.bg-forest-green]="inventorySubSection === 'warehouses'" [class.text-cream-beige]="inventorySubSection === 'warehouses'" [class.text-forest-green]="inventorySubSection !== 'warehouses'" class="flex-1 py-3 px-4 rounded-lg transition-colors font-medium">🏭 Warehouses</button>
+          </div>
+        </div>
+
+        <!-- STOCK LEVELS -->
+        <div *ngIf="inventorySubSection === 'stock'">
+          <div class="bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-6 mb-6">
+            <div class="flex items-center gap-4">
+              <span class="text-3xl">⚙️</span>
+              <div class="flex-1"><h3 class="text-lg font-bold text-orange-800 mb-1">Global Stock Alert Configuration</h3><p class="text-sm text-orange-600">Set a default minimum stock threshold for all products</p></div>
+              <div class="flex items-center gap-3">
+                <input type="number" [(ngModel)]="globalStockAlertThreshold" min="0" class="w-24 px-3 py-2 border border-orange-300 rounded-lg text-center font-bold">
+                <button (click)="updateGlobalStockAlert()" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 whitespace-nowrap">Apply to All</button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="lowStockItems.length > 0" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <p class="font-bold text-red-800 mb-2">⚠️ {{lowStockItems.length}} items below threshold</p>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let item of lowStockItems" class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">{{item.productName}} ({{item.availableStock}} left)</span>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl p-4 shadow-md mb-6">
+            <div class="flex gap-4 items-center justify-between">
+              <div class="flex gap-4 items-center">
+                <label class="text-forest-green font-medium">Filter by Warehouse:</label>
+                <select [(ngModel)]="stockFilterWarehouse" class="px-4 py-2 border border-sage-green rounded-lg">
+                  <option value="">All Warehouses</option>
+                  <option *ngFor="let wh of warehouses" [value]="wh.id">{{wh.name}}</option>
+                </select>
+              </div>
+              <button (click)="openStockMovementForm()" class="bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">+ Record Movement</button>
+            </div>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <h2 class="text-xl font-bold text-forest-green mb-4">Current Stock Levels</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-sage-green/20">
+                <tr>
+                  <th class="px-4 py-3 text-left text-forest-green">SKU</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Product</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Location</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Current</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Reserved</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Available</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Alert At</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Status</th>
+                  <th class="px-4 py-3 text-left text-forest-green">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let inv of filteredInventory" class="border-b border-sage-green/20">
+                  <td class="px-4 py-3 font-mono text-sm">{{inv.sku}}</td>
+                  <td class="px-4 py-3 font-medium">{{inv.productName}}</td>
+                  <td class="px-4 py-3"><div><p class="text-sm text-forest-green">{{inv.warehouseName}}</p><p class="text-xs text-olive-green">{{inv.locationCode}}</p></div></td>
+                  <td class="px-4 py-3 font-bold">{{inv.currentStock}}</td>
+                  <td class="px-4 py-3 text-orange-600">{{inv.reservedStock}}</td>
+                  <td class="px-4 py-3 font-bold" [class.text-green-600]="!inv.isLowStock" [class.text-red-600]="inv.isLowStock">{{inv.availableStock}}</td>
+                  <td class="px-4 py-3"><button (click)="openStockAlertForm(inv)" class="text-orange-600 hover:text-orange-800 font-bold underline">{{inv.lowStockThreshold}}</button></td>
+                  <td class="px-4 py-3">
+                    <span *ngIf="inv.isLowStock" class="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs">⚠️ Low</span>
+                    <span *ngIf="!inv.isLowStock" class="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">✓ OK</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex gap-2">
+                      <button (click)="openRestockForm(inv)" class="bg-forest-green text-white px-3 py-1 rounded text-sm hover:bg-olive-green" title="Restock">📦</button>
+                      <button (click)="transferStock(inv)" class="text-blue-600 hover:text-blue-800 text-lg" title="Transfer">🔄</button>
+                      <button (click)="openStockAlertForm(inv)" class="text-orange-600 hover:text-orange-800 text-lg" title="Set Alert">⚙️</button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- STOCK MOVEMENTS -->
+        <div *ngIf="inventorySubSection === 'movements'">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-forest-green">📜 Stock Movement History</h2>
+            <button (click)="openStockMovementForm()" class="bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">+ Record Movement</button>
+          </div>
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="space-y-3">
+              <div *ngFor="let movement of stockMovements" class="flex justify-between items-center pb-3 border-b border-sage-green/20">
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-1">
+                    <span [class]="getMovementTypeBadge(movement.type)" class="px-3 py-1 rounded-full text-sm font-bold">{{movement.type === 'IN' ? '+' : movement.type === 'OUT' ? '-' : '±'}}{{movement.quantity}}</span>
+                    <p class="font-medium text-forest-green">{{movement.productName}}</p>
+                  </div>
+                  <p class="text-sm text-olive-green">{{movement.reason}}</p>
+                  <p class="text-xs text-olive-green">{{movement.locationCode || 'N/A'}} • {{movement.createdAt}} • by {{movement.performedBy}}</p>
+                </div>
+              </div>
+              <div *ngIf="stockMovements.length === 0" class="text-center py-12"><p class="text-4xl mb-2">📊</p><p class="text-olive-green">No stock movements recorded yet</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WAREHOUSES -->
+        <div *ngIf="inventorySubSection === 'warehouses'">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-forest-green">🏭 Warehouse Locations</h2>
+            <button (click)="openWarehouseForm()" class="bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">+ Add Warehouse</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div *ngFor="let warehouse of warehouses" class="bg-white rounded-xl p-6 shadow-md">
+              <div class="flex justify-between items-start mb-4">
+                <div><h3 class="text-xl font-bold text-forest-green">{{warehouse.name}}</h3><p class="text-sm font-mono text-olive-green">{{warehouse.code}}</p></div>
+                <span [class]="warehouse.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'" class="px-3 py-1 rounded-full text-xs font-medium">{{warehouse.isActive ? '✓ Active' : '○ Inactive'}}</span>
+              </div>
+              <div class="space-y-2 mb-4">
+                <p class="text-sm text-olive-green">📍 {{warehouse.address}}, {{warehouse.city}}, {{warehouse.country}}</p>
+                <p class="text-sm text-olive-green">📞 {{warehouse.phone}}</p>
+                <p class="text-sm text-olive-green">📧 {{warehouse.email}}</p>
+              </div>
+              <div class="bg-sage-green/10 rounded-lg p-3 mb-4"><p class="text-sm text-olive-green">Stock Items: <strong class="text-forest-green">{{getWarehouseStockCount(warehouse.id)}}</strong></p></div>
+              <div class="flex gap-2">
+                <button (click)="openWarehouseForm(warehouse)" class="flex-1 bg-forest-green text-cream-beige py-2 rounded-lg hover:bg-olive-green text-sm">✏️ Edit</button>
+                <button (click)="toggleWarehouseStatus(warehouse)" class="px-4 bg-white border border-forest-green text-forest-green py-2 rounded-lg hover:bg-sage-green/20 text-sm">{{warehouse.isActive ? '⏸️' : '▶️'}}</button>
+                <button (click)="deleteWarehouse(warehouse.id)" class="px-4 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 text-sm">🗑️</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== ORDERS ==================== -->
+      <div *ngIf="activeSection === 'orders'">
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold text-forest-green mb-2">📋 Order Management</h1>
+          <p class="text-olive-green">Process and track customer orders</p>
+        </div>
+
+        <!-- ── Filtre avancé : statut + date (keyword multi-table) ── -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">🔍</span>
+            <div>
+              <h3 class="text-lg font-bold text-blue-800">Advanced Order Filter</h3>
+              <p class="text-xs text-blue-600">Multi-table keyword query: userId + status + createdAt</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label class="block text-sm font-medium text-blue-700 mb-2">Order Status</label>
+              <select [(ngModel)]="orderFilterStatus"
+                      class="w-full px-4 py-2 border border-blue-200 rounded-lg bg-white">
+                <option value="PENDING">Pending</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="SHIPPED">Shipped</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-blue-700 mb-2">Since date</label>
+              <input type="datetime-local" [(ngModel)]="orderFilterSince"
+                     class="w-full px-4 py-2 border border-blue-200 rounded-lg bg-white">
+            </div>
+            <div class="flex gap-2">
+              <button (click)="applyAdvancedOrderFilter()"
+                      [disabled]="advancedFilterLoading"
+                      class="flex-1 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 disabled:opacity-50 font-medium">
+                {{ advancedFilterLoading ? '⏳ Loading...' : '🔍 Search' }}
+              </button>
+              <button *ngIf="advancedFilterApplied" (click)="resetAdvancedFilter()"
+                      class="px-4 bg-white border border-blue-300 text-blue-700 py-2 rounded-lg hover:bg-blue-50">
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <!-- Résultats -->
+          <div *ngIf="advancedFilterApplied" class="mt-5">
+            <p class="text-sm font-bold text-blue-800 mb-3">
+              {{ filteredOrdersAdvanced.length }} result(s) —
+              <span class="bg-blue-100 px-2 py-0.5 rounded">{{ orderFilterStatus }}</span>
+              after <span class="bg-blue-100 px-2 py-0.5 rounded">{{ orderFilterSince.slice(0,10) }}</span>
+            </p>
+            <div *ngIf="filteredOrdersAdvanced.length === 0" class="text-center py-6 text-blue-500 bg-white rounded-lg border border-blue-100">
+              No orders match this filter.
+            </div>
+            <div class="space-y-2">
+              <div *ngFor="let order of filteredOrdersAdvanced"
+                   class="flex justify-between items-center bg-white rounded-xl px-5 py-4 border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-4">
+                  <div class="bg-blue-100 rounded-lg p-2 text-xl">📋</div>
+                  <div>
+                    <p class="font-bold text-forest-green">Order #{{ order.id }}</p>
+                    <p class="text-xs text-olive-green">{{ order.orderNumber }}</p>
+                    <p class="text-xs text-olive-green">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-6">
+                  <div class="text-right">
+                    <p class="font-bold text-green-600 text-lg">{{ order.totalAmount | number:'1.2-2' }} DT</p>
+                    <p class="text-xs text-olive-green">{{ order.paymentMethod }}</p>
+                  </div>
+                  <span [class]="getOrderStatusBadge(order.status)"
+                        class="px-3 py-1 rounded-full text-xs font-bold">
+                    {{ order.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl p-4 shadow-md text-center"><p class="text-2xl font-bold text-forest-green">{{orders.length}}</p><p class="text-sm text-olive-green">Total Orders</p></div>
+          <div class="bg-yellow-50 rounded-xl p-4 shadow-md text-center"><p class="text-2xl font-bold text-yellow-600">{{stats.pendingOrders}}</p><p class="text-sm text-olive-green">Pending</p></div>
+          <div class="bg-green-50 rounded-xl p-4 shadow-md text-center"><p class="text-2xl font-bold text-green-600">${{stats.totalRevenue.toLocaleString()}}</p><p class="text-sm text-olive-green">Revenue</p></div>
+          <div class="bg-blue-50 rounded-xl p-4 shadow-md text-center"><p class="text-2xl font-bold text-blue-600">4.8★</p><p class="text-sm text-olive-green">Avg Rating</p></div>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-md mb-6">
+          <div class="flex gap-2 flex-wrap">
+            <button (click)="orderStatusFilter = ''" [class.bg-forest-green]="orderStatusFilter === ''" [class.text-cream-beige]="orderStatusFilter === ''" class="px-4 py-2 rounded-lg border border-sage-green">All</button>
+            <button *ngFor="let status of ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED']" (click)="orderStatusFilter = status" [class.bg-forest-green]="orderStatusFilter === status" [class.text-cream-beige]="orderStatusFilter === status" class="px-4 py-2 rounded-lg border border-sage-green">{{status}}</button>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div *ngFor="let order of filteredOrders" class="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="text-lg font-bold text-forest-green">Order #{{order.id}}</h3>
+                <p class="text-sm text-olive-green">Customer: {{order.customerName}}</p>
+                <p class="text-sm text-olive-green">Email: {{order.customerEmail}}</p>
+                <p class="text-sm text-olive-green">Date: {{order.createdAt}}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold text-forest-green">${{order.totalAmount.toFixed(2)}}</p>
+                <span [class]="getOrderStatusBadge(order.status)" class="inline-block px-3 py-1 rounded-full text-xs font-medium mt-2">{{order.status}}</span>
+              </div>
+            </div>
+            <div class="bg-sage-green/10 rounded-lg p-4 mb-4">
+              <h4 class="font-medium text-forest-green mb-2">Items:</h4>
+              <div class="space-y-2">
+                <div *ngFor="let item of order.items" class="flex justify-between items-center">
+                  <div><p class="text-sm font-medium text-forest-green">{{item.productName}}</p><p class="text-xs text-olive-green">Qty: {{item.quantity}}</p></div>
+                  <p class="font-medium text-forest-green">${{item.price.toFixed(2)}}</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <select [(ngModel)]="order.status" class="px-4 py-2 border border-sage-green rounded-lg text-sm">
+                <option value="PENDING">Pending</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="SHIPPED">Shipped</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+              <button (click)="updateOrderStatus(order, order.status)" class="bg-forest-green text-cream-beige px-4 py-2 rounded-lg hover:bg-olive-green text-sm">Update Status</button>
+              <button (click)="viewOrderDetails(order)" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">📄 Details</button>
+              <button *ngIf="order.status === 'PENDING'" (click)="cancelOrder(order)" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm">❌ Cancel</button>
+            </div>
+          </div>
+          <div *ngIf="filteredOrders.length === 0" class="bg-white rounded-xl p-12 shadow-md text-center"><p class="text-4xl mb-2">📋</p><p class="text-olive-green">No orders found</p></div>
+        </div>
+      </div>
+
+      <!-- ==================== ORDER STATISTICS ==================== -->
+      <div *ngIf="activeSection === 'statistics'">
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold text-forest-green mb-2">📈 Order Statistics</h1>
+          <p class="text-olive-green">Performance breakdown — JPQL JOIN query on Order ↔ OrderItem</p>
+        </div>
+
+        <div *ngIf="statisticsLoading" class="bg-white rounded-xl p-12 shadow-md text-center">
+          <p class="text-4xl mb-3 animate-pulse">📊</p>
+          <p class="text-olive-green">Loading statistics...</p>
+        </div>
+
+        <div *ngIf="!statisticsLoading">
+          <!-- Cards résumé -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-blue-50 rounded-xl p-6 shadow-md text-center">
+              <p class="text-sm text-blue-600 font-medium mb-1">Distinct Statuses</p>
+              <p class="text-4xl font-bold text-blue-800">{{ orderStatistics.length }}</p>
+            </div>
+            <div class="bg-green-50 rounded-xl p-6 shadow-md text-center">
+              <p class="text-sm text-green-600 font-medium mb-1">Total Orders</p>
+              <p class="text-4xl font-bold text-green-800">{{ getTotalOrderCount() }}</p>
+            </div>
+            <div class="bg-purple-50 rounded-xl p-6 shadow-md text-center">
+              <p class="text-sm text-purple-600 font-medium mb-1">Refresh</p>
+              <button (click)="loadOrderStatistics()"
+                      class="mt-1 bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 font-medium">
+                🔄 Reload
+              </button>
+            </div>
+          </div>
+
+          <!-- Table détaillée -->
+          <div class="bg-white rounded-xl p-6 shadow-md">
+            <h2 class="text-xl font-bold text-forest-green mb-5">📊 Orders grouped by status</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-sage-green/20">
+                <tr>
+                  <th class="px-4 py-3 text-left text-forest-green font-semibold">Status</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Orders</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Items Sold</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Avg Revenue / Item</th>
+                  <th class="px-4 py-3 text-left text-forest-green font-semibold">Volume</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let stat of orderStatistics"
+                    class="border-b border-sage-green/20 hover:bg-sage-green/5 transition-colors">
+                  <td class="px-4 py-4">
+                      <span [class]="getOrderStatusBadge(stat.status)"
+                            class="px-3 py-1 rounded-full text-xs font-bold">
+                        {{ stat.status }}
+                      </span>
+                  </td>
+                  <td class="px-4 py-4 text-right font-bold text-forest-green text-lg">{{ stat.orderCount }}</td>
+                  <td class="px-4 py-4 text-right text-olive-green">{{ stat.totalItemsSold }}</td>
+                  <td class="px-4 py-4 text-right font-bold text-green-600">
+                    {{ stat.avgRevenuePerItemType | number:'1.2-2' }} DT
+                  </td>
+                  <td class="px-4 py-4 w-40">
+                    <div class="bg-gray-100 rounded-full h-3 w-full">
+                      <div class="bg-forest-green rounded-full h-3 transition-all"
+                           [style.width.%]="getStatBarWidth(stat.orderCount)">
+                      </div>
+                    </div>
+                    <p class="text-xs text-olive-green mt-1">{{ getStatBarWidth(stat.orderCount) }}% of max</p>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+              <p *ngIf="orderStatistics.length === 0" class="text-center py-10 text-olive-green">
+                <span class="text-3xl block mb-2">📊</span>No statistics available yet
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== RENTALS ==================== -->
+      <div *ngIf="activeSection === 'rentals'">
+        <div class="mb-8"><h1 class="text-4xl font-bold text-forest-green mb-2">📅 Rentals Management</h1><p class="text-olive-green">Track active rentals and manage returns</p></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-green-50 rounded-xl p-6 shadow-md"><div class="flex items-center justify-between"><div><p class="text-sm text-green-600 font-medium">Active Rentals</p><p class="text-3xl font-bold text-green-800">{{stats.activeRentals}}</p></div><span class="text-4xl">✅</span></div></div>
+          <div class="bg-red-50 rounded-xl p-6 shadow-md"><div class="flex items-center justify-between"><div><p class="text-sm text-red-600 font-medium">Overdue</p><p class="text-3xl font-bold text-red-800">{{stats.overdueRentals}}</p></div><span class="text-4xl">⚠️</span></div></div>
+          <div class="bg-blue-50 rounded-xl p-6 shadow-md"><div class="flex items-center justify-between"><div><p class="text-sm text-blue-600 font-medium">Total Revenue</p><p class="text-3xl font-bold text-blue-800">${{stats.rentalRevenue}}</p></div><span class="text-4xl">💰</span></div></div>
+        </div>
+        <div class="bg-white rounded-xl p-4 shadow-md mb-6">
+          <div class="flex gap-2 flex-wrap">
+            <button (click)="rentalStatusFilter = ''" [class.bg-forest-green]="rentalStatusFilter === ''" [class.text-cream-beige]="rentalStatusFilter === ''" class="px-4 py-2 rounded-lg border border-sage-green">All</button>
+            <button *ngFor="let status of ['ACTIVE', 'OVERDUE', 'COMPLETED', 'CANCELLED']" (click)="rentalStatusFilter = status" [class.bg-forest-green]="rentalStatusFilter === status" [class.text-cream-beige]="rentalStatusFilter === status" class="px-4 py-2 rounded-lg border border-sage-green capitalize">{{status}}</button>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div *ngFor="let rental of filteredRentals" class="bg-white rounded-xl p-6 shadow-md">
+            <div class="flex justify-between items-start mb-4">
+              <div><h3 class="text-lg font-bold text-forest-green">{{rental.id}}</h3><p class="text-sm text-olive-green">Product: {{rental.productName}}</p><p class="text-sm text-olive-green">Customer: {{rental.customerName}}</p></div>
+              <div class="text-right"><span [class]="getRentalStatusBadge(rental.status)" class="inline-block px-3 py-1 rounded-full text-xs font-medium mb-2">{{rental.status.toUpperCase()}}</span></div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button (click)="viewRentalDetails(rental)" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">📄 View Details</button>
+              <button *ngIf="rental.status === 'ACTIVE' || rental.status === 'OVERDUE'" (click)="markRentalReturned(rental)" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm">✅ Mark Returned</button>
+              <button *ngIf="rental.status === 'OVERDUE'" (click)="sendRentalReminder(rental)" class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 text-sm">📧 Send Reminder</button>
+              <button *ngIf="rental.status === 'ACTIVE'" (click)="extendRental(rental)" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 text-sm">⏰ Extend Rental</button>
+            </div>
+          </div>
+          <div *ngIf="filteredRentals.length === 0" class="bg-white rounded-xl p-12 shadow-md text-center"><p class="text-4xl mb-2">📅</p><p class="text-olive-green">No rentals found</p></div>
+        </div>
+      </div>
+      <!-- ==================== CATEGORY ANALYTICS ==================== -->
+      <div *ngIf="activeSection === 'category-analytics'">
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold text-forest-green mb-2">🏷️ Category Analytics</h1>
+          <p class="text-olive-green">Sales report &amp; order explorer — multi-table queries</p>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════
+             BLOC 1 — SALES REPORT  (JPQL JOIN : Category→Product→OrderItem→Order)
+             ════════════════════════════════════════════════════════════ -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+          <div class="flex items-start justify-between mb-5">
+            <div>
+              <h2 class="text-xl font-bold text-forest-green flex items-center gap-2">
+                📊 Revenue by Category
+                <span class="text-xs font-normal bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+            JPQL JOIN
+          </span>
+              </h2>
+              <p class="text-xs text-olive-green mt-0.5">
+                Category → Product → OrderItem → Order — grouped &amp; aggregated
+              </p>
+            </div>
+            <!-- Controls -->
+            <div class="flex items-center gap-3">
+              <select [(ngModel)]="salesReportStatus"
+                      class="px-3 py-2 border border-sage-green rounded-lg text-sm">
+                <option value="DELIVERED">Delivered</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="SHIPPED">Shipped</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="PENDING">Pending</option>
+              </select>
+              <button (click)="loadCategorySalesReport()"
+                      [disabled]="salesReportLoading"
+                      class="bg-forest-green text-cream-beige px-5 py-2 rounded-lg hover:bg-olive-green
+                       disabled:opacity-50 text-sm font-medium whitespace-nowrap">
+                {{ salesReportLoading ? '⏳ Loading...' : '🔄 Run Report' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div *ngIf="salesReportLoading" class="text-center py-10">
+            <p class="text-4xl mb-2 animate-pulse">📊</p>
+            <p class="text-olive-green text-sm">Running JPQL query...</p>
+          </div>
+
+          <!-- Table -->
+          <div *ngIf="!salesReportLoading">
+            <!-- Summary cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-emerald-50 rounded-xl p-4 text-center">
+                <p class="text-xs text-emerald-600 font-medium mb-1">Categories</p>
+                <p class="text-3xl font-bold text-emerald-800">{{ categorySalesReport.length }}</p>
+              </div>
+              <div class="bg-blue-50 rounded-xl p-4 text-center">
+                <p class="text-xs text-blue-600 font-medium mb-1">Total Orders</p>
+                <p class="text-3xl font-bold text-blue-800">
+                  {{ categorySalesReport | sumBy:'totalOrders' }}
+                </p>
+              </div>
+              <div class="bg-purple-50 rounded-xl p-4 text-center">
+                <p class="text-xs text-purple-600 font-medium mb-1">Items Sold</p>
+                <p class="text-3xl font-bold text-purple-800">
+                  {{ categorySalesReport | sumBy:'totalItemsSold' }}
+                </p>
+              </div>
+              <div class="bg-amber-50 rounded-xl p-4 text-center">
+                <p class="text-xs text-amber-600 font-medium mb-1">Total Revenue</p>
+                <p class="text-2xl font-bold text-amber-800">
+                  {{ (categorySalesReport | sumBy:'totalRevenue') | number:'1.2-2' }} DT
+                </p>
+              </div>
+            </div>
+
+            <!-- Data table -->
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-sage-green/20">
+                <tr>
+                  <th class="px-4 py-3 text-left text-forest-green font-semibold">#</th>
+                  <th class="px-4 py-3 text-left text-forest-green font-semibold">Category</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Orders</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Items Sold</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Total Revenue</th>
+                  <th class="px-4 py-3 text-right text-forest-green font-semibold">Avg / Order</th>
+                  <th class="px-4 py-3 text-left text-forest-green font-semibold">Revenue share</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let row of categorySalesReport; let i = index"
+                    class="border-b border-sage-green/20 hover:bg-sage-green/5 transition-colors">
+                  <td class="px-4 py-4 text-olive-green font-medium">{{ i + 1 }}</td>
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xl">🏷️</span>
+                      <span class="font-bold text-forest-green">{{ row.categoryName }}</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-right font-bold text-blue-700">{{ row.totalOrders }}</td>
+                  <td class="px-4 py-4 text-right text-olive-green">{{ row.totalItemsSold }}</td>
+                  <td class="px-4 py-4 text-right font-bold text-green-600">
+                    {{ row.totalRevenue | number:'1.2-2' }} DT
+                  </td>
+                  <td class="px-4 py-4 text-right text-olive-green">
+                    {{ row.averageOrderValue | number:'1.2-2' }} DT
+                  </td>
+                  <td class="px-4 py-4 w-40">
+                    <div class="bg-gray-100 rounded-full h-3 w-full">
+                      <div class="bg-forest-green rounded-full h-3 transition-all"
+                           [style.width.%]="getSalesReportBarWidth(row.totalRevenue)">
+                      </div>
+                    </div>
+                    <p class="text-xs text-olive-green mt-1">
+                      {{ getSalesReportBarWidth(row.totalRevenue) }}%
+                    </p>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+              <div *ngIf="categorySalesReport.length === 0 && !salesReportLoading"
+                   class="text-center py-12">
+                <p class="text-4xl mb-2">📊</p>
+                <p class="text-olive-green">
+                  Click <strong>Run Report</strong> to load data, or no orders match this status.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════
+             BLOC 2 — ORDERS BY CATEGORY  (Keyword : Order→OrderItem→Product→Category)
+             ════════════════════════════════════════════════════════════ -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <div class="mb-5">
+            <h2 class="text-xl font-bold text-forest-green flex items-center gap-2">
+              🔍 Orders by Category
+              <span class="text-xs font-normal bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+          Keyword multi-table
+        </span>
+            </h2>
+            <p class="text-xs text-olive-green mt-0.5">
+              Order → OrderItem → Product → Category — filtered by status &amp; date range
+            </p>
+          </div>
+
+          <!-- Filter bar -->
+          <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-5 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+
+              <!-- Category selector -->
+              <div>
+                <label class="block text-xs font-semibold text-indigo-700 mb-1">Category *</label>
+                <select [(ngModel)]="categoryOrderFilterCategoryId"
+                        class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-white text-sm">
+                  <option value="">— Select —</option>
+                  <option *ngFor="let cat of categories" [value]="cat.id">
+                    {{ cat.icon }} {{ cat.name }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Status -->
+              <div>
+                <label class="block text-xs font-semibold text-indigo-700 mb-1">Order Status</label>
+                <select [(ngModel)]="categoryOrderFilterStatus"
+                        class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-white text-sm">
+                  <option value="PENDING">Pending</option>
+                  <option value="CONFIRMED">Confirmed</option>
+                  <option value="PROCESSING">Processing</option>
+                  <option value="SHIPPED">Shipped</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
+
+              <!-- Start date -->
+              <div>
+                <label class="block text-xs font-semibold text-indigo-700 mb-1">From</label>
+                <input type="datetime-local"
+                       [(ngModel)]="categoryOrderFilterStartDate"
+                       class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-white text-sm">
+              </div>
+
+              <!-- End date -->
+              <div>
+                <label class="block text-xs font-semibold text-indigo-700 mb-1">To</label>
+                <input type="datetime-local"
+                       [(ngModel)]="categoryOrderFilterEndDate"
+                       class="w-full px-3 py-2 border border-indigo-200 rounded-lg bg-white text-sm">
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3">
+              <button (click)="applyOrdersByCategoryFilter()"
+                      [disabled]="categoryOrdersLoading"
+                      class="bg-indigo-700 text-white px-6 py-2 rounded-lg hover:bg-indigo-800
+                       disabled:opacity-50 font-medium text-sm">
+                {{ categoryOrdersLoading ? '⏳ Loading...' : '🔍 Search Orders' }}
+              </button>
+              <button *ngIf="categoryOrdersApplied"
+                      (click)="resetOrdersByCategoryFilter()"
+                      class="px-5 bg-white border border-indigo-300 text-indigo-700 py-2
+                       rounded-lg hover:bg-indigo-50 text-sm">
+                ✕ Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div *ngIf="categoryOrdersApplied">
+            <!-- Result header -->
+            <div class="flex items-center justify-between mb-4">
+              <p class="text-sm font-bold text-forest-green">
+                {{ categoryOrders.length }} order(s) found
+                <span class="font-normal text-olive-green">—</span>
+                <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs font-bold mx-1">
+            {{ categoryOrderFilterStatus }}
+          </span>
+                in category
+                <span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full text-xs font-bold mx-1">
+            {{ getCategoryNameById(categoryOrderFilterCategoryId) }}
+          </span>
+              </p>
+              <!-- Mini revenue total -->
+              <p *ngIf="categoryOrders.length > 0" class="text-sm font-bold text-green-600">
+                Total : {{ categoryOrders | sumBy:'totalAmount' | number:'1.2-2' }} DT
+              </p>
+            </div>
+
+            <!-- Empty state -->
+            <div *ngIf="categoryOrders.length === 0"
+                 class="text-center py-12 bg-gray-50 rounded-xl border border-gray-100">
+              <p class="text-4xl mb-2">🔍</p>
+              <p class="text-olive-green">No orders match this filter.</p>
+            </div>
+
+            <!-- Orders list -->
+            <div class="space-y-3">
+              <div *ngFor="let order of categoryOrders"
+                   class="flex justify-between items-center bg-gray-50 rounded-xl px-5 py-4
+                    border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-4">
+                  <div class="bg-indigo-100 rounded-lg p-2 text-xl">📋</div>
+                  <div>
+                    <p class="font-bold text-forest-green">Order #{{ order.id }}</p>
+                    <p class="text-xs text-olive-green font-mono">{{ order.orderNumber }}</p>
+                    <p class="text-xs text-olive-green">
+                      {{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                    </p>
+                  </div>
+                </div>
+
+                  <!-- Items preview -->
+                <!-- Items preview -->
+                <div class="hidden md:block max-w-xs">
+                  <div *ngFor="let item of $any(order.items) | slice:0:2"
+                       class="text-xs text-olive-green truncate">
+                    • {{ $any(item).productName }} ×{{ $any(item).quantity }}
+                  </div>
+                  <p *ngIf="$any(order.items)?.length > 2"
+                     class="text-xs text-indigo-500">
+                    +{{ $any(order.items).length - 2 }} more item(s)
+                  </p>
+                </div>
+
+                <!-- Right: amount + status -->
+                <div class="flex items-center gap-4">
+                  <div class="text-right">
+                    <p class="font-bold text-green-600 text-lg">
+                      {{ order.totalAmount | number:'1.2-2' }} DT
+                    </p>
+                    <p class="text-xs text-olive-green">{{ order.paymentMethod }}</p>
+                  </div>
+                  <span [class]="getOrderStatusBadge(order.status)"
+                        class="px-3 py-1 rounded-full text-xs font-bold">
+              {{ order.status }}
+            </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ==================== MODALS (existing modals remain unchanged) ==================== -->
+
+<!-- Product Form Modal -->
+<div *ngIf="showProductForm" class="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto" (click)="cancelProductForm()">
+  <div class="bg-white rounded-xl max-w-4xl w-full p-8 my-8 max-h-[90vh] overflow-y-auto scroll-smooth" (click)="$event.stopPropagation()"><h2 class="text-2xl font-bold text-forest-green mb-6">{{editingProductId ? 'Edit' : 'Add New'}} Product</h2>
+    <form class="space-y-4">
+
+      <!-- ── Row 1 : Name + SKU ── -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-forest-green mb-2">Product Name *</label>
+          <input type="text" [(ngModel)]="productForm.name" name="name" (ngModelChange)="onFieldChange()" class="w-full px-4 py-2 border border-sage-green rounded-lg">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-forest-green mb-2">SKU *</label>
+          <input type="text" [(ngModel)]="productForm.sku" name="sku" placeholder="Leave empty to auto-generate" class="w-full px-4 py-2 border border-sage-green rounded-lg">
+        </div>
+      </div>
+
+      <!-- ── Row 2 : Price + Compare At Price ── -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-forest-green mb-2">Price *</label>
+          <input type="number"
+                 [(ngModel)]="productForm.price"
+                 name="price"
+                 step="0.01"
+                 (ngModelChange)="onPriceChange()"
+                 class="w-full px-4 py-2 border rounded-lg transition-colors"
+                 [ngClass]="{
+                   'border-red-400 bg-red-50':       priceWarning === 'above',
+                   'border-yellow-400 bg-yellow-50': priceWarning === 'below',
+                   'border-green-400 bg-green-50':   priceWarning === 'ok',
+                   'border-sage-green':               priceWarning === null
+                 }">
+
+          <!-- Loading spinner -->
+          <div *ngIf="priceCheckLoading" class="mt-2 flex items-center gap-2 text-xs text-gray-400 font-medium">
+            <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Checking AI price suggestion...
+          </div>
+
+          <!-- AI Suggestion Box -->
+          <div *ngIf="pricePrediction && !priceCheckLoading"
+               class="mt-3 rounded-xl border p-3 text-sm"
+               [ngClass]="{
+                 'bg-red-50 border-red-200':       priceWarning === 'above',
+                 'bg-yellow-50 border-yellow-200': priceWarning === 'below',
+                 'bg-green-50 border-green-200':   priceWarning === 'ok'
+               }">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-black text-xs uppercase tracking-widest flex items-center gap-1"
+                    [ngClass]="{
+                      'text-red-600':    priceWarning === 'above',
+                      'text-yellow-600': priceWarning === 'below',
+                      'text-green-600':  priceWarning === 'ok'
+                    }">🤖 AI Price Analysis</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    [ngClass]="{
+                      'bg-red-100 text-red-700':       pricePrediction.confidence === 'low',
+                      'bg-yellow-100 text-yellow-700': pricePrediction.confidence === 'medium',
+                      'bg-green-100 text-green-700':   pricePrediction.confidence === 'high'
+                    }">{{ pricePrediction.confidence | uppercase }} confidence</span>
+            </div>
+            <div class="flex items-center gap-3 mb-2">
+              <div><p class="text-[10px] text-gray-500 font-medium">Suggested range</p><p class="font-black text-gray-700">{{ pricePrediction.priceMin }} – {{ pricePrediction.priceMax }} DT</p></div>
+              <div class="border-l border-gray-200 pl-3"><p class="text-[10px] text-gray-500 font-medium">Best estimate</p><p class="font-black text-gray-700">{{ pricePrediction.predictedPrice }} DT</p></div>
+            </div>
+            <div *ngIf="priceWarning === 'above'" class="flex items-start gap-2 bg-red-100 rounded-lg p-2 mb-2">
+              <span class="text-red-500 mt-0.5">⚠️</span>
+              <p class="text-xs text-red-700 font-semibold">Your price is <strong>above the suggested range</strong>. This may reduce sales.</p>
+            </div>
+            <div *ngIf="priceWarning === 'below'" class="flex items-start gap-2 bg-yellow-100 rounded-lg p-2 mb-2">
+              <span class="text-yellow-600 mt-0.5">💡</span>
+              <p class="text-xs text-yellow-700 font-semibold">Your price is <strong>below the suggested range</strong>. You might be underselling.</p>
+            </div>
+            <div *ngIf="priceWarning === 'ok'" class="flex items-center gap-2 bg-green-100 rounded-lg p-2 mb-2">
+              <span class="text-green-500">✅</span>
+              <p class="text-xs text-green-700 font-semibold">Great! Your price is within the AI-suggested range.</p>
+            </div>
+            <button *ngIf="priceWarning !== 'ok'" type="button" (click)="applyAiPrice()"
+                    class="w-full mt-1 bg-white border-2 border-gray-300 hover:border-forest-green text-forest-green text-xs font-black py-1.5 rounded-lg transition-colors">
+              Apply suggested price ({{ pricePrediction.predictedPrice }} DT)
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-forest-green mb-2">Compare At Price (prix concurrent)</label>
+          <input type="number" [(ngModel)]="productForm.compareAtPrice" name="compareAt" step="0.01"
+                 (ngModelChange)="onFieldChange()"
+                 class="w-full px-4 py-2 border border-sage-green rounded-lg">
+        </div>
+      </div>
+
+      <!-- ── Row 3 : Category + Brand ── -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-forest-green mb-2">Category *</label>
+          <select [(ngModel)]="productForm.categoryId" name="category" (ngModelChange)="onFieldChange()" class="w-full px-4 py-2 border border-sage-green rounded-lg">
+            <option value="">Select Category</option>
+            <option *ngFor="let cat of categories" [value]="cat.id">{{cat.name}}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-forest-green mb-2">Brand</label>
+          <input type="text" [(ngModel)]="productForm.brand" name="brand" placeholder="e.g. Coleman, The North Face"
+                 (ngModelChange)="onFieldChange()"
+                 class="w-full px-4 py-2 border border-sage-green rounded-lg">
+        </div>
+      </div>
+
+      <!-- ── AI Fields Section ── -->
+      <div class="border border-blue-200 bg-blue-50 rounded-xl p-4">
+        <p class="text-sm font-bold text-blue-800 mb-1">🤖 AI Price Optimization — Optional Fields</p>
+        <p class="text-xs text-blue-600 mb-3">Fill these fields to improve prediction accuracy. More data = higher confidence.</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-blue-700 mb-1">Supplier Cost (DT)</label>
+            <input type="number" [(ngModel)]="productForm.supplierCost" name="supplierCost" placeholder="0" min="0" step="0.01"
+                   (ngModelChange)="onFieldChange()"
+                   class="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-blue-700 mb-1">Shipping Cost (DT)</label>
+            <input type="number" [(ngModel)]="productForm.shippingCost" name="shippingCost" placeholder="0" min="0" step="0.01"
+                   (ngModelChange)="onFieldChange()"
+                   class="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-blue-700 mb-1">Weight (kg)</label>
+            <input type="number" [(ngModel)]="productForm.weight" name="weight" placeholder="0.0" min="0" step="0.1"
+                   (ngModelChange)="onFieldChange()"
+                   class="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-blue-700 mb-1">Rating (1–5)</label>
+            <input type="number" [(ngModel)]="productForm.rating" name="rating" placeholder="3.0" min="1" max="5" step="0.1"
+                   (ngModelChange)="onFieldChange()"
+                   class="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-blue-700 mb-1">Review Count</label>
+            <input type="number" [(ngModel)]="productForm.reviewCount" name="reviewCount" placeholder="0" min="0"
+                   (ngModelChange)="onFieldChange()"
+                   class="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-blue-700 mb-1">Sales Count</label>
+            <input type="number" [(ngModel)]="productForm.salesCount" name="salesCount" placeholder="0" min="0"
+                   (ngModelChange)="onFieldChange()"
+                   class="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm bg-white">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Note ── -->
+      <p class="text-sm text-olive-green italic">Note: Stock quantities are managed via the Inventory section after product creation.</p>
+
+      <!-- ── Rental Options ── -->
+      <div class="border-t border-sage-green/20 pt-4 mt-4">
+        <h3 class="text-lg font-bold text-forest-green mb-3">📅 Rental Options</h3>
+        <div class="mb-4">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="productForm.rentalAvailable" name="rentalAvailable" (ngModelChange)="onFieldChange()" class="w-4 h-4">
+            <span class="text-sm text-forest-green font-medium">Available for Rent</span>
+          </label>
+        </div>
+        <div *ngIf="productForm.rentalAvailable" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-forest-green mb-2">Rental Price (per week)</label>
+            <input type="number" [(ngModel)]="productForm.rentalPrice" name="rentalPrice" step="0.01" (ngModelChange)="onFieldChange()" class="w-full px-4 py-2 border border-sage-green rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-forest-green mb-2">Deposit Amount</label>
+            <input type="number" [(ngModel)]="productForm.depositAmount" name="deposit" step="0.01" class="w-full px-4 py-2 border border-sage-green rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-forest-green mb-2">Max Rental Days</label>
+            <input type="number" [(ngModel)]="productForm.maxRentalDays" name="maxRentalDays" min="1" class="w-full px-4 py-2 border border-sage-green rounded-lg">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Description + Tags ── -->
+      <div>
+        <label class="block text-sm font-medium text-forest-green mb-2">Description</label>
+        <textarea [(ngModel)]="productForm.description" name="description" rows="4" class="w-full px-4 py-2 border border-sage-green rounded-lg"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-forest-green mb-2">Short Description</label>
+        <textarea [(ngModel)]="productForm.shortDescription" name="shortDescription" rows="2" class="w-full px-4 py-2 border border-sage-green rounded-lg"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-forest-green mb-2">Tags (comma separated)</label>
+        <input type="text" [(ngModel)]="productForm.tagsInput" name="tags" placeholder="camping, outdoor, waterproof"
+               (ngModelChange)="onFieldChange()"
+               class="w-full px-4 py-2 border border-sage-green rounded-lg">
+      </div>
+
+      <!-- ── Checkboxes ── -->
+      <div class="flex items-center gap-4">
+        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="productForm.isActive" name="active" class="w-4 h-4"><span class="text-sm text-forest-green">Active</span></label>
+        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="productForm.isFeatured" name="featured" (ngModelChange)="onFieldChange()" class="w-4 h-4"><span class="text-sm text-forest-green">Featured</span></label>
+        <label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="productForm.isOnSale" name="isOnSale" (ngModelChange)="onFieldChange()" class="w-4 h-4"><span class="text-sm text-forest-green">On Sale</span></label>
+      </div>
+
+      <!-- ── Buttons ── -->
+      <div class="flex gap-4 pt-4">
+        <button type="button" (click)="saveProductWithCheck()" class="flex-1 bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">💾 Save Product</button>
+        <button type="button" (click)="cancelProductForm()" class="px-6 bg-gray-300 text-forest-green py-3 rounded-lg hover:bg-gray-400">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Restock Modal -->
+<div *ngIf="showRestockForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="showRestockForm = false">
+  <div class="bg-white rounded-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <h2 class="text-2xl font-bold text-forest-green mb-4">📦 Restock Product</h2>
+    <form class="space-y-4">
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Product</label><input type="text" [value]="restockForm.productName" disabled class="w-full px-4 py-2 border border-sage-green rounded-lg bg-gray-100"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Warehouse</label><select [(ngModel)]="restockForm.warehouseId" name="warehouse" class="w-full px-4 py-2 border border-sage-green rounded-lg"><option *ngFor="let wh of warehouses" [value]="wh.id">{{wh.name}}</option></select></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Quantity *</label><input type="number" [(ngModel)]="restockForm.quantity" name="quantity" min="1" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Notes</label><textarea [(ngModel)]="restockForm.notes" name="notes" rows="3" class="w-full px-4 py-2 border border-sage-green rounded-lg"></textarea></div>
+      <div class="flex gap-4">
+        <button type="button" (click)="saveRestock()" class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green">✅ Confirm Restock</button>
+        <button type="button" (click)="showRestockForm = false" class="px-6 bg-gray-300 text-forest-green py-3 rounded-lg hover:bg-gray-400">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Stock Movement Modal -->
+<div *ngIf="showStockMovementForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="showStockMovementForm = false">
+  <div class="bg-white rounded-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <h2 class="text-2xl font-bold text-forest-green mb-4">📊 Record Stock Movement</h2>
+    <form class="space-y-4">
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Product *</label><select [(ngModel)]="stockMovementForm.productId" name="product" class="w-full px-4 py-2 border border-sage-green rounded-lg"><option value="0">Select Product</option><option *ngFor="let inv of inventory" [value]="inv.productId">{{inv.productName}} ({{inv.sku}})</option></select></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Warehouse *</label><select [(ngModel)]="stockMovementForm.warehouseId" name="warehouse" class="w-full px-4 py-2 border border-sage-green rounded-lg"><option *ngFor="let wh of warehouses" [value]="wh.id">{{wh.name}}</option></select></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Movement Type *</label><select [(ngModel)]="stockMovementForm.type" name="type" class="w-full px-4 py-2 border border-sage-green rounded-lg"><option value="IN">Stock In</option><option value="OUT">Stock Out</option><option value="ADJUSTMENT">Adjustment</option></select></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Quantity *</label><input type="number" [(ngModel)]="stockMovementForm.quantity" name="qty" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Reason *</label><input type="text" [(ngModel)]="stockMovementForm.reason" name="reason" placeholder="e.g., Customer return, Damaged goods" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+      <div class="flex gap-4">
+        <button type="button" (click)="saveStockMovement()" class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green">✅ Record Movement</button>
+        <button type="button" (click)="showStockMovementForm = false" class="px-6 bg-gray-300 text-forest-green py-3 rounded-lg hover:bg-gray-400">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Stock Alert Modal -->
+<div *ngIf="showStockAlertForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="showStockAlertForm = false">
+  <div class="bg-white rounded-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <h2 class="text-2xl font-bold text-forest-green mb-4">⚙️ Set Stock Alert Threshold</h2>
+    <form class="space-y-4">
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Product</label><input type="text" [value]="stockAlertForm.productName" disabled class="w-full px-4 py-2 border border-sage-green rounded-lg bg-gray-100"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Current Threshold</label><input type="text" [value]="stockAlertForm.currentThreshold + ' units'" disabled class="w-full px-4 py-2 border border-sage-green rounded-lg bg-gray-100"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">New Threshold *</label><input type="number" [(ngModel)]="stockAlertForm.newThreshold" name="threshold" min="0" class="w-full px-4 py-2 border border-sage-green rounded-lg"><p class="text-xs text-olive-green mt-1">Alert will trigger when stock falls below this number</p></div>
+      <div class="flex gap-4">
+        <button type="button" (click)="saveStockAlert()" class="flex-1 bg-orange-600 text-white py-3 rounded-lg hover:bg-orange-700">✅ Update Threshold</button>
+        <button type="button" (click)="showStockAlertForm = false" class="px-6 bg-gray-300 text-forest-green py-3 rounded-lg hover:bg-gray-400">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Warehouse Form Modal -->
+<div *ngIf="showWarehouseForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="showWarehouseForm = false">
+  <div class="bg-white rounded-xl max-w-2xl w-full p-6" (click)="$event.stopPropagation()">
+    <h2 class="text-2xl font-bold text-forest-green mb-4">{{editingWarehouseId ? 'Edit' : 'Add'}} Warehouse</h2>
+    <form class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="block text-sm font-medium text-forest-green mb-2">Name *</label><input type="text" [(ngModel)]="warehouseForm.name" name="name" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+        <div><label class="block text-sm font-medium text-forest-green mb-2">Code *</label><input type="text" [(ngModel)]="warehouseForm.code" name="code" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+        <div class="md:col-span-2"><label class="block text-sm font-medium text-forest-green mb-2">Address</label><input type="text" [(ngModel)]="warehouseForm.address" name="address" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+        <div><label class="block text-sm font-medium text-forest-green mb-2">City</label><input type="text" [(ngModel)]="warehouseForm.city" name="city" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+        <div><label class="block text-sm font-medium text-forest-green mb-2">Country</label><input type="text" [(ngModel)]="warehouseForm.country" name="country" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+        <div><label class="block text-sm font-medium text-forest-green mb-2">Phone</label><input type="tel" [(ngModel)]="warehouseForm.phone" name="phone" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+        <div><label class="block text-sm font-medium text-forest-green mb-2">Email</label><input type="email" [(ngModel)]="warehouseForm.email" name="email" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+      </div>
+      <div><label class="flex items-center gap-2"><input type="checkbox" [(ngModel)]="warehouseForm.isActive" name="active" class="w-4 h-4"><span class="text-sm text-forest-green">Active</span></label></div>
+      <div class="flex gap-4">
+        <button type="button" (click)="saveWarehouse()" class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green">💾 Save Warehouse</button>
+        <button type="button" (click)="showWarehouseForm = false" class="px-6 bg-gray-300 text-forest-green py-3 rounded-lg hover:bg-gray-400">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Category Form Modal -->
+<div *ngIf="showCategoryForm" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="showCategoryForm = false">
+  <div class="bg-white rounded-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <h2 class="text-2xl font-bold text-forest-green mb-4">Add Category</h2>
+    <form class="space-y-4">
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Name *</label><input type="text" [(ngModel)]="categoryForm.name" name="name" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Icon Emoji</label><input type="text" [(ngModel)]="categoryForm.icon" name="icon" class="w-full px-4 py-2 border border-sage-green rounded-lg"></div>
+      <div><label class="block text-sm font-medium text-forest-green mb-2">Description</label><textarea [(ngModel)]="categoryForm.description" name="description" rows="3" class="w-full px-4 py-2 border border-sage-green rounded-lg"></textarea></div>
+      <div class="flex gap-4">
+        <button type="button" (click)="saveCategory()" class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green">💾 Save Category</button>
+        <button type="button" (click)="showCategoryForm = false" class="px-6 bg-gray-300 text-forest-green py-3 rounded-lg hover:bg-gray-400">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,235 @@
+<header class="sticky top-0 z-50 w-full border-b border-olive/20 bg-forest shadow-sm">
+  <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <a routerLink="/" class="flex items-center gap-3 group">
+        <div class="flex items-center gap-2 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-all">
+          @if (!logoError) {
+          <img src="assets/logo.png" alt="ConnectCamp" class="h-9 w-auto object-contain" (error)="logoError = true" />
+          }
+          <span class="text-2xl font-black text-white tracking-tight">Connect<span class="text-sage">Camp</span></span>
+        </div>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8">
+        <a routerLink="/home" routerLinkActive="text-sage" [routerLinkActiveOptions]="{exact: true}"
+          class="text-cream hover:text-sage transition-colors">Home</a>
+        <a routerLink="/campsites" routerLinkActive="text-sage"
+          class="text-cream hover:text-sage transition-colors">Campsites</a>
+        <a routerLink="/marketplace" routerLinkActive="text-sage"
+          class="text-cream hover:text-sage transition-colors">Marketplace</a>
+        <a routerLink="/services/home" routerLinkActive="text-sage"
+          class="text-cream hover:text-sage transition-colors">Services</a>
+        <a routerLink="/emergency" routerLinkActive="text-red-400"
+          class="text-red-300 hover:text-red-400 font-bold transition-colors">SOS</a>
+        @if (showManageMyEvents) {
+        <div class="events-nav-item h-full flex items-center">
+          <a routerLink="/events" routerLinkActive="text-sage"
+            class="text-cream hover:text-sage transition-colors">Events</a>
+
+          <div class="events-dropdown">
+            <a routerLink="/organizer/events" class="events-dropdown-item">
+              <span class="events-dropdown-icon">📋</span>
+              Manage My Events
+            </a>
+            <a routerLink="/organizer/gamification" class="events-dropdown-item">
+              <span class="events-dropdown-icon">🏆</span>
+              Gamifications
+            </a>
+          </div>
+        </div>
+        } @else {
+        <a routerLink="/events" routerLinkActive="text-sage"
+          class="text-cream hover:text-sage transition-colors">Events</a>
+        }
+        <a routerLink="/community" routerLinkActive="text-sage"
+          class="text-cream hover:text-sage transition-colors">Community</a>
+        <a routerLink="/sponsors" routerLinkActive="text-sage"
+          class="text-cream hover:text-sage transition-colors">Sponsors</a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button routerLink="/cart" class="text-cream hover:text-sage transition-colors relative" aria-label="Cart">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <span
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-forest">
+            15
+          </span>
+        </button>
+
+        @if (isLoggedIn) {
+        <div class="relative profile-dropdown-container">
+          <button (click)="toggleProfileDropdown()"
+            class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-cream transition-colors hover:border-white/30 hover:text-sage"
+            aria-label="Profile menu">
+            @if (userAvatar) {
+            <img [src]="userAvatar" [alt]="userName || 'Profile'" class="h-full w-full object-cover" />
+            } @else {
+            <span class="text-xs font-black uppercase">{{ userInitials }}</span>
+            }
+          </button>
+          @if (profileDropdownOpen) {
+          <div class="profile-dropdown">
+            <div class="profile-dropdown-header">
+              <div class="flex items-center gap-3">
+                @if (userAvatar) {
+                <img [src]="userAvatar" [alt]="userName || 'Profile'"
+                  class="h-11 w-11 rounded-full object-cover border border-olive/10" />
+                } @else {
+                <span
+                  class="flex h-11 w-11 items-center justify-center rounded-full bg-forest text-xs font-black uppercase text-white">
+                  {{ userInitials }}
+                </span>
+                }
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-forest">{{ userName }}</p>
+                  <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-sage">{{ userRole }}</p>
+                </div>
+              </div>
+            </div>
+            @if (isAdmin && adminInCamperSpace) {
+            <a routerLink="/profile" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Profile
+            </a>
+            <button type="button" class="profile-dropdown-item w-full text-left" (click)="goToSettings()">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10.325 4.317a1 1 0 011.35-.936l1.28.512a1 1 0 001.022-.154l.98-.817a1 1 0 011.535.365l.64 1.21a1 1 0 00.882.53h1.37a1 1 0 01.95 1.312l-.44 1.319a1 1 0 00.24 1.016l.97.97a1 1 0 010 1.414l-.97.97a1 1 0 00-.24 1.016l.44 1.32a1 1 0 01-.95 1.311h-1.37a1 1 0 00-.881.53l-.64 1.21a1 1 0 01-1.536.365l-.98-.817a1 1 0 00-1.022-.154l-1.28.512a1 1 0 01-1.35-.936l-.16-1.37a1 1 0 00-.627-.818l-1.255-.5a1 1 0 01-.588-1.28l.41-1.312a1 1 0 00-.23-1.004l-.97-.97a1 1 0 010-1.414l.97-.97a1 1 0 00.23-1.004l-.41-1.312a1 1 0 01.588-1.28l1.255-.5a1 1 0 00.626-.818l.161-1.37z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+              </svg>
+              Settings
+            </button>
+            <a routerLink="/dashboard" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              My Dashboard
+            </a>
+            <button type="button" class="profile-dropdown-item w-full text-left" (click)="goToAdminSpace()">
+              <span class="mr-2" aria-hidden="true">⚙️</span>
+              Admin space
+            </button>
+            } @else {
+            <a routerLink="/profile" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Profile
+            </a>
+            <button type="button" class="profile-dropdown-item w-full text-left" (click)="goToSettings()">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M10.325 4.317a1 1 0 011.35-.936l1.28.512a1 1 0 001.022-.154l.98-.817a1 1 0 011.535.365l.64 1.21a1 1 0 00.882.53h1.37a1 1 0 01.95 1.312l-.44 1.319a1 1 0 00.24 1.016l.97.97a1 1 0 010 1.414l-.97.97a1 1 0 00-.24 1.016l.44 1.32a1 1 0 01-.95 1.311h-1.37a1 1 0 00-.881.53l-.64 1.21a1 1 0 01-1.536.365l-.98-.817a1 1 0 00-1.022-.154l-1.28.512a1 1 0 01-1.35-.936l-.16-1.37a1 1 0 00-.627-.818l-1.255-.5a1 1 0 01-.588-1.28l.41-1.312a1 1 0 00-.23-1.004l-.97-.97a1 1 0 010-1.414l.97-.97a1 1 0 00.23-1.004l-.41-1.312a1 1 0 01.588-1.28l1.255-.5a1 1 0 00.626-.818l.161-1.37z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+              </svg>
+              Settings
+            </button>
+            <a routerLink="/dashboard" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              My Dashboard
+            </a>
+            }
+            <!-- Candidature links based on role -->
+            @if (userRole === 'ORGANIZER' || userRole === 'ADMIN') {
+            <a routerLink="/services/candidatures/manage" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <i class="fas fa-tasks h-4 w-4 text-olive"></i>
+              Manage Applications
+            </a>
+            <a routerLink="/services/list" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <i class="fas fa-briefcase h-4 w-4 text-indigo-500"></i>
+              B2B Services
+            </a>
+            }
+            @if (userRole === 'PARTICIPANT' || userRole === 'CAMPER') {
+            <a routerLink="/services/candidatures" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <i class="fas fa-file-alt h-4 w-4 text-olive"></i>
+              My Applications
+            </a>
+            <a routerLink="/events" class="profile-dropdown-item" (click)="profileDropdownOpen = false">
+              <i class="fas fa-hard-hat h-4 w-4 text-amber-500"></i>
+              Work at Events
+            </a>
+            }
+            <div class="profile-dropdown-divider"></div>
+            <button (click)="logout()" class="profile-dropdown-item text-red-600 hover:bg-red-50 w-full text-left">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Log out
+            </button>
+          </div>
+          }
+        </div>
+        } @else {
+        <a routerLink="/login" class="text-cream hover:text-sage transition-colors" aria-label="Log in">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </a>
+        }
+
+        <button class="md:hidden text-cream" (click)="toggleMobileMenu()" aria-label="Menu">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    @if (mobileMenuOpen) {
+    <div class="md:hidden py-4 space-y-2 border-t border-olive/20">
+      <a routerLink="/home" class="block py-2 text-cream hover:text-sage" (click)="mobileMenuOpen = false">Home</a>
+      <a routerLink="/campsites" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Campsites</a>
+      <a routerLink="/marketplace" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Marketplace</a>
+      <a routerLink="/services/home" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Services</a>
+      <a routerLink="/emergency" class="block py-2 text-red-300 hover:text-red-400 font-bold"
+        (click)="mobileMenuOpen = false">SOS Emergency</a>
+      <a routerLink="/events" class="block py-2 text-cream hover:text-sage" (click)="mobileMenuOpen = false">Events</a>
+      <a routerLink="/community" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Community</a>
+      <a routerLink="/sponsors" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Sponsors</a>
+      @if (isLoggedIn) {
+      <a routerLink="/profile" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Profile</a>
+      <button type="button" class="block py-2 text-cream hover:text-sage w-full text-left"
+        (click)="goToSettings()">Settings</button>
+      <a routerLink="/dashboard" class="block py-2 text-cream hover:text-sage" (click)="mobileMenuOpen = false">My
+        Dashboard</a>
+      @if (showManageMyEvents) {
+      <a routerLink="/organizer/events" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Manage My Events</a>
+      <a routerLink="/organizer/gamification" class="block py-2 text-cream hover:text-sage"
+        (click)="mobileMenuOpen = false">Gamifications</a>
+      }
+      @if (isAdmin && adminInCamperSpace) {
+      <button type="button" class="block py-2 text-cream hover:text-sage w-full text-left"
+        (click)="goToAdminSpace(); mobileMenuOpen = false">Admin space</button>
+      }
+      <button (click)="logout(); mobileMenuOpen = false" class="block py-2 text-red-400 hover:text-red-300">Log
+        out</button>
+      } @else {
+      <a routerLink="/login" class="block py-2 text-cream hover:text-sage" (click)="mobileMenuOpen = false">Log in</a>
+      }
+    </div>
+    }
+  </nav>
+</header>

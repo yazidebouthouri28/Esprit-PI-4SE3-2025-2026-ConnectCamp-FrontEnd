@@ -1,0 +1,166 @@
+<div class="stats-page p-6">
+  <!-- Navigation Header -->
+  <div class="flex justify-between items-center mb-10 pb-6 border-b border-gray-100">
+    <div>
+      <h1 class="text-3xl font-black text-[#1a2e1a]">Business Intelligence</h1>
+      <p class="text-sm text-gray-500 font-medium">Advanced analytics and performance indicators</p>
+    </div>
+    <button [routerLink]="['/admin/services/packs']" 
+      class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all shadow-sm">
+      <i class="fas fa-arrow-left"></i>
+      Back to Packs
+    </button>
+  </div>
+  <!-- ========================================================
+       SECTION 0 : Services à risque (JPQL Expert JOIN)
+  ========================================================= -->
+  <ng-container *ngIf="isAdmin()">
+    <section class="stats-section risk-section">
+      <div class="section-header">
+        <h2 class="risk-title">🚨 Services "At Risk" (Quality Alert)</h2>
+        <span class="badge-danger">JPQL Expert JOIN</span>
+      </div>
+      <p class="section-desc">Identifies services with high demand (>2 candidates) but low ratings (<3.0 stars).</p>
+
+      <div *ngIf="atRiskLoading" class="loading-spinner">Analyzing service quality...</div>
+      
+      <div *ngIf="!atRiskLoading && atRiskServices.length > 0" class="table-wrapper">
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>Service Name</th>
+              <th>Avg Rating</th>
+              <th>Total Candidates</th>
+              <th>Action Required</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of atRiskServices">
+              <td class="font-bold">{{ s[0] }}</td>
+              <td class="text-red-500 font-black">{{ s[1] | number:'1.1-1' }} ⭐</td>
+              <td><span class="count-badge bg-orange-100 text-orange-600">{{ s[2] }}</span></td>
+              <td>
+                <span class="bg-red-50 text-red-500 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-red-100">
+                  Audit Provider
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="!atRiskLoading && atRiskServices.length === 0" class="empty-msg success-msg">
+        ✨ All high-demand services are meeting quality standards.
+      </p>
+    </section>
+  </ng-container>
+
+  <!-- ========================================================
+       SECTION 1 : Packs actifs + stats services (JPQL JOIN)
+  ========================================================= -->
+  <section class="stats-section">
+    <div class="section-header">
+      <h2>Active Bundles — Included Services Value</h2>
+      <span class="badge-info">JPQL JOIN</span>
+      <button class="btn-refresh" (click)="loadServiceStats()" [disabled]="statsLoading">
+        {{ statsLoading ? 'Loading...' : 'Refresh' }}
+      </button>
+    </div>
+
+    <div *ngIf="statsError" class="error-msg">{{ statsError }}</div>
+    <div *ngIf="statsLoading" class="loading-spinner">Loading statistics...</div>
+
+    <div *ngIf="!statsLoading && !statsError" class="table-wrapper">
+      <table class="stats-table" *ngIf="serviceStats.length > 0; else noStats">
+        <thead>
+          <tr>
+            <th>Bundle</th>
+            <th>Type</th>
+            <th>Site</th>
+            <th>Bundle Price</th>
+            <th>Services Count</th>
+            <th>Total Services Value</th>
+            <th>Savings</th>
+            <th>Discount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of serviceStats">
+            <td class="pack-name">{{ s.packName }}</td>
+            <td><span class="type-pill">{{ s.packType }}</span></td>
+            <td>{{ s.siteName }}</td>
+            <td class="price-cell">{{ s.price | currency:'TND':'symbol':'1.2-2' }}</td>
+            <td class="count-cell">
+              <span class="count-badge">{{ s.serviceCount }}</span>
+            </td>
+            <td class="price-cell">{{ s.totalServicesValue | currency:'TND':'symbol':'1.2-2' }}</td>
+            <td class="savings-cell">
+              <span *ngIf="savings(s) > 0" class="savings-positive">
+                -{{ savings(s) | currency:'TND':'symbol':'1.2-2' }}
+              </span>
+              <span *ngIf="savings(s) <= 0" class="savings-none">—</span>
+            </td>
+            <td>
+              <span *ngIf="s.discountPercentage > 0" class="discount-badge">
+                -{{ s.discountPercentage | number:'1.0-0' }}%
+              </span>
+              <span *ngIf="s.discountPercentage <= 0" class="no-discount">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noStats>
+        <p class="empty-msg">No active bundles available.</p>
+      </ng-template>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       SECTION 2 : Filtre par site + type de service (Keywords)
+  ========================================================= -->
+  <section class="filter-section">
+    <div class="section-header">
+      <h2>Filter Bundles by Site & Service Type</h2>
+      <span class="badge-info">Keywords JOIN</span>
+    </div>
+
+    <div class="filter-bar">
+      <input
+        type="text"
+        placeholder="Site Name (ex: Sahara)"
+        [(ngModel)]="siteNameInput"
+        class="input-field"
+      />
+      <select [(ngModel)]="serviceTypeInput" class="select-field">
+        <option *ngFor="let t of serviceTypes" [value]="t">{{ t }}</option>
+      </select>
+      <button class="btn-filter" (click)="applyFilter()" [disabled]="filterLoading || !siteNameInput.trim()">
+        {{ filterLoading ? 'Filtering...' : 'Filter' }}
+      </button>
+    </div>
+
+    <div *ngIf="filterError" class="error-msg">{{ filterError }}</div>
+
+    <div *ngIf="!filterLoading && filteredPacks.length > 0" class="packs-grid">
+      <div class="pack-card" *ngFor="let p of filteredPacks">
+        <div class="pack-card-img">
+          <img [src]="getImageUrl(p.imageUrl || p.image)" 
+               [alt]="p.name"
+               onerror="this.src='assets/images/default.png'; this.onerror=null;" />
+        </div>
+        <div class="pack-card-body">
+          <h3>{{ p.name }}</h3>
+          <p class="pack-desc">{{ p.description }}</p>
+          <div class="pack-meta">
+            <span class="price">{{ p.price | currency:'TND':'symbol':'1.2-2' }}</span>
+            <span *ngIf="p.serviceCount" class="service-count">{{ p.serviceCount }} service(s)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p *ngIf="!filterLoading && filteredPacks.length === 0 && siteNameInput.trim()" class="empty-msg">
+      No bundles found for this site / service type.
+    </p>
+  </section>
+
+</div>

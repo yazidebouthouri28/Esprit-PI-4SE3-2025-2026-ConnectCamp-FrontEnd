@@ -1,0 +1,118 @@
+<div id="v2-protocole-create-standard" class="min-h-screen bg-[#fcfdfc] py-12 px-6">
+    <div class="max-w-2xl mx-auto">
+        <!-- Back Navigation -->
+        <button routerLink="/emergency/dashboard"
+            class="group mb-8 flex items-center gap-3 text-forest hover:text-olive transition-all duration-300">
+            <div
+                class="w-10 h-10 bg-white rounded-xl shadow-sm border border-sage/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <i class="fas fa-arrow-left text-sm"></i>
+            </div>
+            <div class="flex flex-col items-start leading-none">
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Navigation</span>
+                <span class="text-sm font-bold tracking-tight">Return</span>
+            </div>
+        </button>
+
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-sage/10 relative overflow-hidden">
+
+            <div class="relative mb-8">
+                <h2 class="text-2xl font-black text-forest tracking-tight mb-1">New <span
+                        class="text-olive">Protocol</span></h2>
+                <p class="text-xs text-gray-500 font-medium">Standardized procedures for wilderness survival.</p>
+                <div class="absolute -left-6 top-0 bottom-0 w-1 bg-olive/30 rounded-full"></div>
+            </div>
+
+            <div *ngIf="error"
+                class="bg-red-50 text-red-600 p-3 rounded-lg mb-6 font-medium text-xs border border-red-100 flex items-center gap-3 slide-in-from-top">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+
+            <form [formGroup]="protocoleForm" (ngSubmit)="onSubmit()" class="space-y-5">
+                <!-- Name -->
+                <div class="space-y-1.5">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2">Protocol
+                        Designation</label>
+                    <input type="text" formControlName="name"
+                        class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-medium text-forest placeholder:text-gray-400 outline-none"
+                        placeholder="e.g., Oxygen Crisis Protocol">
+                </div>
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2">Response
+                            Category</label>
+                        <div class="relative">
+                            <select formControlName="emergencyType"
+                                class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-medium text-forest appearance-none cursor-pointer outline-none">
+                                <option value="FIRE">🔥 Fire Response</option>
+                                <option value="MEDICAL">🚑 Medical Emergency</option>
+                                <option value="SECURITY">🛡️ Security Breach</option>
+                                <option value="WEATHER">🌪️ Extreme Weather</option>
+                                <option value="EVACUATION">🏃 Evacuation Plan</option>
+                                <option value="NATURAL_DISASTER">🌋 Natural Disaster</option>
+                            </select>
+                            <i
+                                class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-olive text-[10px] pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2">Briefing
+                            Summary</label>
+                        <textarea formControlName="description" rows="1"
+                            class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-medium text-forest outline-none"
+                            placeholder="Objective..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Steps Array -->
+                <div class="pt-6 border-t border-sage/10 mt-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-list-ol text-olive text-xs"></i>
+                            <label class="block text-xs font-bold text-forest">Deployment Sequence</label>
+                        </div>
+                        <button type="button" (click)="addStep()"
+                            class="px-3 py-1.5 bg-forest/5 text-forest hover:bg-forest hover:text-white rounded-md text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 border border-forest/10">
+                            <i class="fas fa-plus"></i> Add Step
+                        </button>
+                    </div>
+
+                    <div formArrayName="protocolSteps" class="space-y-3">
+                        <div *ngFor="let step of protocolSteps.controls; let i=index"
+                            class="flex items-center gap-3 group animate-in slide-in-from-right duration-200"
+                            [style.animation-delay.ms]="i * 30">
+
+                            <div
+                                class="w-8 h-8 shrink-0 bg-forest text-cream rounded-md flex items-center justify-center font-bold text-xs shadow-sm">
+                                {{ i + 1 }}
+                            </div>
+
+                            <input [formControlName]="i" type="text"
+                                class="flex-1 bg-cream/30 border border-sage/20 rounded-md px-3 py-2 text-sm font-medium text-forest focus:ring-2 focus:ring-olive/20 focus:border-olive outline-none transition-all placeholder:text-gray-400"
+                                placeholder="Describe action...">
+
+                            <button *ngIf="protocolSteps.length > 1" type="button" (click)="removeStep(i)"
+                                class="w-8 h-8 shrink-0 bg-red-50 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center border border-red-100">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="pt-6">
+                    <button type="submit" [disabled]="protocoleForm.invalid || loading"
+                        class="w-full h-12 bg-forest text-white rounded-lg font-bold text-sm tracking-wide shadow-md hover:shadow-lg hover:bg-black transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="loading"
+                            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <i *ngIf="!loading" class="fas fa-save opacity-80"></i>
+                        {{ loading ? 'Publishing...' : 'Publish Protocol' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

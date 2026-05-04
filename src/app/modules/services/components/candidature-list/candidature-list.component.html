@@ -1,0 +1,75 @@
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <!-- Header -->
+    <div class="mb-12">
+        <h2 class="text-4xl font-black text-forest flex items-center gap-4">
+            <i class="fas fa-file-signature text-olive"></i>
+            My Applications
+        </h2>
+        <p class="text-gray-500 mt-2 font-medium">Track your requests to join camping services and events.</p>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex flex-col items-center py-20">
+        <div class="w-12 h-12 border-4 border-olive border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-olive font-bold">Retrieving your history...</p>
+    </div>
+
+    <!-- Applications List -->
+    <div *ngIf="!loading && !error" class="space-y-6">
+        <div *ngFor="let entry of candidatures"
+            class="bg-white rounded-3xl p-6 shadow-sm border border-sage/20 hover:shadow-xl transition-all flex flex-col md:flex-row items-center gap-6 group">
+
+            <!-- Icon/Type Visual -->
+            <div
+                class="h-20 w-20 flex-shrink-0 bg-cream rounded-2xl flex items-center justify-center text-3xl text-forest group-hover:bg-forest group-hover:text-cream transition-colors duration-500">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 text-center md:text-left">
+                <div class="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+                    <h3 class="text-xl font-black text-forest">{{ entry.eventServiceName || getServiceName(entry.serviceId || entry.eventServiceId) }}</h3>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden md:block">•</span>
+                    <span class="text-xs font-bold text-gray-400 capitalize">Applied on {{ (entry.appliedDate ||
+                        entry.createdAt) |
+                        date:'longDate' }}</span>
+                </div>
+                <p class="text-gray-500 text-sm italic">"{{ entry.motivation || entry.lettreMotivation || 'No motivation
+                    message provided.' }}"
+                </p>
+            </div>
+
+            <!-- Status & Action -->
+            <div class="flex flex-col items-center md:items-end gap-3 min-w-[150px]">
+                <span [ngClass]="getStatusClass(entry.status || entry.statut)"
+                    class="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border">
+                    {{ entry.status || entry.statut }}
+                </span>
+
+                <button
+                    *ngIf="(entry.status || entry.statut) === 'PENDING' || (entry.status || entry.statut) === 'EN_ATTENTE'"
+                    (click)="withdraw(entry.id)"
+                    class="text-red-400 hover:text-red-600 text-xs font-bold flex items-center gap-1 transition-colors">
+                    <i class="fas fa-times-circle"></i>
+                    Withdraw
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="candidatures.length === 0"
+            class="py-32 text-center bg-cream/30 rounded-[3rem] border-4 border-dashed border-sage/10">
+            <div
+                class="h-24 w-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl text-sage text-4xl">
+                <i class="fas fa-magnifying-glass"></i>
+            </div>
+            <h3 class="text-2xl font-black text-forest">No applications found</h3>
+            <p class="text-gray-400 max-w-xs mx-auto mt-2 italic">You haven't applied for any services yet. Start
+                exploring the catalog!</p>
+            <button (click)="browseEventsAndServices()"
+                class="mt-8 bg-forest text-cream px-8 py-3 rounded-2xl font-black shadow-lg shadow-forest/20 hover:bg-black transition-all">
+                Browse Events & Services
+            </button>
+        </div>
+    </div>
+</div>

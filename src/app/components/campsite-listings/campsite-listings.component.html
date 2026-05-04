@@ -1,0 +1,104 @@
+<section id="campsites" class="py-16 px-4 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+
+    <!-- RECOMMENDED SECTION -->
+    <div class="mb-20">
+      <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 rounded-2xl bg-forest flex items-center justify-center text-white shadow-lg">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-3xl font-black text-forest tracking-tighter uppercase">Recommended for You</h2>
+          <p class="text-olive font-bold text-sm tracking-widest uppercase opacity-60">Based on your interests</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        @for (campsite of recommendedCampsites; track campsite.id) {
+        <div
+          class="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-forest/5 relative h-[32rem]">
+          <img [src]="campsite.image" [alt]="campsite.name"
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2000ms]">
+          <div class="absolute inset-0 bg-gradient-to-t from-forest via-forest/40 to-transparent"></div>
+
+          <div class="absolute top-8 left-8 flex gap-3">
+            <div
+              class="px-5 py-2 bg-white text-forest rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
+              Personal Match
+            </div>
+            <div
+              class="px-5 py-2 bg-orange-400 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl animate-pulse">
+              Best Match
+            </div>
+          </div>
+
+          <div class="absolute bottom-12 left-12 right-12 text-white">
+            <p class="text-sage font-black text-xs uppercase tracking-[0.3em] mb-4">★ {{ campsite.rating }} Rating</p>
+            <h3 class="text-4xl font-black mb-6 leading-tight tracking-tighter">{{ campsite.name }}</h3>
+            <div class="flex items-center justify-between">
+              <div class="bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20 font-black text-xs">
+                {{ campsite.price }} DT <span class="opacity-60 text-[10px]">/ night</span>
+              </div>
+              <a [routerLink]="['/campsites', campsite.id]"
+                class="bg-white text-forest px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-sage transform transition-all active:scale-95 shadow-2xl">
+                Discover Now
+              </a>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- ALL CAMPSITES SECTION -->
+    <div class="mb-12 border-t border-forest/5 pt-16">
+      <div class="mb-10 text-center md:text-left">
+        <h2 class="text-3xl font-black text-forest tracking-tighter uppercase">All Campsites</h2>
+        <p class="text-olive font-bold text-sm tracking-widest uppercase opacity-60">Explore the complete wilderness
+          directory</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (campsite of campsites; track campsite.id) {
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-sage/30">
+          <div class="relative h-48 overflow-hidden">
+            <img [src]="campsite.image" [alt]="campsite.name"
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+            <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full shadow-md">
+              <span class="text-forest font-semibold">{{ campsite.price }} DT/night</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-xl font-semibold text-forest mb-2">{{ campsite.name }}</h3>
+            <div class="flex items-center gap-2 text-olive mb-3">
+              <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              </svg>
+              <span class="text-sm">{{ campsite.location }}</span>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="font-semibold text-forest">★ {{ campsite.rating }}</span>
+              <span class="text-sm text-olive">({{ campsite.reviews }} reviews)</span>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-4">
+              @for (a of campsite.amenities; track a) {
+              <span class="bg-sage/20 px-2 py-1 rounded-md text-olive text-sm" [title]="amenityLabels[a]">{{
+                amenityLabels[a] }}</span>
+              }
+            </div>
+            <div class="text-sm text-olive mb-4">{{ campsite.distance }} miles away</div>
+            <a [routerLink]="['/campsites', campsite.id]"
+              class="block w-full text-center bg-olive hover:bg-forest text-cream py-2 px-4 rounded-lg transition-colors min-h-[44px]">View
+              Details</a>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

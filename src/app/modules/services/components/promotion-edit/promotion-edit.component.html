@@ -1,0 +1,151 @@
+<div class="min-h-screen bg-[#fcfdfc] py-12 px-6">
+    <div class="max-w-2xl mx-auto">
+        <!-- Back Navigation -->
+        <button (click)="goBack()"
+            class="group mb-8 flex items-center gap-3 text-forest hover:text-olive transition-all duration-300">
+            <div
+                class="w-10 h-10 bg-white rounded-xl shadow-sm border border-sage/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <i class="fas fa-arrow-left text-sm"></i>
+            </div>
+            <div class="flex flex-col items-start leading-none">
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Navigation</span>
+                <span class="text-sm font-bold tracking-tight">Return to Promotions</span>
+            </div>
+        </button>
+
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-sage/10 relative overflow-hidden">
+            <!-- Decorative Background -->
+            <div class="absolute -right-20 -top-20 w-64 h-64 bg-olive/5 rounded-full blur-3xl"></div>
+
+            <div class="relative mb-8">
+                <div
+                    class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-forest text-cream text-lg mb-4 shadow-md shadow-forest/20 rotate-3">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h2 class="text-2xl font-black text-forest tracking-tight mb-1">Modify <span
+                        class="text-olive">Promotion</span></h2>
+                <p class="text-xs text-gray-500 font-medium">Update your marketing campaign details.</p>
+                <div class="absolute -left-6 top-0 bottom-0 w-1 bg-olive/30 rounded-full"></div>
+            </div>
+
+            <!-- Global Error -->
+            <div *ngIf="loading" class="flex justify-center py-10">
+                <div class="animate-pulse flex items-center gap-2 text-olive font-bold">
+                    <i class="fas fa-circle-notch animate-spin"></i>
+                    Retrieving promotion data...
+                </div>
+            </div>
+
+            <div *ngIf="errorMessage"
+                class="bg-red-50 text-red-600 p-3 rounded-lg mb-6 font-medium text-xs border border-red-100 flex items-center gap-3 slide-in-from-top">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ errorMessage }}
+            </div>
+            <div *ngIf="submitted && promoForm.invalid && !errorMessage"
+                class="bg-orange-50 text-orange-600 p-3 rounded-lg mb-6 font-medium text-xs border border-orange-100 flex items-center gap-3 slide-in-from-top">
+                <i class="fas fa-exclamation-triangle"></i>
+                Please correct the invalid fields below to proceed.
+            </div>
+
+            <form [formGroup]="promoForm" (ngSubmit)="onSubmit()" class="space-y-5 relative z-10">
+
+                <!-- Code & Percentage Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2">Promo Code
+                            *</label>
+                        <div class="relative flex">
+                            <input type="text" formControlName="code" placeholder="WINTER25"
+                                class="flex-1 bg-cream/30 border border-sage/20 rounded-l-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-bold text-forest uppercase outline-none"
+                                [ngClass]="{'border-red-400': submitted && promoForm.get('code')?.invalid}">
+                            <button type="button" (click)="generateCode()"
+                                class="bg-forest/5 hover:bg-forest text-forest hover:text-white px-4 border text border-l-0 border-sage/20 rounded-r-lg transition-all flex items-center justify-center"
+                                title="Random Code">
+                                <i class="fas fa-dice text-xs"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="submitted && promoForm.get('code')?.invalid"
+                            class="text-red-500 text-[10px] mt-1 font-medium ml-2">
+                            Valid code required (4-15 chars, alphanumeric).
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2">Discount
+                            (%) *</label>
+                        <div class="relative">
+                            <input type="number" formControlName="percentage"
+                                class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-bold text-forest outline-none pr-10"
+                                [ngClass]="{'border-red-400': submitted && promoForm.get('percentage')?.invalid}">
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-xs">%</span>
+                        </div>
+                        <div *ngIf="submitted && promoForm.get('percentage')?.invalid"
+                            class="text-red-500 text-[10px] mt-1 font-medium ml-2">
+                            Enter valid percentage (1-100).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="space-y-1.5">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2">Marketing Brief
+                        *</label>
+                    <textarea formControlName="description" rows="2"
+                        placeholder="e.g., Get 20% off all winter hiking tours."
+                        class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-medium text-forest outline-none resize-none"
+                        [ngClass]="{'border-red-400': submitted && promoForm.get('description')?.invalid}"></textarea>
+                </div>
+
+                <!-- Dates Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-sage/10 pt-5 mt-2">
+                    <div class="space-y-1.5">
+                        <label
+                            class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2 flex items-center gap-1.5">
+                            <i class="far fa-calendar-check text-olive"></i> Start Date
+                        </label>
+                        <input type="date" formControlName="startDate"
+                            class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-medium text-forest outline-none"
+                            [ngClass]="{'border-red-400': submitted && promoForm.get('startDate')?.invalid}">
+                    </div>
+                    <div class="space-y-1.5">
+                        <label
+                            class="block text-[10px] font-bold uppercase tracking-wider text-forest ml-2 flex items-center gap-1.5">
+                            <i class="far fa-calendar-times text-red-500"></i> End Date
+                        </label>
+                        <input type="date" formControlName="endDate"
+                            class="w-full bg-cream/30 border border-sage/20 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-olive/20 focus:border-olive transition-all text-sm font-medium text-forest outline-none"
+                            [ngClass]="{'border-red-400': submitted && promoForm.get('endDate')?.invalid}">
+                    </div>
+                </div>
+
+                <!-- Active Toggle -->
+                <div class="flex items-center gap-3 bg-cream/10 p-3 rounded-lg border border-sage/10 mt-2">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" formControlName="active" class="sr-only peer">
+                        <div
+                            class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-success">
+                        </div>
+                    </label>
+                    <span class="text-xs font-bold text-forest">Keep campaign active</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="pt-6">
+                    <button type="submit" [disabled]="loading"
+                        class="w-full h-12 bg-forest text-white rounded-lg font-bold text-sm tracking-wide shadow-md hover:shadow-lg hover:bg-black transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span *ngIf="loading"
+                            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <i *ngIf="!loading" class="fas fa-save opacity-80"></i>
+                        {{ loading ? 'Saving...' : 'Update Promotion' }}
+                    </button>
+
+                    <button type="button" (click)="goBack()"
+                        class="w-full h-12 bg-transparent text-gray-500 hover:text-gray-900 rounded-lg font-bold text-xs tracking-wide transition-all flex justify-center items-center mt-2 border border-transparent hover:border-gray-200">
+                        Cancel Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

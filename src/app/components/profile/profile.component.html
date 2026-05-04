@@ -1,0 +1,788 @@
+<div class="profile-page bg-cream/30">
+    <input #coverInput id="profile-cover-input" type="file" accept="image/*" class="hidden"
+        (change)="onCoverSelected($event)" />
+    <input #postMediaInput type="file" accept="image/*,video/*" class="hidden" (change)="onPostMediaSelected($event)" />
+    <input #highlightStoriesInput type="file" accept="image/*,video/*" multiple class="hidden"
+        (change)="onHighlightStoriesSelected($event)" />
+
+    <div class="profile-header-container bg-white/80 backdrop-blur-md shadow-sm border-b border-olive/10">
+        <div class="max-w-5xl mx-auto">
+            <div class="relative h-[250px] md:h-[350px] rounded-b-[2rem] overflow-hidden bg-forest/10 group">
+                <button (click)="goBack()"
+                    class="absolute top-6 left-6 z-20 w-10 h-10 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-xl border border-white/30 flex items-center justify-center shadow-lg transition-all active:scale-90 group/back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                        class="group-hover/back:-translate-x-1 transition-transform">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                </button>
+
+                <img [src]="coverImageUrl || fallbackCover" alt="Cover"
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-gradient-to-t from-forest/40 to-transparent pointer-events-none"></div>
+
+                <div *ngIf="isOwnProfile" class="absolute bottom-6 right-6 flex flex-wrap items-center gap-3 z-20">
+                    <button type="button" (click)="triggerCoverPicker()"
+                        class="bg-[#f5f1e8] hover:bg-white text-forest border border-white/40 px-4 py-2 rounded-xl text-sm font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-lg transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7h4l2-2h6l2 2h4v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 16a3 3 0 100-6 3 3 0 000 6z" />
+                        </svg>
+                        {{ isUploadingCover ? 'Saving...' : 'Cover' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-6 pb-6">
+                <div class="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16 md:-mt-24 relative z-10">
+                    <div class="relative group">
+                        <div
+                            class="w-36 h-36 md:w-48 md:h-48 rounded-[2.5rem] rotate-3 border-8 border-white bg-sage/20 overflow-hidden shadow-2xl transition-transform group-hover:rotate-0 duration-500">
+                            <img [src]="viewedUser?.avatar" alt="Profile"
+                                class="w-full h-full object-cover -rotate-3 group-hover:rotate-0 transition-transform duration-500" />
+                        </div>
+                        <a *ngIf="isOwnProfile" routerLink="/settings"
+                            class="absolute -bottom-2 -right-2 bg-olive text-white p-3 rounded-2xl shadow-xl hover:bg-forest transition-all hover:scale-110">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="flex-1 text-center md:text-left pt-4 md:pt-0">
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <h1 class="text-3xl md:text-4xl font-black text-forest tracking-tight">{{ viewedUser?.name
+                                }}</h1>
+                            <svg class="w-6 h-6 text-olive" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <p class="text-sage font-bold mt-1 uppercase tracking-widest text-xs">
+                            {{ roleLabel(viewedUser?.role) }} &bull; {{ viewedUser?.followers || '0' }} Adventurers
+                        </p>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-3">
+                            <span *ngFor="let tag of viewedUser?.hashtags"
+                                class="bg-sage/10 text-forest px-3 py-1 rounded-full text-xs font-semibold border border-sage/20">
+                                {{ tag }}
+                            </span>
+                            <span *ngIf="!(viewedUser?.hashtags?.length)"
+                                class="bg-sage/10 text-forest px-3 py-1 rounded-full text-xs font-semibold border border-sage/20">
+                                {{ (preferences | keyvalue).length }} preference areas saved
+                            </span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="!isOwnProfile" class="flex gap-4 mb-2">
+                        <button type="button" (click)="toggleFollowViewedUser()"
+                            class="bg-olive hover:bg-forest text-white px-8 py-3 rounded-2xl font-black shadow-lg transition-all hover:scale-105 active:scale-95">
+                            {{ isFollowingViewedUser ? 'Following' : 'Follow' }}
+                        </button>
+                        <button
+                            class="bg-cream/50 hover:bg-cream text-forest border border-olive/10 px-8 py-3 rounded-2xl font-black transition-all">
+                            Message
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <nav class="flex gap-1 p-1 bg-olive/5 rounded-2xl max-w-fit no-scrollbar overflow-x-auto">
+                        <button (click)="setActiveTab('adventure')" [class.bg-white]="activeTab === 'adventure'"
+                            [class.text-forest]="activeTab === 'adventure'"
+                            [class.shadow-sm]="activeTab === 'adventure'" [class.text-sage]="activeTab !== 'adventure'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">
+                            Adventure
+                        </button>
+                        <button (click)="setActiveTab('follows')" [class.bg-white]="activeTab === 'follows'"
+                            [class.text-forest]="activeTab === 'follows'" [class.shadow-sm]="activeTab === 'follows'"
+                            [class.text-sage]="activeTab !== 'follows'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">
+                            Follows
+                        </button>
+                        <button (click)="setActiveTab('achievements')" [class.bg-white]="activeTab === 'achievements'"
+                            [class.text-forest]="activeTab === 'achievements'"
+                            [class.shadow-sm]="activeTab === 'achievements'"
+                            [class.text-sage]="activeTab !== 'achievements'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">
+                            Achievements
+                        </button>
+                        <button (click)="setActiveTab('media')" [class.bg-white]="activeTab === 'media'"
+                            [class.text-forest]="activeTab === 'media'" [class.shadow-sm]="activeTab === 'media'"
+                            [class.text-sage]="activeTab !== 'media'"
+                            class="px-6 py-2 rounded-xl font-bold whitespace-nowrap transition-all hover:bg-white/50">
+                            Pictures & Videos
+                        </button>
+                    </nav>
+
+                    <div class="mt-6 flex gap-4 overflow-x-auto no-scrollbar py-2">
+                        <div *ngIf="isOwnProfile"
+                            class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group"
+                            (click)="openHighlightEditor()">
+                            <div
+                                class="w-16 h-16 md:w-20 md:h-20 rounded-full border-2 border-dashed border-sage/40 flex items-center justify-center group-hover:border-olive transition-colors bg-white/50">
+                                <svg class="w-8 h-8 text-sage group-hover:text-olive transition-colors" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <span
+                                class="text-[10px] md:text-xs font-bold text-sage group-hover:text-forest transition-colors uppercase tracking-wider">
+                                New
+                            </span>
+                        </div>
+
+                        <div *ngFor="let highlight of highlights"
+                            class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer group relative">
+                            <div class="highlight-ring" (click)="openHighlightPreview(highlight)">
+                                <div class="highlight-ring__inner">
+                                    <img *ngIf="!isVideoMedia(highlight.stories[0].mediaUrl)"
+                                        [src]="resolveMediaUrl(highlight.stories[0].mediaUrl)" [alt]="highlight.title"
+                                        class="w-full h-full object-cover rounded-full" />
+                                    <video *ngIf="isVideoMedia(highlight.stories[0].mediaUrl)"
+                                        [src]="resolveMediaUrl(highlight.stories[0].mediaUrl)"
+                                        class="w-full h-full object-cover rounded-full" muted playsinline></video>
+                                </div>
+                            </div>
+
+                            <span
+                                class="text-[10px] md:text-xs font-bold text-sage group-hover:text-forest transition-colors truncate w-16 md:w-20 text-center">
+                                {{ highlight.title }}
+                            </span>
+
+                            <div *ngIf="isOwnProfile"
+                                class="absolute -right-1 top-0 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <button type="button" (click)="editHighlight(highlight, $event)"
+                                    class="w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-forest">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5h2m-7 14h12a2 2 0 002-2V9.414a2 2 0 00-.586-1.414l-3.414-3.414A2 2 0 0014.586 4H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                <button type="button" (click)="deleteHighlight(highlight, $event)"
+                                    class="w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-red-500">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 7h12M9 7V4h6v3m-7 4v6m4-6v6m4-6v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p *ngIf="coverUploadError" class="mt-2 text-sm font-semibold text-red-500">{{ coverUploadError }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <div *ngIf="activeTab === 'adventure'" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <aside class="lg:col-span-4 space-y-6">
+                <div
+                    class="bg-white/70 backdrop-blur-md rounded-[2rem] shadow-sm p-6 border border-olive/10 relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 text-olive/5 rotate-12 pointer-events-none">
+                        <svg class="w-24 h-24" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8.13,20C11,20 13.84,18.78 15.82,16.58L15.35,16.08C13.62,18.06 10.95,19.14 8.24,19.14C7.75,19.14 7.27,19.06 6.8,18.91L11.53,7.54C11.69,7.15 11.96,6.84 12.31,6.66C12.65,6.47 13.06,6.43 13.43,6.54C15.03,7 15.9,8.58 15.42,10.2L14.71,12.5C14.63,12.75 14.67,13.03 14.8,13.27C14.93,13.5 15.15,13.68 15.41,13.76C15.67,13.84 15.95,13.8 16.19,13.67C16.42,13.54 16.6,13.32 16.68,13.06L17.39,10.76C18.15,8.22 16.71,5.5 14.18,4.74C13.2,4.45 12.16,4.55 11.26,5.03C10.36,5.5 9.69,6.31 9.38,7.29L4.65,18.66C3.96,16.43 4.25,14 5.5,12C7.36,9.1 10.5,7.4 14,7V2H17V8Z" />
+                        </svg>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-3 mb-6 relative z-10">
+                        <h2 class="text-xl font-black text-forest">Intro</h2>
+                        <a *ngIf="isOwnProfile" routerLink="/preferences" [queryParams]="{ edit: true }"
+                            class="px-4 py-2 bg-olive/10 hover:bg-olive/20 text-forest font-bold rounded-2xl transition-all border border-olive/5 text-sm inline-block">
+                            Edit
+                        </a>
+                    </div>
+
+                    <!-- Level & XP Progress -->
+                    <div class="mb-8 p-4 bg-orange-50 rounded-2xl border border-orange-100/50">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 rounded-lg bg-orange-500 text-white flex items-center justify-center font-black text-xs shadow-sm">
+                                    {{ viewedUser?.level || 1 }}
+                                </span>
+                                <span class="text-xs font-black text-orange-800 uppercase tracking-widest">Level
+                                    Explorer</span>
+                            </div>
+                            <span class="text-[10px] font-black text-orange-600/70">{{ viewedUser?.experiencePoints || 0
+                                }} XP</span>
+                        </div>
+                        <div class="h-2 w-full bg-orange-200/50 rounded-full overflow-hidden">
+                            <div class="h-full bg-orange-500 transition-all duration-1000" [style.width.%]="xpProgress">
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-orange-700/60 font-bold mt-2 uppercase tracking-tighter">
+                            {{ 1000 - ((viewedUser?.experiencePoints || 0) % 1000) }} XP until Level {{
+                            (viewedUser?.level || 1) + 1 }}
+                        </p>
+                    </div>
+
+                    <ul class="space-y-5">
+                        <li class="flex items-center gap-4 text-sage group">
+                            <div class="p-2.5 bg-sage/10 rounded-xl group-hover:bg-olive/20 transition-colors">
+                                <svg class="w-5 h-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">From <span
+                                    class="font-bold text-forest underline decoration-olive/30">{{ introLocation
+                                    }}</span></span>
+                        </li>
+                        <li class="flex items-center gap-4 text-sage group">
+                            <div class="p-2.5 bg-sage/10 rounded-xl group-hover:bg-olive/20 transition-colors">
+                                <svg class="w-5 h-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <span class="text-sm font-medium">{{ roleLabel(viewedUser?.role) }}</span>
+                        </li>
+                    </ul>
+
+                    <div *ngIf="!isOwnProfile" class="mt-6 p-4 bg-sage/5 rounded-2xl border border-sage/10">
+                        <p class="text-xs text-forest/80 leading-relaxed italic">"{{ viewedUser?.bio || 'Passionate
+                            explorer of the great outdoors.' }}"</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-md rounded-[2rem] shadow-sm p-6 border border-olive/10">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-black text-forest">Gallery</h2>
+                        <span class="text-olive font-bold text-sm">{{ galleryMedia.length }} items</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <img *ngFor="let img of galleryPreview" [src]="img" (click)="openPhotoViewer(img, 'post')"
+                            class="aspect-square object-cover rounded-xl hover:opacity-80 transition-opacity cursor-pointer" />
+                        <div *ngIf="!galleryPreview.length"
+                            class="aspect-square bg-forest/5 rounded-xl flex items-center justify-center text-forest font-bold text-xs">
+                            No Media
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="lg:col-span-8 space-y-6">
+                <div *ngIf="isOwnProfile" class="bg-white rounded-[2rem] shadow-sm p-6 border border-olive/10">
+                    <div class="flex gap-4 items-start">
+                        <div
+                            class="w-12 h-12 rounded-2xl bg-sage/20 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm">
+                            <img [src]="viewedUser?.avatar" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex items-center justify-between gap-3 mb-4">
+                                <div>
+                                    <h3 class="font-black text-forest text-lg">{{ editingPostId ? 'Edit your adventure'
+                                        : ('Share a new adventure, ' + (viewedUser?.name || 'Explorer') + '?') }}</h3>
+                                    <p class="text-sm text-sage mt-1">Post an image or video with a description in your
+                                        profile feed.</p>
+                                </div>
+                                <button *ngIf="editingPostId" type="button" (click)="cancelPostEditing()"
+                                    class="px-4 py-2 rounded-2xl border border-olive/10 text-forest font-bold text-sm hover:bg-cream transition-all">
+                                    Cancel
+                                </button>
+                            </div>
+
+                            <textarea [(ngModel)]="postDraft.description" rows="4"
+                                placeholder="Tell people what happened, what you saw, or why this memory matters..."
+                                class="w-full bg-cream/50 hover:bg-cream text-forest rounded-2xl px-6 py-4 text-left transition-all border border-olive/5 font-medium outline-none focus:ring-2 focus:ring-olive/20"></textarea>
+
+                            <div *ngIf="postDraft.previewUrl"
+                                class="mt-4 overflow-hidden rounded-2xl border border-olive/10">
+                                <img *ngIf="!isVideoMedia(postDraft.previewUrl)" [src]="postDraft.previewUrl"
+                                    alt="Post preview" class="w-full max-h-[420px] object-cover" />
+                                <video *ngIf="isVideoMedia(postDraft.previewUrl)" [src]="postDraft.previewUrl" controls
+                                    class="w-full max-h-[420px] object-cover bg-black"></video>
+                            </div>
+
+                            <div
+                                class="mt-6 pt-6 border-t border-cream flex flex-wrap gap-3 items-center justify-between">
+                                <button type="button" (click)="triggerPostMediaPicker()"
+                                    class="hover:bg-forest/5 px-5 py-3 rounded-2xl flex items-center justify-center gap-2 text-forest font-bold transition-all text-sm">
+                                    <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    {{ postDraft.storedMediaUrl || postDraft.mediaFile ? 'Change Photo/Video' :
+                                    'Photo/Video' }}
+                                </button>
+
+                                <button type="button" (click)="savePost()" [disabled]="!canSavePost || isSavingPost"
+                                    class="bg-olive hover:bg-forest disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-2xl font-black transition-all">
+                                    {{ isSavingPost ? 'Saving...' : postActionLabel }}
+                                </button>
+                            </div>
+
+                            <p *ngIf="postSaveError" class="mt-3 text-sm font-semibold text-red-500">{{ postSaveError }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-2 px-2">
+                    <h3 class="text-xl font-black text-forest">{{ isOwnProfile ? 'Your Journals' : ((viewedUser?.name ||
+                        'User') + ' Journals') }}</h3>
+                    <span class="text-olive font-bold text-sm bg-olive/5 px-4 py-1.5 rounded-full">
+                        {{ posts.length }} Posts
+                    </span>
+                </div>
+
+                <article *ngFor="let post of posts"
+                    class="bg-white rounded-[2rem] shadow-sm overflow-hidden border border-olive/10 group transition-all hover:shadow-xl hover:shadow-forest/5">
+                    <div class="p-6 flex justify-between items-start gap-4">
+                        <div class="flex gap-4 min-w-0">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-sage/20 overflow-hidden flex-shrink-0 border-2 border-white shadow-sm ring-2 ring-forest/5">
+                                <img [src]="viewedUser?.avatar" class="w-full h-full object-cover" />
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-black text-forest leading-tight truncate">{{ viewedUser?.name }}</h4>
+                                <p
+                                    class="text-[10px] text-sage font-bold uppercase tracking-tighter mt-1 flex items-center gap-1.5">
+                                    {{ post.createdAt | date:'mediumDate' }} &bull; <span
+                                        class="w-1 h-1 bg-sage/30 rounded-full"></span> Public
+                                </p>
+                            </div>
+                        </div>
+
+                        <div *ngIf="isOwnProfile" class="flex gap-2">
+                            <button type="button" (click)="editPost(post)"
+                                class="text-sage hover:bg-cream px-3 py-2 rounded-xl transition-all font-bold text-sm">
+                                Edit
+                            </button>
+                            <button type="button" (click)="deletePost(post)"
+                                class="text-red-500 hover:bg-red-50 px-3 py-2 rounded-xl transition-all font-bold text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="px-6 pb-4">
+                        <p class="text-forest/80 text-sm leading-relaxed font-medium">{{ post.description }}</p>
+                    </div>
+
+                    <div *ngIf="post.mediaUrl" class="relative group/img overflow-hidden">
+                        <img *ngIf="!isVideoMedia(post.mediaUrl)" [src]="resolveMediaUrl(post.mediaUrl)"
+                            class="w-full max-h-[500px] object-cover transition-transform duration-700 group-hover/img:scale-105" />
+                        <video *ngIf="isVideoMedia(post.mediaUrl)" [src]="resolveMediaUrl(post.mediaUrl)" controls
+                            class="w-full max-h-[500px] object-cover bg-black"></video>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-forest/20 to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity">
+                        </div>
+                    </div>
+
+                    <div
+                        class="px-6 py-4 bg-cream/20 border-t border-olive/5 flex items-center justify-between text-xs font-bold text-sage uppercase tracking-wider">
+                        <span>{{ post.likedBy.length }} Likes</span>
+                        <span>{{ post.comments.length }} Comments</span>
+                    </div>
+
+                    <div *ngIf="!isOwnProfile" class="p-4 bg-cream/30 flex gap-2">
+                        <button type="button" (click)="togglePostLike(post)" [disabled]="!canInteractWithPosts"
+                            class="flex-1 bg-white hover:bg-forest hover:text-white disabled:opacity-50 py-3 rounded-2xl flex items-center justify-center gap-2 text-forest font-bold transition-all shadow-sm border border-olive/5 text-sm">
+                            <svg class="w-5 h-5" [attr.fill]="isPostLiked(post) ? 'currentColor' : 'none'"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            {{ isPostLiked(post) ? 'Liked' : 'Like' }}
+                        </button>
+                        <button type="button" (click)="focusPostComment(post.id)"
+                            class="flex-1 bg-white hover:bg-olive hover:text-white py-3 rounded-2xl flex items-center justify-center gap-2 text-forest font-bold transition-all shadow-sm border border-olive/5 text-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Comments
+                        </button>
+                    </div>
+
+                    <div class="px-6 pb-5 pt-2 bg-white">
+                        <div *ngIf="post.comments.length" class="space-y-3 mb-4">
+                            <div *ngFor="let comment of post.comments"
+                                class="flex gap-3 items-start rounded-2xl bg-cream/30 px-4 py-3">
+                                <img [src]="comment.authorAvatar" [alt]="comment.authorName"
+                                    class="w-9 h-9 rounded-xl object-cover flex-shrink-0" />
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="font-black text-forest text-sm">{{ comment.authorName }}</span>
+                                        <span class="text-[10px] text-sage font-bold uppercase">{{ comment.createdAt |
+                                            date:'short' }}</span>
+                                    </div>
+                                    <p class="text-sm text-forest/80 mt-1 leading-relaxed">{{ comment.text }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div *ngIf="!isOwnProfile" class="flex gap-3 items-start">
+                            <img [src]="currentUser?.avatar || viewedUser?.avatar" [alt]="currentUser?.name || 'You'"
+                                class="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+                            <div class="flex-grow">
+                                <textarea [id]="'post-comment-' + post.id" [(ngModel)]="postCommentDrafts[post.id]"
+                                    [disabled]="!canInteractWithPosts" rows="2" placeholder="Write a comment..."
+                                    class="w-full rounded-2xl border border-olive/10 bg-cream/30 px-4 py-3 text-sm text-forest outline-none focus:ring-2 focus:ring-olive/20 disabled:opacity-60"></textarea>
+                                <div class="flex justify-end mt-3">
+                                    <button type="button" (click)="submitPostComment(post)"
+                                        [disabled]="!canInteractWithPosts"
+                                        class="bg-olive hover:bg-forest disabled:opacity-50 text-white px-5 py-2.5 rounded-2xl font-bold text-sm transition-all">
+                                        Comment
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article *ngIf="!posts.length"
+                    class="bg-white rounded-[2rem] shadow-sm p-8 border border-dashed border-olive/15 text-center">
+                    <h4 class="font-black text-forest text-xl">{{ isOwnProfile ? 'Your feed is ready' : 'No posts yet'
+                        }}</h4>
+                    <p class="text-sage mt-3">
+                        {{ isOwnProfile ? 'Create your first post with a photo or video to start telling your story.' :
+                        'This account has not shared any posts yet.' }}
+                    </p>
+                </article>
+            </section>
+        </div>
+
+        <div *ngIf="activeTab === 'follows'"
+            class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-olive/10 shadow-sm animate-fade-in">
+            <h2 class="text-2xl font-black text-forest mb-8">Follows</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div *ngFor="let user of following"
+                    class="flex items-center gap-4 p-4 rounded-3xl bg-cream/20 border border-olive/5 hover:bg-cream/40 transition-all">
+                    <img [src]="user.avatar" [alt]="user.name"
+                        class="w-16 h-16 rounded-2xl object-cover ring-4 ring-forest/5 border border-white shadow-sm" />
+                    <div>
+                        <h4 class="font-black text-forest">{{ user.name }}</h4>
+                        <p class="text-xs text-olive font-bold uppercase">{{ user.role }}</p>
+                        <p class="text-sm text-sage mt-1">{{ user.bio || 'Following this adventurer.' }}</p>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!following.length" class="text-center py-12">
+                <p class="text-sage font-bold italic">Profiles you follow will appear here.</p>
+            </div>
+        </div>
+
+        <div *ngIf="activeTab === 'achievements'"
+            class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-olive/10 shadow-sm animate-fade-in">
+            <h2 class="text-2xl font-black text-forest mb-8">{{ isOwnProfile ? 'Your' : (viewedUser?.name || 'User') +
+                "'s" }}
+                Achievements</h2>
+
+            <!-- Real Earned Badges from Gamification System -->
+            <div *ngIf="viewedUser?.earnedBadges?.length" class="mb-12">
+                <h3 class="text-sm font-black text-orange-600 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+                    Official Badges
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div *ngFor="let badge of viewedUser?.earnedBadges"
+                        class="p-6 rounded-[2rem] bg-white border border-orange-100 shadow-sm hover:shadow-md hover:border-orange-200 transition-all group flex items-start gap-4 relative overflow-hidden">
+                        <div
+                            class="absolute -right-4 -top-4 w-16 h-16 bg-orange-50 rounded-full opacity-50 group-hover:scale-150 transition-transform">
+                        </div>
+                        <div
+                            class="w-16 h-16 bg-orange-100/50 rounded-2xl flex items-center justify-center text-4xl group-hover:scale-110 transition-transform flex-shrink-0 relative z-10">
+                            {{ badge.icon }}
+                        </div>
+                        <div class="relative z-10">
+                            <h4 class="font-black text-forest text-sm uppercase tracking-wider mb-1">{{ badge.name }}
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="text-[9px] px-2 py-0.5 bg-orange-500 text-white rounded-lg font-black uppercase tracking-widest">{{
+                                    badge.medal?.name || 'Badge' }}</span>
+                                <span class="text-[9px] text-orange-400 font-bold italic">Verified Item</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Milestones -->
+            <h3 *ngIf="viewedUser?.achievements?.length"
+                class="text-sm font-black text-sage uppercase tracking-[0.2em] mb-6">Adventure Milestones</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div *ngFor="let ach of viewedUser?.achievements"
+                    class="p-6 rounded-3xl bg-gradient-to-br from-white to-sage/5 border border-olive/10 shadow-sm hover:-translate-y-1 transition-all text-center">
+                    <div class="text-4xl mb-4">{{ ach.icon }}</div>
+                    <h4 class="font-black text-forest text-lg">{{ ach.title }}</h4>
+                    <p class="text-sm text-sage mb-4">{{ ach.description }}</p>
+                    <div *ngIf="ach.date"
+                        class="text-[10px] text-olive font-bold uppercase bg-olive/5 px-3 py-1 rounded-full w-fit mx-auto">
+                        Earned: {{ ach.date }}
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!viewedUser?.earnedBadges?.length && !viewedUser?.achievements?.length"
+                class="text-center py-12">
+                <div class="w-20 h-20 bg-sage/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-sage/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z" />
+                    </svg>
+                </div>
+                <p class="text-sage font-black italic">No achievements earned yet. Start your first adventure!</p>
+            </div>
+        </div>
+
+        <div *ngIf="activeTab === 'media'"
+            class="bg-white/70 backdrop-blur-md rounded-[2rem] p-8 border border-olive/10 shadow-sm animate-fade-in">
+            <h2 class="text-2xl font-black text-forest mb-8">Pictures & Videos</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div *ngFor="let media of galleryMedia" (click)="openPhotoViewer(media)"
+                    class="relative aspect-square group overflow-hidden rounded-2xl bg-forest/5 cursor-pointer border border-olive/5 shadow-sm hover:shadow-lg transition-all">
+                    <img *ngIf="!isVideoMedia(media.mediaUrl)" [src]="resolveMediaUrl(media.mediaUrl)"
+                        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <video *ngIf="isVideoMedia(media.mediaUrl)" [src]="resolveMediaUrl(media.mediaUrl)" controls
+                        class="w-full h-full object-cover bg-black"></video>
+                    <span
+                        class="absolute bottom-3 left-3 bg-white/80 text-forest px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        {{ media.kind === 'cover' ? 'Cover' : (media.kind === 'avatar' ? 'Profile picture' : 'Post') }}
+                    </span>
+                </div>
+            </div>
+            <div *ngIf="!galleryMedia.length" class="text-center py-12">
+                <p class="text-sage font-bold italic">No media uploaded yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="highlightEditorOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm px-4">
+        <div
+            class="w-full max-w-3xl bg-white rounded-[2rem] shadow-2xl border border-olive/10 p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between gap-4 mb-6">
+                <div>
+                    <p class="text-[11px] text-sage font-bold uppercase tracking-[0.3em]">Story Highlight</p>
+                    <h3 class="text-2xl font-black text-forest mt-2">{{ editingHighlightId ? 'Edit Highlight' : 'Create
+                        Highlight' }}</h3>
+                </div>
+                <button type="button" (click)="closeHighlightEditor()"
+                    class="w-11 h-11 rounded-2xl bg-cream/70 text-forest flex items-center justify-center hover:bg-cream transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <label class="block text-sm font-black text-forest uppercase tracking-wider">Highlight title</label>
+            <input [(ngModel)]="highlightTitle" type="text" placeholder="Camping memories, Desert nights, Beach days..."
+                class="mt-3 w-full rounded-2xl border border-olive/10 bg-cream/40 px-4 py-3 text-forest outline-none focus:ring-2 focus:ring-olive/20" />
+
+            <div class="mt-6 flex items-center justify-between gap-4">
+                <div>
+                    <p class="text-sm font-black text-forest">Stories inside this highlight</p>
+                    <p class="text-sm text-sage mt-1">Add several image or video stories. They will play one after
+                        another like story highlights.</p>
+                </div>
+                <button type="button" (click)="triggerHighlightStoriesPicker()"
+                    class="bg-olive hover:bg-forest text-white px-5 py-3 rounded-2xl font-black text-sm transition-all">
+                    Add Stories
+                </button>
+            </div>
+
+            <div *ngIf="highlightStories.length" class="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div *ngFor="let story of highlightStories; let i = index"
+                    class="relative rounded-3xl overflow-hidden border border-olive/10 bg-forest/5">
+                    <img *ngIf="!isVideoMedia(story.previewUrl || story.storedMediaUrl)"
+                        [src]="story.previewUrl || resolveMediaUrl(story.storedMediaUrl)" alt="Story preview"
+                        class="w-full h-48 object-cover" />
+                    <video *ngIf="isVideoMedia(story.previewUrl || story.storedMediaUrl)"
+                        [src]="story.previewUrl || resolveMediaUrl(story.storedMediaUrl)"
+                        class="w-full h-48 object-cover bg-black" muted controls></video>
+                    <div class="p-3 bg-white/90 flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-sage">Story {{ i + 1
+                            }}</span>
+                        <button type="button" (click)="removeHighlightStory(i)"
+                            class="text-red-500 hover:text-red-600 font-bold text-xs uppercase">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!highlightStories.length"
+                class="mt-6 rounded-3xl border border-dashed border-olive/20 bg-cream/20 p-10 text-center text-sage font-bold">
+                Add the first story for this highlight.
+            </div>
+
+            <p *ngIf="highlightSaveError" class="mt-4 text-sm font-semibold text-red-500">{{ highlightSaveError }}</p>
+
+            <div class="mt-8 flex justify-end gap-3">
+                <button type="button" (click)="closeHighlightEditor()"
+                    class="px-5 py-3 rounded-2xl border border-olive/10 text-forest font-bold hover:bg-cream transition-all">
+                    Cancel
+                </button>
+                <button type="button" (click)="saveHighlight()" [disabled]="!canSaveHighlight || isSavingHighlight"
+                    class="bg-olive hover:bg-forest disabled:opacity-50 text-white px-6 py-3 rounded-2xl font-black transition-all">
+                    {{ isSavingHighlight ? 'Saving...' : highlightActionLabel }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="selectedHighlight && currentStory" class="story-viewer fixed inset-0 z-50 bg-black/95 text-white">
+        <div class="absolute inset-0" (click)="closeHighlightPreview()"></div>
+
+        <div class="relative z-10 h-full w-full max-w-md mx-auto flex flex-col">
+            <div class="story-top px-4 pt-4 pb-3">
+                <div class="flex gap-1.5 mb-4">
+                    <div *ngFor="let story of selectedHighlight.stories; let i = index" class="story-progress-track">
+                        <div class="story-progress-fill" [style.width.%]="storyProgressFor(i)"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <img [src]="viewedUser?.avatar" [alt]="viewedUser?.name"
+                            class="w-10 h-10 rounded-full object-cover border border-white/20" />
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2">
+                                <p class="font-black truncate">{{ viewedUser?.name }}</p>
+                                <span class="text-sm text-white/70">{{ storyTimeAgo(currentStory.createdAt) }}</span>
+                            </div>
+                            <p class="text-xs uppercase tracking-[0.2em] text-white/70 truncate">{{
+                                selectedHighlight.title }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button *ngIf="isVideoMedia(currentStory.mediaUrl)" type="button" (click)="toggleStoryMuted()"
+                            class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
+                            <svg *ngIf="storyMuted" class="w-5 h-5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.536 8.464A5 5 0 0117 12a5 5 0 01-1.464 3.536M17.657 6.343A8 8 0 0119 12a8 8 0 01-1.343 5.657M9 9L5 12H2V8h3l4-3v4zm0 0v6m9-9L3 21" />
+                            </svg>
+                            <svg *ngIf="!storyMuted" class="w-5 h-5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5L6 9H3v6h3l5 4V5zm5.54 3.46A5 5 0 0118 12a5 5 0 01-1.46 3.54M19.07 4.93A10 10 0 0121 12a10 10 0 01-1.93 7.07" />
+                            </svg>
+                        </button>
+                        <button type="button" (click)="closeHighlightPreview()"
+                            class="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative flex-1 flex items-center justify-center">
+                <button type="button" (click)="previousStory()" class="story-nav story-nav-left"
+                    aria-label="Previous story"></button>
+
+                <img *ngIf="!isVideoMedia(currentStory.mediaUrl)" [src]="resolveMediaUrl(currentStory.mediaUrl)"
+                    [alt]="selectedHighlight.title" class="h-full w-full object-contain" />
+                <video *ngIf="isVideoMedia(currentStory.mediaUrl)" [src]="resolveMediaUrl(currentStory.mediaUrl)"
+                    [muted]="storyMuted" autoplay playsinline class="h-full w-full object-contain bg-black"></video>
+
+                <button type="button" (click)="nextStory()" class="story-nav story-nav-right"
+                    aria-label="Next story"></button>
+            </div>
+
+            <div class="story-bottom px-4 pb-6 pt-4">
+                <div
+                    class="flex items-center justify-between gap-4 rounded-[1.75rem] bg-white/10 backdrop-blur-md border border-white/10 px-4 py-4">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.18em] text-white/70">Story {{ selectedStoryIndex + 1 }}
+                            / {{ selectedHighlight.stories.length }}</p>
+                        <p class="mt-1 font-semibold text-white/90">{{ storyLikeCount }} likes</p>
+                    </div>
+
+                    <button *ngIf="!isOwnProfile" type="button" (click)="toggleCurrentStoryLike()" class="story-heart"
+                        [class.story-heart--active]="isCurrentStoryLiked()">
+                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12.001 4.529c2.349-2.109 5.979-2.039 8.242.228 2.274 2.275 2.273 5.963 0 8.238l-7.049 7.056a1.688 1.688 0 01-2.388 0L3.758 13c-2.273-2.275-2.274-5.963 0-8.238 2.263-2.267 5.893-2.337 8.243-.228z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="photoViewerOpen && selectedViewerMedia"
+        class="fixed inset-0 z-[100] flex bg-black/95 backdrop-blur-md animate-fade-in" (click)="closePhotoViewer()">
+        <div class="flex-1 flex items-center justify-center p-4 relative" (click)="$event.stopPropagation()">
+            <button type="button" (click)="closePhotoViewer()"
+                class="absolute top-6 left-6 w-12 h-12 rounded-full bg-white/10 hover:bg-white/30 text-white flex items-center justify-center transition-all z-10 border border-white/20 hover:scale-105 active:scale-95 shadow-xl">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <img *ngIf="!isVideoMedia(selectedViewerMedia.mediaUrl)"
+                [src]="resolveMediaUrl(selectedViewerMedia.mediaUrl)"
+                class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" />
+            <video *ngIf="isVideoMedia(selectedViewerMedia.mediaUrl)"
+                [src]="resolveMediaUrl(selectedViewerMedia.mediaUrl)" controls autoplay
+                class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"></video>
+        </div>
+
+        <div class="hidden md:flex w-[400px] bg-white h-full flex-col shadow-[-10px_0_30px_rgba(0,0,0,0.5)] overflow-hidden"
+            (click)="$event.stopPropagation()">
+            <div class="p-5 border-b border-olive/10 flex items-center gap-4 bg-cream/30">
+                <img [src]="viewedUser?.avatar" [alt]="viewedUser?.name"
+                    class="w-12 h-12 rounded-full object-cover shadow-sm border border-olive/20" />
+                <div>
+                    <h3 class="font-black text-forest">{{ viewedUser?.name }}</h3>
+                    <p class="text-xs font-bold text-sage">{{ storyTimeAgo(selectedViewerMedia.createdAt) }}</p>
+                </div>
+            </div>
+
+            <div class="p-6 bg-white flex-1 overflow-y-auto no-scrollbar">
+                <div class="mb-6">
+                    <span
+                        class="inline-block px-3 py-1 bg-olive/10 text-forest text-[10px] font-black uppercase tracking-widest rounded-full mb-3">
+                        {{ selectedViewerMedia.kind }}
+                    </span>
+                    <p class="text-forest text-sm leading-relaxed whitespace-pre-line">{{ selectedViewerMedia.title ||
+                        'No description provided.' }}</p>
+                </div>
+
+                <hr class="border-olive/10 my-6">
+
+                <div class="space-y-4">
+                    <h4 class="text-xs font-black uppercase tracking-widest text-sage mb-4">Comments</h4>
+                    <div class="text-center py-8">
+                        <div class="w-12 h-12 bg-cream rounded-full mx-auto flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <p class="text-sage font-bold text-sm">No comments yet</p>
+                        <p class="text-xs text-sage/70 mt-1">Be the first to share your thoughts!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!isOwnProfile" class="p-4 border-t border-olive/10 bg-cream/30">
+                <div
+                    class="flex items-center gap-3 bg-white rounded-full px-4 py-2 border border-olive/10 shadow-sm focus-within:ring-2 focus-within:border-olive/40 transition-all">
+                    <input type="text" placeholder="Write a comment..."
+                        class="flex-1 bg-transparent border-none outline-none text-sm text-forest placeholder-sage" />
+                    <button
+                        class="text-olive hover:text-forest transition-colors font-bold text-sm uppercase tracking-wider">Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

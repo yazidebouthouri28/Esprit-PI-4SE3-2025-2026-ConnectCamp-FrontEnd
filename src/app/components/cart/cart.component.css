@@ -1,0 +1,4 @@
+/* Add any specific styles here if tailwind isn't enough */
+:host {
+    display: block;
+}

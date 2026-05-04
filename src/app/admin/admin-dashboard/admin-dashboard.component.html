@@ -1,0 +1,177 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+  <!-- Title & Primary Action -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-black text-[#1a2e1a]">Dashboard Overview</h1>
+      <p class="text-sm text-[#617152] font-medium">Real-time health and engagement of the ConnectCamp ecology.</p>
+    </div>
+    <div class="flex gap-3">
+      <button
+        class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-[#1a2e1a] hover:bg-gray-50 transition-colors shadow-sm">
+        Reports Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Grid (Premium Implementation matching screenshot) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    @for (stat of stats; track stat.title) {
+    <div
+      class="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all"
+      [class.bg-[#1a2e1a]="stat.title === 'Operational Yield'" [class.text-white="stat.title === 'Operational Yield'" ]>
+
+      <div class="flex justify-between items-start mb-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-transform group-hover:scale-110"
+            [class]="stat.title === 'Operational Yield' ? 'bg-white/10' : 'bg-gray-50 shadow-inner'">
+            {{ stat.icon }}
+          </div>
+          <span class="text-[10px] font-black uppercase tracking-[0.2em]"
+            [class]="stat.title === 'Operational Yield' ? 'text-white/50' : 'text-gray-400'">
+            {{ stat.title }}
+          </span>
+        </div>
+
+        @if (stat.title !== 'Operational Yield') {
+        <div class="text-[9px] font-black uppercase tracking-[0.2em] px-2.5 py-1.5 rounded-full border border-gray-50"
+          [class.text-emerald-500]="stat.trend === 'up'" [class.bg-emerald-50]="stat.trend === 'up'"
+          [class.text-amber-500]="stat.trend === 'down'" [class.bg-amber-50]="stat.trend === 'down'">
+          {{ stat.change }} {{ stat.trend === 'up' ? '↑' : '↓' }}
+        </div>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <h3 class="text-3xl font-black italic tracking-tighter" [class.text-white]="stat.title === 'Operational Yield'"
+          [class.text-[#1a2e1a]]="stat.title !== 'Operational Yield'">
+          {{ stat.value }}
+        </h3>
+        <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40">
+          {{ stat.subtitle }}
+        </p>
+      </div>
+
+      <!-- Pulse Effect for alerts -->
+      @if (stat.title === 'Resource Alert') {
+      <div class="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full animate-ping"></div>
+      }
+    </div>
+    }
+  </div>
+
+  <!-- Charts & Distribution Area -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="text-lg font-black text-[#1a2e1a] italic tracking-tight">Revenue & Engagement</h3>
+        <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Temporal Analysis</span>
+      </div>
+      <div
+        class="h-[300px] flex items-end justify-between gap-2 px-2 bg-gray-50/50 rounded-xl p-6 border border-gray-100 overflow-hidden">
+        @for (i of [1,2,3,4,5,6,7,8,9,10,11,12]; track i) {
+        <div class="flex-1 bg-emerald-500/20 rounded-t-lg relative group transition-all" [style.height.%]="20 + (i*5)">
+          <div
+            class="absolute bottom-0 left-0 right-0 bg-[#1a2e1a] rounded-t-lg opacity-80 transition-all group-hover:opacity-100"
+            [style.height.%]="40 + (i*2)"></div>
+        </div>
+        }
+      </div>
+      <div
+        class="flex justify-between mt-4 px-4 text-[8px] font-black text-gray-400 uppercase tracking-[0.2em] font-mono">
+        <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-8 border border-gray-200 shadow-sm flex flex-col">
+      <div class="flex justify-between items-center mb-10">
+        <h3 class="text-lg font-black text-[#1a2e1a] italic tracking-tight">Platform Distribution</h3>
+        <div class="flex gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+          <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+        </div>
+      </div>
+      <div class="flex-1 flex items-center justify-center relative">
+        <div
+          class="w-48 h-48 rounded-full border-[1.5rem] border-emerald-500 relative flex items-center justify-center">
+          <div
+            class="absolute inset-[-1.5rem] rounded-full border-[1.5rem] border-blue-500 border-l-transparent border-t-transparent group-hover:rotate-12 transition-transform">
+          </div>
+          <div class="text-center">
+            <p class="text-2xl font-black text-[#1a2e1a]">98%</p>
+            <p class="text-[9px] font-black text-gray-400 uppercase">Integrity</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 space-y-4">
+        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+          <span class="text-[10px] font-black text-[#617152] uppercase">Eco Expeditions</span>
+          <span class="text-xs font-black text-[#1a2e1a]">52%</span>
+        </div>
+        <div class="flex justify-between items-center py-2 border-b border-gray-50">
+          <span class="text-[10px] font-black text-[#617152] uppercase">Gear Marketplace</span>
+          <span class="text-xs font-black text-[#1a2e1a]">38%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity Section -->
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
+      <h3 class="text-sm font-black text-[#1a2e1a] uppercase tracking-widest italic">Temporal Ledger (Activity)</h3>
+      <button
+        class="text-[10px] font-black text-emerald-600 hover:text-[#1a2e1a] transition-colors uppercase tracking-widest">Global
+        Export →</button>
+    </div>
+    <div class="divide-y divide-gray-50">
+      @for (activity of activities; track activity.user) {
+      <div class="flex items-center gap-6 p-6 hover:bg-gray-50/50 transition-colors group">
+        <div
+          class="w-10 h-10 bg-[#f8f5e6] rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+          📍
+        </div>
+        <div class="flex-1">
+          <p class="text-[#1a2e1a] font-bold text-sm"><span class="font-black italic">{{ activity.user }}</span> {{
+            activity.action }}</p>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">{{ activity.time }} • Verified
+            Entry</p>
+        </div>
+        <div class="hidden md:flex gap-2">
+          <button
+            class="px-3 py-1 bg-white border border-gray-200 rounded-lg text-[9px] font-black uppercase text-gray-400 hover:text-[#1a2e1a] hover:border-gray-400 transition-all">Audit</button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Action Shortcuts -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <a routerLink="/admin"
+      class="group p-8 bg-white border border-gray-200 rounded-2xl transition-all shadow-sm hover:border-[#1a2e1a] hover:shadow-xl">
+      <div
+        class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+        ⛺</div>
+      <h4 class="font-black text-[#1a2e1a] mb-2 uppercase tracking-tighter">Approve Campsites</h4>
+      <p class="text-xs text-gray-400 font-bold italic">12 pending environmental reviews</p>
+    </a>
+    <a routerLink="/admin"
+      class="group p-8 bg-white border border-gray-200 rounded-2xl transition-all shadow-sm hover:border-[#1a2e1a] hover:shadow-xl">
+      <div
+        class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+        🛡️</div>
+      <h4 class="font-black text-[#1a2e1a] mb-2 uppercase tracking-tighter">Governance Node</h4>
+      <p class="text-xs text-gray-400 font-bold italic">8 community reports requiring moderation</p>
+    </a>
+    <a routerLink="/admin"
+      class="group p-8 bg-white border border-gray-200 rounded-2xl transition-all shadow-sm hover:border-[#1a2e1a] hover:shadow-xl">
+      <div
+        class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+        💼</div>
+      <h4 class="font-black text-[#1a2e1a] mb-2 uppercase tracking-tighter">Sponsorship Review</h4>
+      <p class="text-xs text-gray-400 font-bold italic">5 new partnership manifestos</p>
+    </a>
+  </div>
+</div>

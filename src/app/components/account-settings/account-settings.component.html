@@ -1,0 +1,227 @@
+<section class="min-h-screen bg-[#f5f2e8] px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-5xl">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <button
+        type="button"
+        (click)="goBack()"
+        class="inline-flex items-center gap-2 rounded-2xl border border-[#d8d1c1] bg-white px-4 py-2 text-sm font-bold text-[#2f5642] shadow-sm transition hover:border-[#2f5642]/30 hover:bg-[#fcfbf6]">
+        Back
+      </button>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a
+          routerLink="/profile"
+          class="rounded-2xl border border-[#d8d1c1] bg-white px-4 py-2 text-sm font-bold text-[#2f5642] shadow-sm transition hover:border-[#2f5642]/30 hover:bg-[#fcfbf6]">
+          Profile
+        </a>
+        @if (showAdminShortcut) {
+          <a
+            routerLink="/admin"
+            class="rounded-2xl bg-[#2f5642] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:bg-[#244534]">
+            Admin Space
+          </a>
+        }
+      </div>
+    </div>
+
+    <div class="overflow-hidden rounded-[2rem] border border-[#d8d1c1] bg-white shadow-xl shadow-black/5">
+      <div class="border-b border-[#d8d1c1] bg-[#2f5642] px-6 py-6 text-white sm:px-8">
+        <p class="text-xs font-black uppercase tracking-[0.26em] text-[#d9c26f]">Account Settings</p>
+        <div class="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 class="text-3xl font-black tracking-tight">{{ currentUserName }}</h1>
+            <p class="mt-1 text-sm font-semibold text-white/75">
+              Update the details for your {{ currentRoleLabel.toLowerCase() }} account.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
+            <div class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-white/20 text-sm font-black text-white">
+              @if (profileAvatarPreview) {
+                <img [src]="profileAvatarPreview" [alt]="profileForm.name || currentUserName" class="h-full w-full object-cover" />
+              } @else {
+                <span>{{ profileAvatarInitials }}</span>
+              }
+            </div>
+            <div>
+              <p class="text-sm font-black">{{ profileForm.name || currentUserName }}</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">{{ currentRoleLabel }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form class="space-y-6 p-6 sm:p-8" (ngSubmit)="saveSettings()">
+        @if (settingsError) {
+          <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            {{ settingsError }}
+          </div>
+        }
+
+        @if (settingsSuccess) {
+          <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+            {{ settingsSuccess }}
+          </div>
+        }
+
+        @if (settingsLoading && !profileForm.name) {
+          <div class="rounded-2xl border border-[#d8d1c1] bg-[#fcfbf6] px-4 py-3 text-sm font-semibold text-[#607865]">
+            Loading your account...
+          </div>
+        }
+
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
+          <div class="space-y-4">
+            <div>
+              <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Name</label>
+              <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.name" name="name" required />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Username</label>
+              <input class="w-full rounded-2xl border border-[#e4ded0] bg-[#f6f4ec] px-4 py-3 text-sm text-[#607865]" [(ngModel)]="profileForm.username" name="username" readonly />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Email</label>
+              <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.email" name="email" type="email" required />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Phone</label>
+                <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.phone" name="phone" />
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Age</label>
+                <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.age" name="age" type="number" />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Address</label>
+              <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.address" name="address" />
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Country</label>
+                <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.country" name="country" />
+              </div>
+
+              <div>
+                <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Location</label>
+                <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.location" name="location" />
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Website</label>
+              <input class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" [(ngModel)]="profileForm.website" name="website" />
+            </div>
+
+            <div>
+              <label class="mb-1 block text-xs font-black uppercase tracking-[0.18em] text-[#607865]">Bio</label>
+              <textarea class="min-h-32 w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]" rows="5" [(ngModel)]="profileForm.bio" name="bio"></textarea>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="rounded-[1.75rem] border border-[#d8d1c1] bg-[#fcfbf6] p-5">
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-[#607865]">Profile Picture</p>
+
+              <div class="mt-4 flex flex-col items-center gap-4 text-center">
+                <div class="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-[#d8d1c1] bg-[#2f5642]/10 text-2xl font-black text-[#2f5642]">
+                  @if (profileAvatarPreview) {
+                    <img [src]="profileAvatarPreview" [alt]="profileForm.name || currentUserName" class="h-full w-full object-cover" />
+                  } @else {
+                    <span>{{ profileAvatarInitials }}</span>
+                  }
+                </div>
+
+                <div class="space-y-2">
+                  <p class="text-sm font-bold text-[#1f3d2e]">Import a picture for your {{ currentRoleLabel.toLowerCase() }} account</p>
+                  <p class="text-xs font-semibold text-[#607865]">PNG, JPG or WebP. Maximum size: 5 MB.</p>
+                  <p class="max-w-full truncate text-xs font-semibold text-[#607865]">
+                    {{ avatarFileName || (profileAvatarPreview ? 'Current picture selected' : 'No picture selected') }}
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                  <input
+                    #avatarInput
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    class="hidden"
+                    (change)="onAvatarSelected($event)" />
+
+                  <button
+                    type="button"
+                    (click)="avatarInput.click()"
+                    class="rounded-2xl bg-[#2f5642] px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-white transition hover:bg-[#244534]">
+                    Import Picture
+                  </button>
+
+                  @if (profileAvatarPreview) {
+                    <button
+                      type="button"
+                      (click)="removeAvatar()"
+                      class="rounded-2xl border border-[#d8d1c1] bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-[#607865] transition hover:border-red-300 hover:text-red-600">
+                      Remove
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-[1.75rem] border border-[#d8d1c1] bg-[#fcfbf6] p-5">
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-[#607865]">Password</p>
+              <p class="mt-2 text-sm font-semibold text-[#607865]">Leave this part empty if you do not want to change your password.</p>
+
+              <div class="mt-4 space-y-3">
+                <input
+                  class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]"
+                  [(ngModel)]="profileForm.currentPassword"
+                  name="currentPassword"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Current password" />
+
+                <input
+                  class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]"
+                  [(ngModel)]="profileForm.newPassword"
+                  name="newPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="New password" />
+
+                <input
+                  class="w-full rounded-2xl border border-[#d8d1c1] px-4 py-3 text-sm text-[#1f3d2e] outline-none transition focus:border-[#2f5642]"
+                  [(ngModel)]="profileForm.confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Confirm new password" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-3 border-t border-[#e7e0d1] pt-6">
+          <button
+            type="button"
+            (click)="goBack()"
+            class="rounded-2xl border border-[#d8d1c1] bg-white px-5 py-3 text-sm font-bold text-[#607865] transition hover:border-[#2f5642]/30 hover:text-[#2f5642]">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="settingsLoading"
+            class="rounded-2xl bg-[#2f5642] px-6 py-3 text-sm font-black uppercase tracking-[0.18em] text-white transition hover:bg-[#244534] disabled:cursor-not-allowed disabled:opacity-60">
+            Save Settings
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

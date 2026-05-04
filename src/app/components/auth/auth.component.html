@@ -1,0 +1,359 @@
+<div class="auth-page">
+  <div class="auth-layout">
+    <!-- LEFT: Campfire visual -->
+    <section class="auth-visual" (mousemove)="onCampfireMove($event)">
+      <div class="campfire-glow"></div>
+      <video class="campfire-video" autoplay muted loop playsinline>
+        <source src="assets/campfire.mp4" type="video/mp4">
+      </video>
+
+      <div class="campfire-stars">
+        <div *ngFor="let star of stars" class="campfire-star" [ngStyle]="{ left: star.x + 'px', top: star.y + 'px' }">
+        </div>
+      </div>
+
+      <div class="campfire-caption">
+        <p class="campfire-kicker">CampConnect</p>
+        <h2>Find your next night under the stars.</h2>
+        <p>Book campsites, join events, and gear up for unforgettable trips.</p>
+      </div>
+    </section>
+
+    <!-- RIGHT: Sliding sidebar with login / signup -->
+    <section class="auth-sidebar-wrapper">
+      <div class="auth-sidebar" [class.auth-sidebar-hidden]="isSidebarAnimatingOut"
+        [class.auth-sidebar-signup]="!isLoginMode">
+
+<header class="auth-sidebar-header">
+  <a routerLink="/" class="brand-link">
+    <span class="brand-icon">
+      <img class="brand-logo" src="assets/images/logo.png" alt="CampConnect logo" />
+    </span>
+    <span class="brand-name">CampConnect</span>
+  </a>
+  <span class="auth-mode-pill">
+    {{ isLoginMode ? 'Welcome back' : 'Join the camp' }}
+  </span>
+</header>
+
+        <!-- LOGIN FORM -->
+        <ng-container *ngIf="isLoginMode && !isForgotPasswordMode; else authAltView">
+          <form (ngSubmit)="login()" class="auth-form">
+            <div class="auth-form-intro">
+              <h1 class="auth-title">Log in</h1>
+              <p class="auth-subtitle">Continue your camping adventure.</p>
+            </div>
+
+            <div *ngIf="errorMessage" class="auth-alert auth-alert-error">
+              <span>⚠️</span> {{ errorMessage }}
+            </div>
+            <div *ngIf="successMessage" class="auth-alert auth-alert-success">
+              <span>✅</span> {{ successMessage }}
+            </div>
+
+            <div>
+              <label for="login-email" class="auth-label">Email or Username</label>
+              <input id="login-email" type="text" [(ngModel)]="loginForm.email" name="email"
+                placeholder="you&#64;example.com" class="auth-input" required />
+            </div>
+
+            <div>
+              <label for="login-password" class="auth-label">Password</label>
+              <div class="password-wrapper">
+                <input id="login-password" [type]="showLoginPassword ? 'text' : 'password'"
+                  [(ngModel)]="loginForm.password" name="password" placeholder="••••••••" class="auth-input" required />
+                <button type="button" (click)="showLoginPassword = !showLoginPassword" class="password-toggle"
+                  aria-label="Toggle password">
+                  <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <ng-container *ngIf="showLoginPassword">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </ng-container>
+                    <ng-container *ngIf="!showLoginPassword">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </ng-container>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="isLoading" class="auth-btn">
+              {{ isLoading ? 'Signing in…' : 'Sign in' }}
+            </button>
+
+            <button type="button" class="auth-text-btn" (click)="switchToForgotPassword()">
+              Forgot your password?
+            </button>
+
+            <p class="auth-switch-text">
+              Don't have an account?
+              <button type="button" (click)="switchToSignup()" class="auth-switch-link">
+                Sign up
+              </button>
+            </p>
+          </form>
+        </ng-container>
+
+        <ng-template #authAltView>
+          <ng-container *ngIf="isForgotPasswordMode; else signupForm">
+            <form (ngSubmit)="resetPassword()" class="auth-form">
+              <div class="auth-form-intro">
+                <h1 class="auth-title">Reset password</h1>
+                <p class="auth-subtitle">Verify your email code, then set a new password.</p>
+              </div>
+
+              <div *ngIf="errorMessage" class="auth-alert auth-alert-error">
+                <span>⚠️</span> {{ errorMessage }}
+              </div>
+              <div *ngIf="successMessage" class="auth-alert auth-alert-success">
+                <span>✅</span> {{ successMessage }}
+              </div>
+
+              <div>
+                <label for="forgot-email" class="auth-label">Email</label>
+                <input id="forgot-email" type="email" [(ngModel)]="forgotPasswordForm.email" name="forgotEmail"
+                  placeholder="you&#64;example.com" class="auth-input" required />
+              </div>
+
+              <button type="button" [disabled]="isLoading" class="auth-btn auth-btn-secondary" (click)="sendResetCode()">
+                {{ isLoading ? 'Sending code…' : 'Send verification code' }}
+              </button>
+
+              <div>
+                <label for="reset-code" class="auth-label">Verification code</label>
+                <input id="reset-code" type="text" [(ngModel)]="forgotPasswordForm.code" name="resetCode"
+                  placeholder="6-digit code" maxlength="6" class="auth-input" required />
+              </div>
+
+              <div>
+                <label for="new-password" class="auth-label">New password</label>
+                <div class="password-wrapper">
+                  <input id="new-password" [type]="showResetPassword ? 'text' : 'password'"
+                    [(ngModel)]="forgotPasswordForm.newPassword" name="newPassword" placeholder="••••••••"
+                    class="auth-input" minlength="6" required />
+                  <button type="button" (click)="showResetPassword = !showResetPassword" class="password-toggle"
+                    aria-label="Toggle password visibility">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path *ngIf="!showResetPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path *ngIf="!showResetPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      <path *ngIf="showResetPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M3 3l18 18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" [disabled]="isLoading" class="auth-btn">
+                {{ isLoading ? 'Resetting…' : 'Reset password' }}
+              </button>
+
+              <button type="button" class="auth-text-btn" (click)="backToLoginFromForgot()">
+                Back to sign in
+              </button>
+            </form>
+          </ng-container>
+        </ng-template>
+
+        <!-- SIGNUP FORM -->
+        <ng-template #signupForm>
+          <form (ngSubmit)="register()" class="auth-form">
+            <div class="auth-form-intro">
+              <h1 class="auth-title">Create your account</h1>
+              <p class="auth-subtitle">
+                Join the CampConnect community and start exploring.
+              </p>
+            </div>
+
+            <div *ngIf="errorMessage" class="auth-alert auth-alert-error">
+              <span>⚠️</span> {{ errorMessage }}
+            </div>
+            <div *ngIf="successMessage" class="auth-alert auth-alert-success">
+              <span>✅</span> {{ successMessage }}
+            </div>
+
+            <!-- Name + Username row -->
+            <div class="auth-row">
+              <div class="auth-col">
+                <label for="signup-name" class="auth-label">Full Name *</label>
+                <input id="signup-name" type="text" [(ngModel)]="registerForm.name" name="name" placeholder="John Doe"
+                  class="auth-input" required />
+              </div>
+              <div class="auth-col">
+                <label for="signup-username" class="auth-label">Username *</label>
+                <input id="signup-username" type="text" [(ngModel)]="registerForm.username" name="username"
+                  placeholder="johndoe" minlength="3" class="auth-input" required />
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div>
+              <label for="signup-email" class="auth-label">Email *</label>
+              <input id="signup-email" type="email" [(ngModel)]="registerForm.email" name="email"
+                placeholder="you&#64;example.com" class="auth-input" required />
+            </div>
+
+            <!-- Password -->
+            <div>
+              <label for="signup-password" class="auth-label">Password *</label>
+              <div class="password-wrapper">
+                <input id="signup-password" [type]="showSignupPassword ? 'text' : 'password'"
+                  [(ngModel)]="registerForm.password" name="password" placeholder="••••••••"
+                  class="auth-input" required />
+                <button type="button" (click)="showSignupPassword = !showSignupPassword" class="password-toggle"
+                  aria-label="Toggle password">
+                  <svg class="icon icon-small" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <ng-container *ngIf="showSignupPassword">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </ng-container>
+                    <ng-container *ngIf="!showSignupPassword">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </ng-container>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Critères mot de passe — s'affichent dès que l'utilisateur tape -->
+              <div *ngIf="registerForm.password.length > 0" class="mt-2 space-y-1">
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="passwordCriteria.minLength" [class.text-red-500]="!passwordCriteria.minLength">
+                  <span>{{ passwordCriteria.minLength ? '✓' : '✗' }}</span>
+                  <span>Au moins 8 caractères</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="passwordCriteria.hasUpper" [class.text-red-500]="!passwordCriteria.hasUpper">
+                  <span>{{ passwordCriteria.hasUpper ? '✓' : '✗' }}</span>
+                  <span>Au moins une majuscule (A-Z)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="passwordCriteria.hasNumber" [class.text-red-500]="!passwordCriteria.hasNumber">
+                  <span>{{ passwordCriteria.hasNumber ? '✓' : '✗' }}</span>
+                  <span>Au moins un chiffre (0-9)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs" [class.text-green-600]="passwordCriteria.hasSpecial" [class.text-red-500]="!passwordCriteria.hasSpecial">
+                  <span>{{ passwordCriteria.hasSpecial ? '✓' : '✗' }}</span>
+                  <span>Au moins un caractère spécial (ex&nbsp;: ! &#64; # $ % *)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Role Selection -->
+<div class="role-grid">
+  <label class="role-card" [class.role-card-selected]="registerForm.role === 'SELLER'">
+    <input type="radio" name="role" value="SELLER" [(ngModel)]="registerForm.role"
+      (change)="onRoleChange()" class="hidden" />
+    <span class="role-card-icon">🏪</span>
+    <span class="role-card-name">Seller and Buyer</span>
+  </label>
+  <label class="role-card" [class.role-card-selected]="registerForm.role === 'ORGANIZER'">
+    <input type="radio" name="role" value="ORGANIZER" [(ngModel)]="registerForm.role"
+      (change)="onRoleChange()" class="hidden" />
+    <span class="role-card-icon">📅</span>
+    <span class="role-card-name">Organizer</span>
+  </label>
+  <label class="role-card" [class.role-card-selected]="registerForm.role === 'SPONSOR'">
+    <input type="radio" name="role" value="SPONSOR" [(ngModel)]="registerForm.role"
+      (change)="onRoleChange()" class="hidden" />
+    <span class="role-card-icon">🤝</span>
+    <span class="role-card-name">Sponsor</span>
+  </label>
+  <label class="role-card" [class.role-card-selected]="registerForm.role === 'CAMPER'">
+    <input type="radio" name="role" value="CAMPER" [(ngModel)]="registerForm.role"
+      (change)="onRoleChange()" class="hidden" />
+    <span class="role-card-icon">⛺</span>
+    <span class="role-card-name">Camper</span>
+  </label>
+</div>
+
+            <!-- Seller store name (conditional) -->
+            <div *ngIf="registerForm.role === 'SELLER'" class="seller-box">
+              <div class="seller-title">🏪 Seller details</div>
+              <div>
+                <label for="seller-store" class="auth-label">Store Name</label>
+                <input id="seller-store" type="text" [(ngModel)]="registerForm.storeName" name="storeName"
+                  placeholder="My outdoor store" class="auth-input" />
+              </div>
+            </div>
+
+            <!-- Phone + Age row -->
+            <div class="auth-row">
+              <div class="auth-col">
+                <label for="signup-phone" class="auth-label">Phone</label>
+                <input id="signup-phone" type="tel" [(ngModel)]="registerForm.phone" name="phone"
+                  placeholder="+1 234 567 890" class="auth-input" />
+              </div>
+              <div class="auth-col">
+                <label for="signup-age" class="auth-label">Age</label>
+                <input id="signup-age" type="number" [(ngModel)]="registerForm.age" name="age" placeholder="25" min="13"
+                  max="120" class="auth-input" />
+              </div>
+            </div>
+
+            <!-- Address + Country row -->
+            <div class="auth-row">
+              <div class="auth-col">
+                <label for="signup-address" class="auth-label">Address</label>
+                <input id="signup-address" type="text" [(ngModel)]="registerForm.address" name="address"
+                  placeholder="123 Main St" class="auth-input" />
+              </div>
+              <div class="auth-col">
+                <label for="signup-country" class="auth-label">Country</label>
+                <select id="signup-country" [(ngModel)]="registerForm.country" name="country" class="auth-input">
+                  <option value="">Select country</option>
+                  <option value="United States">United States</option>
+                  <option value="Canada">Canada</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Germany">Germany</option>
+                  <option value="France">France</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Tunisia">Tunisia</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Bio -->
+            <div>
+              <label for="signup-bio" class="auth-label">
+                Bio
+                <span class="label-optional">(optional)</span>
+              </label>
+              <textarea id="signup-bio" [(ngModel)]="registerForm.bio" name="bio" placeholder="Tell us about yourself…"
+                rows="2" class="auth-input auth-textarea"></textarea>
+            </div>
+
+            <!-- isBuyer checkbox -->
+            <div class="buyer-row">
+              <input id="signup-buyer" type="checkbox" [(ngModel)]="registerForm.isBuyer" name="isBuyer"
+                class="buyer-checkbox" />
+              <label for="signup-buyer" class="buyer-label">
+                I also want to buy products on the platform
+              </label>
+            </div>
+
+            <button type="submit" [disabled]="isLoading || !isPasswordValid" class="auth-btn"
+              [class.opacity-50]="!isPasswordValid" [class.cursor-not-allowed]="!isPasswordValid">
+              {{ isLoading ? 'Creating account…' : 'Create account' }}
+            </button>
+
+            <p class="auth-switch-text">
+              Already have an account?
+              <button type="button" (click)="switchToLogin()" class="auth-switch-link">
+                Log in
+              </button>
+            </p>
+          </form>
+        </ng-template>
+
+        <p class="auth-footer-text">
+          © {{ currentYear }} CampConnect. All rights reserved.
+        </p>
+      </div>
+    </section>
+  </div>
+</div>

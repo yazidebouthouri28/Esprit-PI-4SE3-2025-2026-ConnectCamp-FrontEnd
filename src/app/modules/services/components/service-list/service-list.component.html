@@ -1,0 +1,391 @@
+<div class="container mx-auto px-4 py-8">
+  <!-- Admin Statistics Header -->
+  <div *ngIf="isAdmin()" class="mb-10 space-y-6 animate-fade-in">
+    <div>
+      <h1 class="text-2xl font-black text-[#1a2e1a]">Services Intelligence</h1>
+      <p class="text-sm text-[#617152] font-medium">Real-time engagement metrics for service catalog.</p>
+    </div>
+
+    <!-- Stats Grid (Premium Implementation matching dashboard) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Stat Card 1 -->
+      <div
+        class="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
+        <div class="flex justify-between items-start mb-6">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gray-50 shadow-inner flex items-center justify-center text-xl transition-transform group-hover:scale-110">
+              📊
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Catalog</span>
+          </div>
+          <div
+            class="text-[9px] font-black uppercase tracking-[0.2em] px-2.5 py-1.5 rounded-full border border-gray-50 text-emerald-500 bg-emerald-50">
+            +5% ↑
+          </div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-3xl font-black italic tracking-tighter text-[#1a2e1a]">{{ services.length }}</h3>
+          <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 text-gray-400">Active Services</p>
+        </div>
+      </div>
+
+      <!-- Stat Card 2 -->
+      <div
+        class="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
+        <div class="flex justify-between items-start mb-6">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gray-50 shadow-inner flex items-center justify-center text-xl transition-transform group-hover:scale-110">
+              ⛺
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Camper Reach</span>
+          </div>
+          <div
+            class="text-[9px] font-black uppercase tracking-[0.2em] px-2.5 py-1.5 rounded-full border border-gray-50 text-emerald-500 bg-emerald-50">
+            +14% ↑
+          </div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-3xl font-black italic tracking-tighter text-[#1a2e1a]">1.2k</h3>
+          <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 text-gray-400">Monthly Bookings</p>
+        </div>
+      </div>
+
+      <!-- Stat Card 3 -->
+      <div
+        class="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
+        <div class="flex justify-between items-start mb-6">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gray-50 shadow-inner flex items-center justify-center text-xl transition-transform group-hover:scale-110">
+              💼
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">B2B Network</span>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-3xl font-black italic tracking-tighter text-[#1a2e1a]">48</h3>
+          <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 text-gray-400">Active Partners</p>
+        </div>
+      </div>
+
+      <!-- Stat Card 4 (Dark mode accent) -->
+      <div
+        class="bg-[#1a2e1a] text-white rounded-2xl p-7 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
+        <div class="flex justify-between items-start mb-6">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl transition-transform group-hover:scale-110">
+              📈
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-white/50">Market Value</span>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-3xl font-black italic tracking-tighter text-white">45.2k DT</h3>
+          <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 text-white/50">Projected Revenue</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Filter Tabs -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 mr-2">View:</span>
+      <button (click)="adminViewMode = 'ALL'"
+        [ngClass]="adminViewMode === 'ALL' ? 'bg-[#1a2e1a] text-white shadow-md' : 'bg-white text-[#1a2e1a] border border-gray-200 hover:border-[#1a2e1a]'"
+        class="px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+        <i class="fas fa-th mr-1.5"></i> All Services
+      </button>
+      <button (click)="adminViewMode = 'USER'"
+        [ngClass]="adminViewMode === 'USER' ? 'bg-[#617152] text-white shadow-md' : 'bg-white text-[#617152] border border-gray-200 hover:border-[#617152]'"
+        class="px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+        <i class="fas fa-campground mr-1.5"></i> Camper Services
+      </button>
+      <button (click)="adminViewMode = 'ORGANIZER'"
+        [ngClass]="adminViewMode === 'ORGANIZER' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-indigo-600 border border-gray-200 hover:border-indigo-400'"
+        class="px-5 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+        <i class="fas fa-briefcase mr-1.5"></i> B2B Organizer
+      </button>
+    </div>
+
+    <hr class="border-gray-200/60 my-6">
+  </div>
+
+  <!-- Regular Header -->
+  <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <h2 class="text-3xl font-extrabold text-forest flex items-center">
+      <i class="fas fa-concierge-bell mr-4 text-olive"></i>
+      Our Services
+    </h2>
+    <div class="flex gap-4">
+      <button *ngIf="isAdmin()"
+        class="bg-forest hover:bg-black text-cream px-8 py-3 rounded-2xl font-black shadow-xl transition-all flex items-center gap-2"
+        routerLink="/admin/services/create">
+        <i class="fas fa-plus"></i>
+        New Service
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="bg-white p-4 rounded-xl shadow-sm border border-sage/30 mb-8 flex flex-col md:flex-row gap-4 items-center">
+    <div class="relative flex-1 w-full">
+      <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+        <i class="fas fa-search"></i>
+      </span>
+      <input type="text" [(ngModel)]="searchTerm"
+        class="w-full pl-10 pr-4 py-3 bg-cream rounded-lg border-transparent focus:border-olive focus:ring-2 focus:ring-olive/20 outline-none transition-all text-forest"
+        placeholder="Search for a service (hiking, transport, catering...)" />
+    </div>
+
+    <!-- Organizer Event Selection -->
+    <div *ngIf="isOrganizer()" class="w-full md:w-72 animate-fade-in">
+      <div *ngIf="userEvents.length > 0; else noEvents" class="relative">
+        <select [(ngModel)]="selectedEventId"
+          class="w-full pl-4 pr-10 py-3 bg-white border-2 border-forest/10 rounded-xl font-bold text-forest focus:border-forest outline-none transition-all appearance-none shadow-sm cursor-pointer">
+          <option *ngFor="let event of userEvents" [ngValue]="event.id">
+            Linking to: {{ event.title }}
+          </option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-forest">
+          <i class="fas fa-chevron-down text-xs"></i>
+        </div>
+      </div>
+      <ng-template #noEvents>
+        <div class="bg-amber-50 text-amber-600 px-4 py-3 rounded-xl border border-amber-100 text-xs font-bold flex items-center gap-2">
+          <i class="fas fa-info-circle"></i> Create an event first to link services
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-olive border-t-transparent mb-4"></div>
+    <p class="text-olive font-medium">Fetching camping services...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-8 animate-pulse">
+    <div class="flex items-center">
+      <i class="fas fa-exclamation-circle text-red-500 mr-3 text-xl"></i>
+      <p class="text-red-700 font-medium">{{ error }}</p>
+      <button (click)="loadServices()" class="ml-auto text-red-700 hover:underline font-bold">Retry</button>
+    </div>
+  </div>
+
+  <!-- Services Grid -->
+  <div *ngIf="!loading && !error" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let service of filteredServices"
+      class="bg-white rounded-2xl shadow-md border border-sage/20 overflow-hidden hover:shadow-xl transition-all group flex flex-col h-full">
+
+      <!-- Card Header Image/Color area -->
+      <div class="h-40 relative overflow-hidden bg-gradient-to-br from-forest to-olive">
+
+        <!-- Uploaded Image -->
+        <img *ngIf="service.images && service.images.length > 0; else fallbackIcon"
+          [src]="getImageUrl(service.images[0])"
+          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          alt="{{ service.name }}">
+
+        <!-- Fallback Icon if no image -->
+        <ng-template #fallbackIcon>
+          <div class="w-full h-full flex items-center justify-center">
+            <i
+              class="fas fa-concierge-bell text-white/10 text-8xl absolute -right-4 -bottom-4 rotate-12 group-hover:scale-110 transition-transform"></i>
+          </div>
+        </ng-template>
+
+        <!-- Top Badges -->
+        <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-10">
+          <span *ngIf="service.targetRole === 'ORGANIZER' || service.isOrganizerService"
+            class="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+            <i class="fas fa-briefcase mr-1"></i> B2B
+          </span>
+          <span *ngIf="service.targetRole !== 'ORGANIZER' && !service.isOrganizerService"
+            class="bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-forest text-[10px] font-bold uppercase tracking-widest border border-white/30 shadow-sm">
+            {{ service.type }}
+          </span>
+
+
+          <div class="flex gap-2">
+            <span *ngIf="service.isActive !== false"
+              class="flex items-center gap-1.5 px-3 py-1 bg-white/90 rounded-full text-[10px] font-black text-olive shadow-sm">
+              <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> AVAILABLE
+            </span>
+            <span *ngIf="service.isActive === false"
+              class="flex items-center gap-1.5 px-3 py-1 bg-white/90 rounded-full text-[10px] font-black text-red-600 shadow-sm">
+              <span class="w-2 h-2 bg-red-500 rounded-full"></span> DISABLED
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 flex-1 flex flex-col">
+        <!-- Title & Price -->
+        <div class="mb-5 flex justify-between items-start gap-4">
+          <h3 class="text-xl font-bold text-forest group-hover:text-olive transition-colors leading-tight">
+            {{ service.name }}
+          </h3>
+          <span class="text-xl font-black text-forest mt-0.5 whitespace-nowrap">{{ service.price }} <small
+              class="text-xs">DT</small></span>
+        </div>
+
+        <!-- Desc -->
+        <p class="text-gray-500 text-sm line-clamp-2 leading-relaxed mb-6 flex-1">
+          {{ service.description || 'No description available for this service.' }}
+        </p>
+
+        <!-- Actions -->
+        <div class="flex flex-col gap-3 mt-auto pt-4 border-t border-gray-100">
+          <!-- Admin Actions -->
+          <div *ngIf="isAdmin()" class="flex flex-col gap-2">
+            <div class="flex gap-2">
+              <button [routerLink]="['/admin/services/edit', service.id]"
+                class="flex-1 bg-forest hover:bg-black text-cream py-2.5 rounded-xl font-bold text-xs transition-all uppercase shadow-sm">
+                <i class="fas fa-edit mr-1"></i> Modify
+              </button>
+              <button (click)="generateReputation(service.id)"
+                class="flex-1 bg-olive hover:bg-forest text-cream py-2.5 rounded-xl font-bold text-xs transition-all uppercase shadow-sm flex items-center justify-center gap-2">
+                <i *ngIf="!reputationLoading[service.id]" class="fas fa-sparkles"></i>
+                <i *ngIf="reputationLoading[service.id]" class="fas fa-circle-notch animate-spin"></i>
+                AI Reputation
+              </button>
+              <button (click)="toggleServiceAvailability(service)"
+                [ngClass]="service.isActive !== false ? 'bg-red-50 text-red-500 hover:bg-red-500 hover:text-white' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white'"
+                class="w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm border border-transparent"
+                [title]="service.isActive !== false ? 'Deactivate' : 'Activate'">
+                <i class="fas" [ngClass]="service.isActive !== false ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+              <button (click)="deleteService(service.id)"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                <i class="fas fa-trash-alt text-sm"></i>
+              </button>
+            </div>
+
+            <!-- AI Reputation Result Display -->
+            <div *ngIf="reputationResults[service.id]" 
+                 class="mt-2 p-4 rounded-xl bg-sage/10 border border-sage/30 text-[10px] text-forest relative animate-in fade-in slide-in-from-top-2">
+              <button (click)="closeReputation(service.id)" class="absolute top-2 right-2 text-forest/40 hover:text-forest">
+                <i class="fas fa-times"></i>
+              </button>
+              <div class="flex items-center gap-2 mb-2 font-black uppercase tracking-widest text-olive">
+                <i class="fas fa-robot"></i>
+                AI Sentiment Insight
+              </div>
+              <div class="prose prose-sm prose-invert whitespace-pre-line leading-relaxed italic">
+                {{ reputationResults[service.id] }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Participant/User Action: Link to Reservation Total -->
+          <button *ngIf="isParticipant()" (click)="onBookService(service)"
+            class="w-full bg-olive hover:bg-forest text-white py-3 rounded-xl font-black text-xs transition-all uppercase shadow-sm flex items-center justify-center gap-2">
+            <i class="fas fa-calculator"></i> {{ isCamper() ? 'Add to Stay (Auto-Calc)' : 'Link to Reservation' }}
+          </button>
+
+          <!-- ML Prediction — camper only -->
+          <div *ngIf="isCamper()" class="mt-1">
+            <button (click)="runMLPredict(service)" [disabled]="service.mlLoading"
+              class="w-full py-2.5 bg-purple-50 hover:bg-purple-100 disabled:opacity-50 text-purple-700 border border-purple-200 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+              <i class="fas" [ngClass]="service.mlLoading ? 'fa-spinner fa-spin' : 'fa-brain'"></i>
+              {{ service.mlLoading ? 'Analyzing...' : 'ML Predict' }}
+            </button>
+
+            <div *ngIf="service.mlResult && !service.mlResult.error" class="mt-2 space-y-1.5">
+              <div *ngIf="service.mlResult.predictedRating" class="flex justify-between items-center px-3 py-2 bg-amber-50 rounded-xl border border-amber-100">
+                <span class="text-[10px] font-black text-gray-400 uppercase">Predicted Rating</span>
+                <div class="text-right">
+                  <span class="text-xs font-black text-amber-500">★ {{ service.mlResult.predictedRating | number:'1.1-1' }}</span>
+                  <span *ngIf="service.mlResult.ratingLabel" class="block text-[9px] text-gray-400">{{ service.mlResult.ratingLabel }}</span>
+                </div>
+              </div>
+              <div *ngIf="service.mlResult.predictedDemand" class="flex justify-between items-center px-3 py-2 bg-gray-50 rounded-xl">
+                <span class="text-[10px] font-black text-gray-400 uppercase">Demand</span>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black border" [ngClass]="demandBadge(service.mlResult.predictedDemand)">
+                  {{ service.mlResult.predictedDemand }}
+                </span>
+              </div>
+              <div *ngIf="service.mlResult.advice" class="px-3 py-2 bg-purple-50 rounded-xl border border-purple-100">
+                <p class="text-[9px] font-medium text-purple-600 italic">💡 {{ service.mlResult.advice }}</p>
+              </div>
+            </div>
+
+            <div *ngIf="service.mlResult?.error" class="mt-2 px-3 py-2 bg-red-50 rounded-xl border border-red-100">
+              <p class="text-[9px] font-bold text-red-500">⚠ {{ service.mlResult?.errorMessage }}</p>
+            </div>
+          </div>
+
+          <!-- Organizer Action -->
+          <button *ngIf="isOrganizer()" (click)="onSelectForEvent(service)"
+            class="w-full bg-cream border-2 border-forest text-forest hover:bg-forest hover:text-cream py-3 rounded-xl font-black text-xs transition-all uppercase flex items-center justify-center gap-2">
+            <i class="fas fa-check-circle"></i> Select for {{ selectedEventId ? 'Event' : 'Selection' }}
+          </button>
+
+          <!-- User Action: Add to Cart -->
+          <button *ngIf="isUser()" (click)="addToCart(service)"
+            class="w-full bg-forest hover:bg-black text-white py-3 rounded-xl font-black text-xs transition-all uppercase shadow-md flex items-center justify-center gap-2">
+            <i class="fas fa-shopping-cart"></i> Add to Cart
+          </button>
+
+          <!-- AI Sentiment Review — Participant/Camper only -->
+          <div *ngIf="isParticipant()" class="mt-2">
+            <button (click)="toggleReviewForm(service.id)"
+              class="w-full py-3 bg-white border-2 border-[#1a2e1a] text-[#1a2e1a] hover:bg-[#1a2e1a] hover:text-white rounded-xl font-black text-xs transition-all uppercase flex items-center justify-center gap-2">
+              <i class="fas fa-star"></i>
+              {{ showReviewFormId === service.id ? 'Cancel Review' : 'Add Review & Sentiment' }}
+            </button>
+
+            <!-- Inline Review Form -->
+            <div *ngIf="showReviewFormId === service.id" class="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 animate-fade-in space-y-4">
+              <div class="grid grid-cols-3 gap-2">
+                <div class="text-center">
+                  <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Global</label>
+                  <input type="number" [(ngModel)]="reviewData.rating" min="1" max="5" class="w-full p-2 rounded-lg text-center border">
+                </div>
+                <div class="text-center">
+                  <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Quality</label>
+                  <input type="number" [(ngModel)]="reviewData.qualityRating" min="1" max="5" class="w-full p-2 rounded-lg text-center border">
+                </div>
+                <div class="text-center">
+                  <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Value</label>
+                  <input type="number" [(ngModel)]="reviewData.valueRating" min="1" max="5" class="w-full p-2 rounded-lg text-center border">
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[10px] font-bold text-gray-500 block mb-1">PROS (comma separated)</label>
+                <input type="text" [(ngModel)]="reviewData.pros" placeholder="Punctual, Professional, High Quality" class="w-full p-2 rounded-lg border text-sm">
+              </div>
+
+              <div>
+                <label class="text-[10px] font-bold text-gray-500 block mb-1">CONS (comma separated)</label>
+                <input type="text" [(ngModel)]="reviewData.cons" placeholder="A bit expensive, Small truck" class="w-full p-2 rounded-lg border text-sm">
+              </div>
+
+              <div>
+                <label class="text-[10px] font-bold text-gray-500 block mb-1">Your Comment</label>
+                <textarea [(ngModel)]="reviewData.comment" rows="2" class="w-full p-2 rounded-lg border text-sm" placeholder="Tell us more..."></textarea>
+              </div>
+
+              <button (click)="submitReview(service.id)" [disabled]="reviewLoading"
+                class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-xs uppercase shadow-lg hover:bg-emerald-700 transition-all">
+                {{ reviewLoading ? 'Submitting...' : '✨ Submit to AI Advisor' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredServices.length === 0"
+      class="col-span-full py-20 text-center bg-cream/50 rounded-3xl border-2 border-dashed border-sage/30">
+      <i class="fas fa-search text-sage text-5xl mb-4 opacity-50"></i>
+      <h3 class="text-xl font-bold text-forest">No services found</h3>
+      <p class="text-gray-500">Try adjusting your search term or add a new service.</p>
+    </div>
+  </div>
+</div>

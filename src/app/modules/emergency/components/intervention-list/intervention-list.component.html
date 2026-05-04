@@ -1,0 +1,90 @@
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Nav -->
+    <a [routerLink]="['/emergency/detail', alert?.id]"
+        class="text-olive hover:text-forest transition-colors flex items-center mb-8 font-bold text-sm">
+        <i class="fas fa-chevron-left mr-2"></i>
+        Back to Alert #{{ alert?.id }}
+    </a>
+
+    <!-- Header -->
+    <div class="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
+        <div>
+            <h2 class="text-4xl font-black text-forest">Intervention Log</h2>
+            <p class="text-gray-500 font-medium">Chronological record of every action taken for this incident.</p>
+        </div>
+        <div class="bg-forest text-cream px-6 py-2 rounded-2xl font-black text-xs uppercase tracking-widest">
+            {{ interventions.length }} Updates
+        </div>
+    </div>
+
+    <!-- Timeline Interface -->
+    <div *ngIf="!loading" class="relative">
+        <!-- Center Line -->
+        <div class="absolute left-10 top-0 bottom-0 w-1 bg-sage/20 rounded-full hidden md:block"></div>
+
+        <div class="space-y-12">
+            <div *ngFor="let item of interventions" class="relative pl-0 md:pl-20">
+                <!-- Floating Dot -->
+                <div
+                    class="absolute left-[34px] top-6 w-4 h-4 rounded-full border-4 border-white bg-olive z-10 hidden md:block">
+                </div>
+
+                <!-- Card -->
+                <div
+                    class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-sage/10 hover:shadow-xl transition-all group overflow-hidden relative">
+                    <!-- Decorative Status Side Strip -->
+                    <div class="absolute left-0 top-0 bottom-0 w-2"
+                        [ngClass]="item.status === 'COMPLETED' ? 'bg-success' : 'bg-orange-400'"></div>
+
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="h-10 w-10 rounded-xl bg-forest text-cream flex items-center justify-center font-black">
+                                {{ item.agentId.charAt(0) }}
+                            </div>
+                            <div>
+                                <h4 class="font-black text-forest">Responder #{{ item.agentId }}</h4>
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{
+                                    item.startTime | date:'medium' }}</p>
+                            </div>
+                        </div>
+
+                        <span [ngClass]="getStatusClass(item.status)"
+                            class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border">
+                            {{ item.status }}
+                        </span>
+                    </div>
+
+                    <div class="bg-cream/20 p-6 rounded-3xl border border-sage/5">
+                        <p class="text-forest font-medium leading-relaxed italic">"{{ item.description }}"</p>
+                    </div>
+
+                    <!-- End Time if exists -->
+                    <div *ngIf="item.endTime"
+                        class="mt-6 flex items-center gap-2 text-gray-400 font-bold text-[10px] uppercase">
+                        <i class="fas fa-check-double text-success"></i>
+                        Task closed at {{ item.endTime | date:'shortTime' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="interventions.length === 0"
+            class="py-32 text-center bg-white rounded-[4rem] border-4 border-dashed border-sage/10">
+            <div
+                class="h-20 w-20 bg-cream rounded-full flex items-center justify-center mx-auto mb-6 text-sage text-2xl">
+                <i class="fas fa-history"></i>
+            </div>
+            <h3 class="text-xl font-black text-forest">Silence on the ground</h3>
+            <p class="text-gray-400 font-medium max-w-xs mx-auto">No interventions have been logged for this emergency
+                yet. Dispatch may still be en-route.</p>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="py-32 text-center">
+        <div class="w-10 h-10 border-4 border-olive border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-forest font-black uppercase tracking-widest text-xs">Accessing Incident history...</p>
+    </div>
+</div>

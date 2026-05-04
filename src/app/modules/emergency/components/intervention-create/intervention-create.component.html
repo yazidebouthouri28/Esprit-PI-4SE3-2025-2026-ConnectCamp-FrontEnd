@@ -1,0 +1,74 @@
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <button [routerLink]="['/admin/emergency/detail', alertId]"
+            class="text-forest hover:text-black font-bold mb-6 flex items-center gap-2 transition-colors">
+            <i class="fas fa-arrow-left"></i> Back to Alert
+        </button>
+
+        <div class="bg-white rounded-[3rem] p-10 md:p-14 shadow-xl border border-sage/20 relative overflow-hidden">
+            <h2 class="text-3xl font-black text-forest mb-2">New Intervention Log</h2>
+            <p class="text-gray-500 mb-10 font-medium">Record response team actions for Alert #{{ alertId }}.</p>
+
+            <div *ngIf="error"
+                class="bg-red-50 text-red-600 p-4 rounded-2xl mb-8 font-bold text-sm border border-red-100 flex items-center gap-3">
+                <i class="fas fa-exclamation-circle text-xl"></i>
+                {{ error }}
+            </div>
+
+            <form [formGroup]="interventionForm" (ngSubmit)="onSubmit()" class="space-y-8">
+                <!-- Type & Status -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <label class="block text-xs font-black uppercase tracking-widest text-olive ml-4">Intervention
+                            Type</label>
+                        <select formControlName="type"
+                            class="w-full bg-cream/30 border-2 border-sage/20 rounded-2xl px-6 py-4 focus:ring-0 focus:border-forest transition-colors font-bold text-forest appearance-none">
+                            <option value="MEDICAL">Medical Team</option>
+                            <option value="SECURITY">Security Patrol</option>
+                            <option value="FIRE_CONTROL">Fire Control</option>
+                            <option value="EVACUATION">Evacuation</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-xs font-black uppercase tracking-widest text-olive ml-4">Current
+                            Status</label>
+                        <select formControlName="status"
+                            class="w-full bg-cream/30 border-2 border-sage/20 rounded-2xl px-6 py-4 focus:ring-0 focus:border-forest transition-colors font-bold text-forest appearance-none">
+                            <option value="ON_SITE">On Site</option>
+                            <option value="EN_ROUTE">En Route</option>
+                            <option value="COMPLETED">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Equipe -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-black uppercase tracking-widest text-olive ml-4">Response Team /
+                        Unit Name</label>
+                    <input type="text" formControlName="equipe"
+                        class="w-full bg-cream/30 border-2 border-sage/20 rounded-2xl px-6 py-4 focus:ring-0 focus:border-forest transition-colors font-bold text-forest placeholder:text-gray-400 placeholder:font-normal"
+                        placeholder="e.g., Alpha Medical Unit 1">
+                </div>
+
+                <!-- Description -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-black uppercase tracking-widest text-olive ml-4">Action Log</label>
+                    <textarea formControlName="description" rows="5"
+                        class="w-full bg-cream/30 border-2 border-sage/20 rounded-2xl px-6 py-4 focus:ring-0 focus:border-forest transition-colors font-medium text-gray-700 placeholder:text-gray-400"
+                        placeholder="Detail the actions taken by the team..."></textarea>
+                </div>
+
+                <div class="pt-6">
+                    <button type="submit" [disabled]="interventionForm.invalid || loading"
+                        class="w-full bg-forest text-cream py-5 rounded-2xl font-black text-lg hover:bg-black transition-all shadow-xl shadow-forest/20 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-3">
+                        <span *ngIf="loading"
+                            class="w-5 h-5 border-2 border-cream border-t-transparent rounded-full animate-spin"></span>
+                        <i *ngIf="!loading" class="fas fa-save"></i>
+                        {{ loading ? 'Saving Log...' : 'Submit Intervention Log' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

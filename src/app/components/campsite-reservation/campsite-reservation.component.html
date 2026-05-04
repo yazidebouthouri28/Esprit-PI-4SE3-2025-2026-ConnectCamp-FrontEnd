@@ -1,0 +1,100 @@
+<div class="min-h-screen reservation-page py-6">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <button type="button" (click)="goBack()" class="text-sm font-semibold text-[#2C4A3C] mb-5 hover:underline">
+      ← Back to campsite
+    </button>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-[#e8e3d9] overflow-hidden">
+      <div class="reservation-header px-6 py-5">
+        <h1 class="text-2xl font-black text-white">Complete Your Reservation</h1>
+        <p class="text-white/80 text-sm">You're just one step away from your camping adventure</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+        <form class="lg:col-span-2 space-y-6" (ngSubmit)="submitReservation()">
+          <section class="space-y-3">
+            <h3 class="font-black text-[#1a2e1a]">Trip Details</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-bold text-gray-500">Check-in Date</label>
+                <input type="date" [(ngModel)]="form.checkInDate" name="checkInDate" class="field">
+              </div>
+              <div>
+                <label class="text-xs font-bold text-gray-500">Check-out Date</label>
+                <input type="date" [(ngModel)]="form.checkOutDate" name="checkOutDate" class="field">
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500">Number of Guests</label>
+              <input type="number" min="1" [(ngModel)]="form.guests" name="guests" class="field">
+            </div>
+          </section>
+
+          <section class="space-y-3">
+            <h3 class="font-black text-[#1a2e1a]">Contact Information</h3>
+            <div>
+              <label class="text-xs font-bold text-gray-500">Full Name</label>
+              <input type="text" [(ngModel)]="form.fullName" name="fullName" class="field">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500">Email Address</label>
+              <input type="email" [(ngModel)]="form.email" name="email" class="field">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-500">Phone Number</label>
+              <input type="text" [(ngModel)]="form.phone" name="phone" class="field">
+            </div>
+          </section>
+
+          <section class="space-y-3">
+            <h3 class="font-black text-[#1a2e1a]">Special Requests (Optional)</h3>
+            <textarea rows="4" [(ngModel)]="form.specialRequests" name="specialRequests" class="field"
+              placeholder="Any special requirements or questions for the host?"></textarea>
+          </section>
+
+          <section class="space-y-3">
+            <h3 class="font-black text-[#1a2e1a]">Payment Method</h3>
+            <label class="pay-option">
+              <input type="radio" name="paymentMethod" value="CARD" [(ngModel)]="form.paymentMethod">
+              <span>Credit / Debit Card</span>
+            </label>
+            <label class="pay-option">
+              <input type="radio" name="paymentMethod" value="PAYPAL" [(ngModel)]="form.paymentMethod">
+              <span>PayPal</span>
+            </label>
+          </section>
+
+          <p *ngIf="error" class="text-sm font-semibold text-red-600">{{ error }}</p>
+          <p *ngIf="success" class="text-sm font-semibold text-emerald-700">{{ success }}</p>
+
+          <button type="submit" [disabled]="isSubmitting" class="confirm-btn">
+            {{ isSubmitting ? 'Submitting...' : 'Confirm Reservation' }}
+          </button>
+        </form>
+
+        <aside class="bg-[#f8f6f1] border border-[#e8e3d9] rounded-xl p-4 h-fit">
+          <h3 class="font-black text-[#1a2e1a] mb-3">Reservation Summary</h3>
+          <img [src]="campsite?.images?.[0] || campsite?.image || 'assets/images/logo.png'" class="w-full h-28 object-cover rounded-lg mb-3" alt="Campsite">
+          <p class="font-bold text-[#1a2e1a]">{{ campsite?.name || 'Selected campsite' }}</p>
+          <p class="text-xs text-gray-500 mb-3">{{ campsite?.location || 'Location unavailable' }}</p>
+          <div class="text-sm space-y-2">
+            <div class="flex justify-between"><span>{{ campsite?.price || 0 }} DT x {{ nights }} nights</span><span>{{ subtotal }} DT</span></div>
+            <div class="flex justify-between"><span>Service fee (8%)</span><span>{{ serviceFee }} DT</span></div>
+            <div *ngIf="selectedExtra" class="flex justify-between items-center text-emerald-700 bg-emerald-50 rounded-lg px-2 py-1">
+              <span class="flex items-center gap-1.5">
+                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 bg-emerald-100 rounded">{{ selectedExtra.type }}</span>
+                {{ selectedExtra.name }}
+              </span>
+              <span class="flex items-center gap-2">
+                +{{ selectedExtra.price }} DT
+                <button type="button" (click)="removeExtra()" class="text-red-400 hover:text-red-600 text-[10px]" title="Remove">✕</button>
+              </span>
+            </div>
+            <div class="flex justify-between font-black text-[#1a2e1a] border-t border-[#e8e3d9] pt-2"><span>Total</span><span>{{ total }} DT</span></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+

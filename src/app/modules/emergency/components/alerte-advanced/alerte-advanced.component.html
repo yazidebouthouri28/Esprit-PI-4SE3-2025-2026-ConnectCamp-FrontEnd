@@ -1,0 +1,247 @@
+<div class="advanced-page">
+
+  <!-- ============================================================
+       SECTION 0 : AI Guardian — SITREP (ADMIN)
+  ============================================================= -->
+  <section class="card-section sitrep-section">
+    <div class="section-header">
+      <h2>🤖 AI Guardian — Rapport de Situation</h2>
+      <span class="badge-api badge-ai">Claude Haiku · IA</span>
+      <button class="btn-sitrep" (click)="generateSitrep()" [disabled]="sitrepLoading">
+        {{ sitrepLoading ? '⏳ Analyse en cours...' : '⚡ Générer SITREP' }}
+      </button>
+    </div>
+    <p class="section-desc">
+      L'IA analyse toutes les alertes actives et génère un rapport opérationnel :
+      niveau de menace, actions prioritaires, risque d'escalade.
+    </p>
+
+    <div *ngIf="sitrepError" class="error-msg">{{ sitrepError }}</div>
+
+    <div *ngIf="!sitrep && !sitrepLoading" class="sitrep-placeholder">
+      <span>Cliquez sur <strong>Générer SITREP</strong> pour lancer l'analyse IA des alertes actives.</span>
+    </div>
+
+    <div *ngIf="sitrep" class="sitrep-result" [@fadeIn]="true">
+      <!-- Header bar -->
+      <div class="sitrep-header" [ngClass]="sitrepThreatClass(sitrep.threatLevel)">
+        <div class="sitrep-threat">
+          <span class="threat-label">NIVEAU DE MENACE</span>
+          <span class="threat-value">{{ sitrep.threatLevel }}</span>
+        </div>
+        <div class="sitrep-meta">
+          <span>{{ sitrep.alertCount }} alerte(s) analysée(s)</span>
+          <div class="escalation-block">
+            <span class="esc-label">Risque d'escalade</span>
+            <div class="esc-bar-track">
+              <div class="esc-bar-fill" [style.width]="sitrep.escalationRisk + '%'"></div>
+            </div>
+            <span class="esc-pct">{{ sitrep.escalationRisk }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="sitrep-summary">
+        <p>{{ sitrep.summary }}</p>
+      </div>
+
+      <!-- Priorities -->
+      <div class="sitrep-priorities">
+        <h4>Actions prioritaires</h4>
+        <ol>
+          <li *ngFor="let p of sitrep.priorities">{{ p }}</li>
+        </ol>
+      </div>
+
+      <!-- Warnings -->
+      <div *ngIf="sitrep.duplicateWarning || sitrep.recommendedProtocol" class="sitrep-warnings">
+        <div *ngIf="sitrep.duplicateWarning" class="warning-chip warning-dup">
+          ⚠️ {{ sitrep.duplicateWarning }}
+        </div>
+        <div *ngIf="sitrep.recommendedProtocol" class="warning-chip warning-proto">
+          📋 Protocole recommandé : <strong>{{ sitrep.recommendedProtocol }}</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 1 : Risk Score par site
+  ============================================================= -->
+  <section class="card-section">
+    <div class="section-header">
+      <h2>Score de risque par site</h2>
+      <span class="badge-api">API Avancée</span>
+    </div>
+    <p class="section-desc">
+      Score temps réel 0-100 calculé par sévérité × facteur temps (alerte non résolue depuis 8h+ = ×3).
+    </p>
+
+    <div class="input-row">
+      <input type="number" [(ngModel)]="siteIdInput" placeholder="ID du site (ex: 1)"
+             class="input-field" min="1" (keyup.enter)="loadRiskScore()" />
+      <button class="btn-primary" (click)="loadRiskScore()" [disabled]="riskLoading || !siteIdInput">
+        {{ riskLoading ? 'Calcul...' : 'Calculer' }}
+      </button>
+    </div>
+
+    <div *ngIf="riskError" class="error-msg">{{ riskError }}</div>
+
+    <div *ngIf="riskResult" class="risk-card" [ngClass]="riskLevelClass(riskResult.riskLevel)">
+      <div class="risk-header">
+        <div class="risk-site">
+          <span class="site-name">{{ riskResult.siteName }}</span>
+          <span class="risk-badge" [ngClass]="riskLevelClass(riskResult.riskLevel)">
+            {{ riskResult.riskLevel }}
+          </span>
+        </div>
+        <div class="risk-score-big">{{ riskResult.riskScore }}<span>/100</span></div>
+      </div>
+
+      <!-- Jauge visuelle -->
+      <div class="gauge-track">
+        <div class="gauge-fill"
+             [style.width]="riskGaugeWidth(riskResult.riskScore)"
+             [style.background]="riskGaugeColor(riskResult.riskScore)">
+        </div>
+      </div>
+      <div class="gauge-labels">
+        <span>SAFE</span><span>WATCH</span><span>DANGER</span><span>CRITICAL</span>
+      </div>
+
+      <!-- Métriques -->
+      <div class="risk-metrics">
+        <div class="metric">
+          <span class="metric-value">{{ riskResult.activeAlertCount }}</span>
+          <span class="metric-label">Alertes actives</span>
+        </div>
+        <div class="metric metric-critical">
+          <span class="metric-value">{{ riskResult.criticalAlertCount }}</span>
+          <span class="metric-label">CRITICAL</span>
+        </div>
+        <div class="metric metric-warn">
+          <span class="metric-value">{{ riskResult.unacknowledgedCount }}</span>
+          <span class="metric-label">Non acquittées</span>
+        </div>
+        <div class="metric">
+          <span class="metric-value metric-date">
+            {{ riskResult.lastAlertAt ? (riskResult.lastAlertAt | date:'dd/MM HH:mm') : '—' }}
+          </span>
+          <span class="metric-label">Dernière alerte</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2 : Efficacité des interventions par type
+  ============================================================= -->
+  <section class="card-section">
+    <div class="section-header">
+      <h2>Efficacité des interventions par type d'urgence</h2>
+      <span class="badge-api">JPQL multi-agrégat · ADMIN</span>
+      <button class="btn-refresh" (click)="loadEfficiency()" [disabled]="effLoading">
+        {{ effLoading ? '...' : 'Actualiser' }}
+      </button>
+    </div>
+    <p class="section-desc">
+      Pour chaque type d'urgence : taux de résolution, interventions moyennes, temps de réponse.
+    </p>
+
+    <div *ngIf="effError" class="error-msg">{{ effError }}</div>
+    <div *ngIf="effLoading" class="loading">Chargement...</div>
+
+    <div *ngIf="!effLoading && efficiencies.length > 0" class="eff-grid">
+      <div class="eff-card" *ngFor="let e of efficiencies">
+        <div class="eff-type">
+          <span class="type-icon">{{ typeIcon(e.emergencyType) }}</span>
+          <span class="type-name">{{ e.emergencyType }}</span>
+        </div>
+
+        <!-- Taux de résolution avec barre de progression -->
+        <div class="eff-stat">
+          <div class="stat-row">
+            <span class="stat-label">Taux de résolution</span>
+            <span class="stat-value resolution-rate">{{ e.resolutionRate | number:'1.1-1' }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width]="efficiencyBarWidth(e.resolutionRate)"></div>
+          </div>
+        </div>
+
+        <div class="eff-metrics-row">
+          <div class="eff-mini-metric">
+            <span class="mini-val">{{ e.totalAlerts }}</span>
+            <span class="mini-label">Alertes</span>
+          </div>
+          <div class="eff-mini-metric">
+            <span class="mini-val">{{ e.totalInterventions }}</span>
+            <span class="mini-label">Interventions</span>
+          </div>
+          <div class="eff-mini-metric">
+            <span class="mini-val">{{ e.avgInterventionsPerAlert | number:'1.1-1' }}</span>
+            <span class="mini-label">Moy. interv./alerte</span>
+          </div>
+          <div class="eff-mini-metric">
+            <span class="mini-val">
+              {{ e.avgResponseMinutes != null ? (e.avgResponseMinutes | number:'1.0-0') + ' min' : '—' }}
+            </span>
+            <span class="mini-label">Tps réponse moy.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p *ngIf="!effLoading && efficiencies.length === 0 && !effError" class="empty-msg">
+      Aucune donnée d'efficacité disponible.
+    </p>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3 : NASA EONET — Événements naturels mondiaux
+  ============================================================= -->
+  <section class="card-section">
+    <div class="section-header">
+      <h2>🛰️ NASA EONET — Événements naturels actifs</h2>
+      <span class="badge-api badge-nasa">NASA Open API</span>
+      <button class="btn-refresh" (click)="loadEonetEvents()" [disabled]="eonetLoading">
+        {{ eonetLoading ? '...' : 'Actualiser' }}
+      </button>
+    </div>
+    <p class="section-desc">
+      Événements naturels ouverts des 7 derniers jours via
+      <code>eonet.gsfc.nasa.gov/api/v3</code> — aucune clé API requise.
+    </p>
+
+    <div *ngIf="eonetError" class="error-msg">{{ eonetError }}</div>
+    <div *ngIf="eonetLoading" class="loading">Connexion à NASA EONET...</div>
+
+    <div *ngIf="!eonetLoading && eonetEvents.length > 0" class="eonet-grid">
+      <div class="eonet-card" *ngFor="let evt of eonetEvents">
+        <div class="eonet-card-header">
+          <span class="eonet-icon">{{ eonetIcon(evt) }}</span>
+          <div class="eonet-title-block">
+            <span class="eonet-title">{{ evt.title }}</span>
+            <span class="eonet-category">{{ evt.categories[0]?.title }}</span>
+          </div>
+          <span class="eonet-sev-badge" [ngClass]="eonetSeverityClass(evt)">
+            {{ eonetTypeLabel(evt) }}
+          </span>
+        </div>
+        <div class="eonet-meta">
+          <span class="eonet-date" *ngIf="eonetLatestDate(evt)">
+            🕐 {{ eonetLatestDate(evt) | date:'dd MMM yyyy, HH:mm' }}
+          </span>
+          <a *ngIf="evt.link" [href]="evt.link" target="_blank" rel="noopener"
+             class="eonet-link">EONET ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <p *ngIf="!eonetLoading && eonetEvents.length === 0 && !eonetError" class="empty-msg">
+      Aucun événement naturel actif détecté.
+    </p>
+  </section>
+
+</div>

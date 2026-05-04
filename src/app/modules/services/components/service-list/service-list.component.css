@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  background-color: var(--cream-beige);
+  min-height: 100vh;
+}
+
+.text-success { color: #22c55e; }
+.bg-success { background-color: #22c55e; }
+.text-danger { color: #ef4444; }
+.bg-danger { background-color: #ef4444; }

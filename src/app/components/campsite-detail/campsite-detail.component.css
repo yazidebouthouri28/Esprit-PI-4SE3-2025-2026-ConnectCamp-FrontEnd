@@ -1,0 +1,23 @@
+.campsite-detail-root {
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(212, 168, 67, 0.12), transparent 50%),
+    radial-gradient(ellipse 80% 50% at 100% 50%, rgba(44, 74, 60, 0.06), transparent 45%),
+    linear-gradient(180deg, #faf8f4 0%, #f3efe6 40%, #ede8dc 100%);
+}
+
+.hero-photo-btn {
+  cursor: zoom-in;
+}
+
+@keyframes gallery-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-gallery-in {
+  animation: gallery-in 0.2s ease-out forwards;
+}

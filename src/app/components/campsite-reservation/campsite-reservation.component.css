@@ -1,0 +1,52 @@
+.reservation-page {
+  background: linear-gradient(180deg, #faf8f4 0%, #f3efe6 45%, #ede8dc 100%);
+}
+
+.reservation-header {
+  background: linear-gradient(90deg, #2c4a3c 0%, #1f4d36 100%);
+}
+
+.field {
+  width: 100%;
+  border: 1px solid #d6d8dd;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 10px 12px;
+  color: #1f2937;
+}
+
+.field:focus {
+  outline: none;
+  border-color: #2c4a3c;
+  box-shadow: 0 0 0 3px rgba(44, 74, 60, 0.12);
+}
+
+.pay-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d6d8dd;
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px 12px;
+}
+
+.confirm-btn {
+  width: 100%;
+  background: #1f4d36;
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 800;
+  transition: background-color 0.2s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: #163a28;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

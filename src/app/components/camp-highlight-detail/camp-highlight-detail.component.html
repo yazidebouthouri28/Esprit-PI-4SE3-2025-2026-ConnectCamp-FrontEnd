@@ -1,0 +1,214 @@
+<div class="min-h-screen pb-16 font-sans text-forest highlight-detail-root">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <a
+      [routerLink]="['/campsites', siteId]"
+      class="inline-flex items-center gap-2 text-[#2C4A3C] hover:text-[#1a2e1a] transition-all font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-[#2C4A3C]/20 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to campsite
+    </a>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    @if (isLoading) {
+      <div class="rounded-3xl border border-[#2C4A3C]/10 bg-white/90 p-12 text-center text-[#5D7B5F] font-semibold animate-pulse">
+        Loading highlight...
+      </div>
+    } @else if (errorMessage) {
+      <div class="rounded-3xl border border-red-200 bg-red-50/90 p-8 text-red-800 font-semibold shadow-sm">
+        {{ errorMessage }}
+      </div>
+    } @else if (highlight) {
+      <div class="border-b border-[#2C4A3C]/10 pb-8 mb-8">
+        <p class="text-[11px] font-black uppercase tracking-[0.25em] text-[#D4A843] mb-2">
+          {{ highlight.category }} Highlight
+        </p>
+        <h1 class="text-4xl md:text-5xl font-black text-[#1a2e1a] mb-3 tracking-tight leading-tight font-serif">
+          {{ highlight.title }}
+        </h1>
+
+        <div class="flex flex-wrap items-center justify-end mt-2">
+          <div class="flex items-center border border-gray-200 rounded-full px-3 py-1 bg-white shadow-sm gap-3 mt-4 sm:mt-0">
+            <button
+              (click)="toggleLike()"
+              class="flex items-center gap-1 transition-colors px-2 py-1 rounded-full"
+              [ngClass]="userReaction === 'LIKE' ? 'text-emerald-600 bg-emerald-50' : 'text-gray-700 hover:text-emerald-600'"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 01-2-2h-2.514"
+                ></path>
+              </svg>
+              <span class="text-sm font-bold">{{ likes }}</span>
+            </button>
+            <div class="w-px h-4 bg-gray-200"></div>
+            <button
+              (click)="toggleDislike()"
+              class="flex items-center gap-1 transition-colors px-2 py-1 rounded-full"
+              [ngClass]="userReaction === 'DISLIKE' ? 'text-red-500 bg-red-50' : 'text-gray-700 hover:text-red-500'"
+            >
+              <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.514"
+                ></path>
+              </svg>
+              <span class="text-sm font-bold text-red-500">{{ dislikes }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="mb-10 w-full rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-sm hover:brightness-95 transition-all outline-none relative block h-[400px] md:h-[500px]"
+      >
+        <ng-container *ngIf="isVideoMedia(highlight.imageUrl); else highlightHeroImage">
+          <video [src]="highlight.imageUrl" class="w-full h-full object-cover bg-black" controls playsinline></video>
+        </ng-container>
+        <ng-template #highlightHeroImage>
+          <button type="button" (click)="openGallery(0)" class="w-full h-full text-left relative group block">
+            <img
+              [src]="highlight.imageUrl || 'assets/images/logo.png'"
+              [alt]="highlight.title"
+              class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-80 pointer-events-none"></div>
+            <span
+              class="absolute bottom-5 left-5 text-white text-xs font-black uppercase tracking-widest drop-shadow-md bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none"
+            >
+              Tap to enlarge
+            </span>
+          </button>
+        </ng-template>
+      </div>
+
+      <div class="border-b border-gray-200 pb-10">
+        <h2 class="text-2xl font-black text-[#1a2e1a] mb-4 font-serif">About this highlight</h2>
+        <p class="text-gray-600 leading-relaxed text-[1.1rem] whitespace-pre-wrap">{{ highlight.content }}</p>
+      </div>
+
+      <div class="py-10 pt-4 border-b border-gray-200">
+        <h2 class="text-3xl font-black text-[#1a2e1a] mb-8 font-serif flex items-center gap-3">
+          <span class="text-3xl text-[#2C4A3C]">Comments</span>
+          Community comments
+        </h2>
+
+        <div *ngIf="canReview" class="mb-10 bg-[#f7f5f0] border border-[#e9e6df] rounded-2xl p-6 space-y-4 shadow-sm">
+          <h4 class="text-lg font-bold text-[#1a2e1a]">Write a comment</h4>
+          <div class="flex items-center gap-2">
+            @for (star of ratingStars; track star) {
+              <button type="button" (click)="setDraftRating(star)" class="text-3xl leading-none transition-transform hover:scale-110">
+                <span [class]="star <= feedbackRating ? 'text-[#D4A843]' : 'text-gray-300'">&#9733;</span>
+              </button>
+            }
+            <span class="text-sm font-semibold text-gray-600 ml-3" *ngIf="feedbackRating">{{ feedbackRating }}/5 stars</span>
+            <span class="text-sm font-semibold text-gray-400 ml-3" *ngIf="!feedbackRating">Rate this highlight</span>
+          </div>
+          <textarea
+            [(ngModel)]="feedbackDraft"
+            rows="3"
+            placeholder="Share your thoughts on this highlight..."
+            class="w-full px-5 py-4 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-[#2C4A3C]/40 text-gray-700 bg-white transition-shadow shadow-sm hover:shadow"
+          ></textarea>
+          <button
+            type="button"
+            (click)="submitFeedback()"
+            class="px-6 py-2.5 bg-[#1F4D36] text-white rounded-lg font-bold shadow-md hover:bg-[#163a28] transition-colors"
+          >
+            Post comment
+          </button>
+          <p *ngIf="feedbackError" class="text-sm text-red-600 font-semibold">{{ feedbackError }}</p>
+        </div>
+
+        <p *ngIf="showReviewLoginHint" class="mb-10 text-gray-500 font-medium">
+          Please <a routerLink="/login" class="text-[#2C4A3C] underline">sign in</a> to post a comment.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10" *ngIf="feedbacks.length > 0">
+          <div *ngFor="let feedback of feedbacks">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="w-12 h-12 rounded-full bg-[#3e6350] flex items-center justify-center text-white font-bold text-xl shadow-sm">
+                {{ feedback.userName ? (feedback.userName.charAt(0) | uppercase) : 'U' }}
+              </div>
+              <div>
+                <h4 class="font-bold text-[#1a2e1a] text-[1.1rem]">{{ feedback.userName }}</h4>
+                <p class="text-[0.9rem] text-gray-500 font-medium">{{ feedback.createdAt | date:'MMMM yyyy' }}</p>
+                <div class="text-[0.8rem] mt-0.5 flex" *ngIf="feedback.rating">
+                  @for (star of ratingStars; track star) {
+                    <span [class]="star <= feedback.rating ? 'text-[#D4A843]' : 'text-gray-200'">&#9733;</span>
+                  }
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-700 mb-4 whitespace-pre-wrap leading-relaxed text-[1.05rem]">{{ feedback.comment }}</p>
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                (click)="likeFeedback(feedback.id)"
+                class="px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 text-sm transition-colors"
+                [ngClass]="getFeedbackReaction(feedback.id) === 'LIKE' ? 'bg-emerald-100 text-emerald-800 ring-2 ring-emerald-200' : 'bg-gray-50 text-gray-700 hover:bg-emerald-50 hover:text-emerald-700'"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 01-2-2h-2.514"
+                  ></path>
+                </svg>
+                {{ feedback.likes }}
+              </button>
+              <button
+                type="button"
+                (click)="dislikeFeedback(feedback.id)"
+                class="px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 text-sm transition-colors"
+                [ngClass]="getFeedbackReaction(feedback.id) === 'DISLIKE' ? 'bg-red-100 text-red-800 ring-2 ring-red-200' : 'bg-gray-50 text-gray-700 hover:bg-red-50 hover:text-red-700'"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.514"
+                  ></path>
+                </svg>
+                {{ feedback.dislikes }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <p *ngIf="!feedbacks.length" class="text-gray-500 italic py-6">No comments yet - be the first.</p>
+      </div>
+    }
+  </div>
+
+  <div
+    *ngIf="isGalleryOpen"
+    (click)="onGalleryBackdropClick($event)"
+    class="gallery-backdrop fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center animate-hl-gallery-in"
+  >
+    <button
+      type="button"
+      (click)="closeGallery(); $event.stopPropagation()"
+      class="absolute top-6 right-6 text-white hover:text-gray-300 p-2 z-[99999] rounded-full bg-white/10 hover:bg-white/20"
+    >
+      <svg class="w-8 h-8 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <img
+      [src]="galleryImages[activeGalleryIndex]"
+      (click)="$event.stopPropagation()"
+      class="max-h-[85vh] max-w-[90vw] object-contain select-none rounded-lg shadow-2xl ring-2 ring-white/10"
+      alt="Highlight full size"
+    />
+  </div>
+</div>

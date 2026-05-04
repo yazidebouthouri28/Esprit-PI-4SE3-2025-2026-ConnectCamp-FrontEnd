@@ -1,0 +1,117 @@
+<div class="stats-page">
+
+  <!-- ========================================================
+       SECTION 1 : Alertes actives + count interventions (JPQL)
+  ========================================================= -->
+  <section class="stats-section">
+    <div class="section-header">
+      <h2>Alertes actives — statistiques interventions</h2>
+      <span class="badge-info">JPQL JOIN</span>
+      <button class="btn-refresh" (click)="loadInterventionStats()" [disabled]="statsLoading">
+        {{ statsLoading ? 'Chargement...' : 'Actualiser' }}
+      </button>
+    </div>
+
+    <div *ngIf="statsError" class="error-msg">{{ statsError }}</div>
+
+    <div *ngIf="statsLoading" class="loading-spinner">Chargement des statistiques...</div>
+
+    <div *ngIf="!statsLoading && !statsError" class="table-wrapper">
+      <table class="stats-table" *ngIf="interventionStats.length > 0; else noStats">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Sévérité</th>
+            <th>Statut</th>
+            <th>Site</th>
+            <th>Déclarant</th>
+            <th>Interventions</th>
+            <th>Signalée le</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of interventionStats">
+            <td class="code-cell">{{ s.alertCode }}</td>
+            <td>{{ s.title }}</td>
+            <td>{{ s.emergencyType }}</td>
+            <td><span class="badge" [ngClass]="severityClass(s.severity)">{{ s.severity }}</span></td>
+            <td><span class="status-pill" [ngClass]="statusClass(s.status)">{{ s.status }}</span></td>
+            <td>{{ s.siteName || '—' }}</td>
+            <td>{{ s.reportedByName }}</td>
+            <td class="count-cell">
+              <span class="count-badge" [class.count-zero]="s.interventionCount === 0">
+                {{ s.interventionCount }}
+              </span>
+            </td>
+            <td>{{ s.reportedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #noStats>
+        <p class="empty-msg">Aucune alerte active en ce moment.</p>
+      </ng-template>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       SECTION 2 : Recherche par site + statut (Keywords JOIN)
+  ========================================================= -->
+  <section class="search-section">
+    <div class="section-header">
+      <h2>Recherche par site &amp; statut</h2>
+      <span class="badge-info">Keywords JOIN</span>
+    </div>
+
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Nom du site (ex: Sahara)"
+        [(ngModel)]="siteNameInput"
+        class="input-field"
+        (keyup.enter)="search()"
+      />
+      <select [(ngModel)]="statusInput" class="select-field">
+        <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+      </select>
+      <button class="btn-search" (click)="search()" [disabled]="searchLoading || !siteNameInput.trim()">
+        {{ searchLoading ? 'Recherche...' : 'Rechercher' }}
+      </button>
+    </div>
+
+    <div *ngIf="searchError" class="error-msg">{{ searchError }}</div>
+
+    <div *ngIf="!searchLoading && searchResults.length > 0" class="table-wrapper">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Sévérité</th>
+            <th>Statut</th>
+            <th>Site</th>
+            <th>Déclarant</th>
+            <th>Signalée le</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of searchResults">
+            <td>{{ a.title }}</td>
+            <td>{{ a.emergencyType }}</td>
+            <td><span class="badge" [ngClass]="severityClass(a.severity)">{{ a.severity }}</span></td>
+            <td><span class="status-pill" [ngClass]="statusClass(a.status)">{{ a.status }}</span></td>
+            <td>{{ a.siteName || '—' }}</td>
+            <td>{{ a.reportedByName || a.reportedBy }}</td>
+            <td>{{ a.reportedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p *ngIf="!searchLoading && searchResults.length === 0 && siteNameInput" class="empty-msg">
+      Aucune alerte trouvée pour ce site / statut.
+    </p>
+  </section>
+
+</div>

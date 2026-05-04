@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --forest-green: #2C4A3C;
+  --olive-green: #5D7B5F;
+  --sage-green: #A8B9A3;
+  --cream-beige: #F5F2E8;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--cream-beige);
+  color: var(--forest-green);
+}

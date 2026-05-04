@@ -1,0 +1,9 @@
+:host {
+    display: block;
+    background-color: var(--cream-beige);
+    min-height: 100vh;
+}
+
+.peer-checked\:bg-success:checked~div {
+    background-color: #22c55e;
+}

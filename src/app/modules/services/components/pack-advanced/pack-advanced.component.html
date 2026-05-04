@@ -1,0 +1,323 @@
+<div class="advanced-page p-6">
+  <!-- Navigation Header -->
+  <div class="flex justify-between items-center mb-10 pb-6 border-b border-gray-100">
+    <div>
+      <h1 class="text-3xl font-black text-[#1a2e1a]">Pack Expert Tier</h1>
+      <p class="text-sm text-gray-500 font-medium">Advanced algorithms and artificial intelligence (AI)</p>
+    </div>
+    <button routerLink="/services/packs" 
+      class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold text-sm transition-all shadow-sm">
+      <i class="fas fa-arrow-left"></i>
+      Back to Packs
+    </button>
+  </div>
+
+  <!-- ============================================================
+       SECTION 1 : Value Ranking
+  ============================================================= -->
+  <section class="card-section">
+    <div class="section-header">
+      <h2>Value Score Ranking</h2>
+      <span class="badge-api">Advanced API</span>
+      <button class="btn-refresh" (click)="loadValueRanking()" [disabled]="rankLoading">
+        {{ rankLoading ? '...' : 'Refresh' }}
+      </button>
+    </div>
+    <p class="section-desc">
+      Formula: <code>((services value − pack price) / pack price) × 100</code>.
+      The higher the score, the better the value for money.
+    </p>
+
+    <div *ngIf="rankError" class="error-msg">{{ rankError }}</div>
+    <div *ngIf="rankLoading" class="loading">Loading...</div>
+
+    <div *ngIf="!rankLoading && valueRanking.length > 0" class="ranking-list">
+      <div class="rank-row" *ngFor="let r of valueRanking">
+        <div class="rank-medal">{{ rankMedal(r.rank) }}</div>
+
+        <div class="rank-info">
+          <span class="rank-name">{{ r.packName }}</span>
+          <span class="rank-meta">{{ r.packType }} · {{ r.siteName }} · {{ r.serviceCount }} service(s)</span>
+        </div>
+
+        <div class="rank-score-block">
+          <div class="score-bar-track">
+            <div class="score-bar-fill" [style.width]="scoreBarWidth(r.valueScore)"></div>
+          </div>
+          <span class="score-label">{{ r.valueScore | number:'1.1-1' }}%</span>
+        </div>
+
+        <div class="rank-prices">
+          <span class="pack-price">{{ r.packPrice | currency:'TND':'symbol':'1.2-2' }}</span>
+          <span class="services-value">Value: {{ r.totalServicesValue | currency:'TND':'symbol':'1.2-2' }}</span>
+          <span class="savings-badge">−{{ r.savingsAmount | currency:'TND':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <p *ngIf="!rankLoading && valueRanking.length === 0 && !rankError" class="empty-msg">
+      No packs with positive savings available.
+    </p>
+  </section>
+  <!-- ============================================================
+       SECTION 1.5 : Quality & Trust Analysis (Advanced Sentiment)
+  ============================================================= -->
+  <section class="card-section quality-section">
+    <div class="section-header">
+      <h2>Quality & Trust Analytics</h2>
+      <span class="badge-api">Sentiment Analysis</span>
+    </div>
+    <p class="section-desc">
+      Aggregated trust scores based on real service quality and user review sentiment. 
+      Coherence check: matched with site location and verified ratings.
+    </p>
+
+    <div *ngIf="qualityMetrics.length > 0" class="quality-grid">
+      <div class="quality-card" *ngFor="let q of qualityMetrics">
+        <div class="trust-header">
+          <div class="trust-circle" [style.background]="'conic-gradient(#FBBF24 ' + q.trustScore + '%, #e5e7eb 0)'">
+            <span>{{ q.trustScore }}%</span>
+          </div>
+          <div class="trust-info">
+            <h4>{{ q.packName }}</h4>
+            <span class="trust-location">📍 {{ q.siteName }} · {{ q.siteLocation }}</span>
+          </div>
+        </div>
+
+        <div class="sentiment-box">
+          <div class="sentiment-pros" *ngIf="q.topPros.length > 0">
+            <span class="sentiment-label">PROS</span>
+            <ul>
+              <li *ngFor="let pro of q.topPros">{{ pro }}</li>
+            </ul>
+          </div>
+          <div class="sentiment-cons" *ngIf="q.topCons.length > 0">
+            <span class="sentiment-label cons">CONS</span>
+            <ul>
+              <li *ngFor="let con of q.topCons">{{ con }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="quality-stats">
+          <div class="stat-item">
+            <span class="stat-val">{{ q.averageRating | number:'1.1-1' }} ★</span>
+            <span class="stat-lab">Overall</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">{{ q.totalReviews }}</span>
+            <span class="stat-lab">Reviews</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-val">{{ q.avgValueForMoney | number:'1.1-1' }}</span>
+            <span class="stat-lab">Value Score</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 2 : Bundle Optimizer
+  ============================================================= -->
+  <section class="card-section">
+    <div class="section-header">
+      <h2>Bundle Optimizer</h2>
+      <span class="badge-api">Greedy Algorithm</span>
+    </div>
+    <p class="section-desc">
+      Finds the combination of packs that maximizes the total service value within your budget.
+    </p>
+
+    <div class="optimizer-inputs">
+      <div class="input-group">
+        <label>Budget (TND)</label>
+        <input type="number" [(ngModel)]="budgetInput" placeholder="ex: 500"
+               class="input-field" min="1" />
+      </div>
+      <div class="input-group">
+        <label>Persons <span class="optional">(optional)</span></label>
+        <input type="number" [(ngModel)]="personsInput" placeholder="ex: 4"
+               class="input-field" min="1" />
+      </div>
+      <button class="btn-optimize" (click)="runOptimizer()"
+              [disabled]="optimizerLoading || !budgetInput">
+        {{ optimizerLoading ? 'Optimizing...' : 'Optimize' }}
+      </button>
+    </div>
+
+    <div *ngIf="optimizerError" class="error-msg">{{ optimizerError }}</div>
+
+    <div *ngIf="optimizerResult" class="optimizer-result">
+
+      <!-- Summary cards -->
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-value">{{ optimizerResult.packCount }}</span>
+          <span class="summary-label">Pack(s) selected</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-value">{{ optimizerResult.totalPrice | currency:'TND':'symbol':'1.2-2' }}</span>
+          <span class="summary-label">Total cost</span>
+        </div>
+        <div class="summary-card summary-savings">
+          <span class="summary-value">{{ optimizerResult.totalSavings | currency:'TND':'symbol':'1.2-2' }}</span>
+          <span class="summary-label">Total savings</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-value">{{ optimizerResult.remainingBudget | currency:'TND':'symbol':'1.2-2' }}</span>
+          <span class="summary-label">Remaining budget</span>
+        </div>
+      </div>
+
+      <div class="result-message">{{ optimizerResult.message }}</div>
+
+      <!-- Selected packs list -->
+      <div *ngIf="optimizerResult.selectedPacks.length > 0" class="selected-packs">
+        <h4>Selected Packs</h4>
+        <div class="selected-pack-row" *ngFor="let p of optimizerResult.selectedPacks; let i = index">
+          <span class="pack-rank">{{ i + 1 }}</span>
+          <div class="pack-details">
+            <span class="pack-name">{{ p.packName }}</span>
+            <span class="pack-meta">{{ p.packType }} · {{ p.siteName }}
+              <ng-container *ngIf="p.maxPersons"> · max {{ p.maxPersons }} pers.</ng-container>
+            </span>
+          </div>
+          <div class="pack-financials">
+            <span class="pack-price-tag">{{ p.packPrice | currency:'TND':'symbol':'1.2-2' }}</span>
+            <span class="pack-value-score">score {{ p.valueScore | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <p *ngIf="optimizerResult.selectedPacks.length === 0" class="empty-msg">
+        {{ optimizerResult.message }}
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SECTION 3 : AI Pack Advisor — Langage naturel
+  ============================================================= -->
+  <section class="card-section advisor-section">
+    <div class="section-header">
+      <h2>🤖 AI Pack Advisor</h2>
+      <span class="badge-api badge-ai">Groq LLaMA · AI</span>
+    </div>
+    <p class="section-desc">
+      Describe your trip in natural language. The AI cross-references the pack catalog,
+      EONET context and your budget to recommend the best combination.
+    </p>
+
+    <!-- EONET context panel -->
+    <div class="eonet-context">
+      <div class="eonet-header">
+        <span class="eonet-title">🌍 NASA EONET Context</span>
+        <span *ngIf="gpsStatus === 'loading'" class="eonet-status loading">Locating...</span>
+        <span *ngIf="gpsStatus === 'ok'" class="eonet-status ok">📍 Position detected</span>
+        <span *ngIf="gpsStatus === 'denied'" class="eonet-status warn">📍 Position denied — global events</span>
+        <span *ngIf="gpsStatus === 'error'" class="eonet-status warn">⚠ GPS unavailable</span>
+        <button class="btn-gps-retry" (click)="loadGpsAndEonet()" [disabled]="gpsStatus === 'loading' || eonetLoading">
+          ↻ Refresh
+        </button>
+      </div>
+
+      <div *ngIf="eonetLoading" class="eonet-loading">Loading natural events...</div>
+
+      <div *ngIf="!eonetLoading && eonetEvents.length > 0" class="eonet-events">
+        <div class="eonet-event" *ngFor="let e of eonetEvents">
+          <span class="eonet-icon">{{ eonetIcon(e) }}</span>
+          <span class="eonet-name">{{ e.title }}</span>
+          <span class="eonet-cat">{{ e.categories[0]?.title }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="!eonetLoading && eonetEvents.length === 0" class="eonet-empty">
+        No active natural events detected near your position.
+      </div>
+    </div>
+
+    <div class="advisor-inputs">
+      <textarea [(ngModel)]="advisorQuery" rows="3" placeholder="E.g.: We are 4 friends, budget 500 TND, we love hiking and relaxation. Are there any weather risks?"
+                class="advisor-textarea"></textarea>
+
+      <div class="advisor-params">
+        <div class="input-group">
+          <label>Budget <span class="optional">(TND)</span></label>
+          <input type="number" [(ngModel)]="advisorBudget" placeholder="ex: 500"
+                 class="input-field" min="1" />
+        </div>
+        <div class="input-group">
+          <label>Persons <span class="optional">(optional)</span></label>
+          <input type="number" [(ngModel)]="advisorPersons" placeholder="ex: 4"
+                 class="input-field" min="1" />
+        </div>
+        <button class="btn-advisor" (click)="runAdvisor()"
+                [disabled]="advisorLoading || !advisorQuery.trim()">
+          {{ advisorLoading ? '⏳ Analyzing...' : '✨ Ask AI' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="advisorError" class="error-msg">{{ advisorError }}</div>
+
+    <div *ngIf="advisorResult" class="advisor-result">
+
+      <!-- Off-topic refusal -->
+      <div *ngIf="advisorResult.offTopic" class="advisor-offtopic">
+        <span class="advisor-icon">🚫</span>
+        <p>{{ advisorResult.recommendation }}</p>
+      </div>
+
+      <!-- Normal result -->
+      <ng-container *ngIf="!advisorResult.offTopic">
+
+        <!-- Recommendation text -->
+        <div class="advisor-text">
+          <span class="advisor-icon">🤖</span>
+          <p>{{ advisorResult.recommendation }}</p>
+        </div>
+
+        <!-- Safety note -->
+        <div *ngIf="advisorResult.safetyNote" class="advisor-safety">
+          ⚠️ {{ advisorResult.safetyNote }}
+        </div>
+
+        <!-- Summary cards -->
+        <div class="advisor-summary-grid">
+          <div class="adv-card">
+            <span class="adv-value">{{ advisorResult.suggestedPackNames.length }}</span>
+            <span class="adv-label">Suggested pack(s)</span>
+          </div>
+          <div class="adv-card">
+            <span class="adv-value">{{ advisorResult.totalEstimatedCost | currency:'TND':'symbol':'1.0-0' }}</span>
+            <span class="adv-label">Estimated total cost</span>
+          </div>
+          <div class="adv-card adv-savings">
+            <span class="adv-value">{{ advisorResult.savingsEstimate | currency:'TND':'symbol':'1.0-0' }}</span>
+            <span class="adv-label">Estimated savings</span>
+          </div>
+          <div class="adv-card">
+            <span class="adv-value conf-badge" [ngClass]="confidenceClass(advisorResult.confidence)">
+              {{ advisorResult.confidence }}
+            </span>
+            <span class="adv-label">AI Confidence</span>
+          </div>
+        </div>
+
+        <!-- Pack list -->
+        <div *ngIf="advisorResult.suggestedPackNames.length > 0" class="advisor-packs">
+          <h4>Recommended Packs</h4>
+          <div *ngFor="let name of advisorResult.suggestedPackNames; let i = index"
+               class="adv-pack-row">
+            <span class="adv-rank">{{ i + 1 }}</span>
+            <span class="adv-pack-name">{{ name }}</span>
+          </div>
+        </div>
+
+      </ng-container>
+
+    </div>
+  </section>
+
+</div>

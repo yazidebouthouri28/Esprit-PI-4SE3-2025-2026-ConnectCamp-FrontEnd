@@ -1,0 +1,210 @@
+.stats-page {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    font-family: 'Inter', sans-serif;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.stats-section,
+.search-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.section-header h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.badge-info {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn-refresh,
+.btn-search {
+    margin-left: auto;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-refresh:hover,
+.btn-search:hover {
+    background: #1d4ed8;
+}
+
+.btn-refresh:disabled,
+.btn-search:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* Table */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.stats-table thead tr {
+    background: #f1f5f9;
+}
+
+.stats-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.stats-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.stats-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.code-cell {
+    font-family: monospace;
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+/* Badges sévérité */
+.badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-critical { background: #fee2e2; color: #b91c1c; }
+.badge-high     { background: #ffedd5; color: #c2410c; }
+.badge-medium   { background: #fef9c3; color: #854d0e; }
+.badge-low      { background: #dcfce7; color: #166534; }
+
+/* Status pills */
+.status-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active    { background: #dcfce7; color: #166534; }
+.status-ack       { background: #dbeafe; color: #1d4ed8; }
+.status-resolved  { background: #f1f5f9; color: #475569; }
+.status-dismissed { background: #fce7f3; color: #9d174d; }
+
+/* Count badge */
+.count-cell { text-align: center; }
+
+.count-badge {
+    display: inline-block;
+    background: #2563eb;
+    color: #fff;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 28px;
+    text-align: center;
+}
+
+.count-badge.count-zero {
+    background: #e2e8f0;
+    color: #94a3b8;
+}
+
+/* Search bar */
+.search-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.input-field {
+    flex: 1;
+    min-width: 200px;
+    padding: 9px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus { border-color: #2563eb; }
+
+.select-field {
+    padding: 9px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+}
+
+.error-msg {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 12px;
+}
+
+.loading-spinner {
+    color: #64748b;
+    font-size: 0.9rem;
+    padding: 16px 0;
+}
+
+.empty-msg {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 24px 0;
+}

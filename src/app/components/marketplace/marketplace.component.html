@@ -1,0 +1,481 @@
+<div class="min-h-screen bg-cream-beige">
+
+  <!-- Hero Banner -->
+  <div class="relative bg-gradient-to-r from-forest-green via-olive-green to-forest-green py-16 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute transform rotate-12 bg-cream-beige w-96 h-96 -top-20 -left-20 rounded-full"></div>
+      <div class="absolute transform -rotate-12 bg-cream-beige w-64 h-64 top-40 right-20 rounded-full"></div>
+    </div>
+    <div class="max-w-7xl mx-auto text-center relative z-10">
+      <div class="inline-block bg-yellow-400 text-forest-green px-6 py-2 rounded-full font-bold mb-4 animate-pulse">
+        🎉 WINTER SALE: Up to 40% OFF
+      </div>
+      <h1 class="text-6xl font-bold text-cream-beige mb-4">CampConnect Marketplace</h1>
+      <p class="text-2xl text-sage-green mb-8">Premium gear for unforgettable adventures</p>
+      <div class="max-w-3xl mx-auto">
+        <div class="relative bg-white rounded-full shadow-2xl">
+          <input type="text"
+                 placeholder="Search 500+ products: tents, sleeping bags, cooking gear..."
+                 [(ngModel)]="searchTerm"
+                 (input)="filterProducts()"
+                 class="w-full px-8 py-5 rounded-full text-forest-green focus:outline-none focus:ring-4 focus:ring-yellow-400 text-lg pr-32">
+          <button (click)="filterProducts()"
+                  class="absolute right-2 top-2 bg-forest-green text-cream-beige px-8 py-3 rounded-full hover:bg-olive-green transition-all font-bold">
+            🔍 Search
+          </button>
+        </div>
+        <div class="flex gap-3 justify-center mt-4 flex-wrap">
+          <button *ngFor="let term of popularSearches"
+                  (click)="searchTerm = term; filterProducts()"
+                  class="text-cream-beige hover:text-yellow-400 text-sm transition-colors">
+            #{{term}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+
+    <!-- Country Selector -->
+    <div class="flex justify-end mb-4">
+      <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-md border border-sage-green/30">
+        <span class="text-sm text-gray-600 font-medium">🌍 Livraison vers :</span>
+        <app-country-selector (countryChange)="onCountryChange($event)"></app-country-selector>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         TOP QUALITY PRODUCTS STRIP
+         ══════════════════════════════════════════════════ -->
+    <div class="bg-white rounded-2xl shadow-lg border border-amber-100 px-6 py-4 mb-8">
+      <app-top-quality-products
+        (viewProduct)="onQualityProductClick($event)">
+      </app-top-quality-products>
+    </div>
+
+    <!-- Category Pills -->
+    <div class="flex flex-wrap gap-3 mb-8 justify-center">
+      <button *ngFor="let cat of categories"
+              (click)="selectedCategory = cat.name; filterProducts()"
+              [class.bg-forest-green]="selectedCategory === cat.name"
+              [class.text-cream-beige]="selectedCategory === cat.name"
+              [class.shadow-lg]="selectedCategory === cat.name"
+              [class.scale-105]="selectedCategory === cat.name"
+              [class.bg-white]="selectedCategory !== cat.name"
+              [class.text-forest-green]="selectedCategory !== cat.name"
+              class="px-6 py-3 rounded-full font-medium transition-all shadow-md hover:shadow-xl transform hover:scale-105 flex items-center gap-2">
+        <span class="text-xl">{{cat.icon}}</span>
+        <span>{{cat.name}}</span>
+        <span class="text-xs bg-sage-green/30 px-2 py-1 rounded-full">{{cat.count}}</span>
+      </button>
+    </div>
+
+    <!-- Filter & Sort Bar -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="flex flex-wrap gap-4 items-center justify-between">
+        <div class="flex gap-4 flex-wrap flex-1">
+          <select [(ngModel)]="sortBy" (change)="filterProducts()"
+                  class="px-6 py-3 border-2 border-sage-green rounded-lg text-forest-green font-medium hover:border-forest-green transition-colors">
+            <option value="featured">✨ Featured First</option>
+            <option value="priceLow">💰 Price: Low → High</option>
+            <option value="priceHigh">💰 Price: High → Low</option>
+            <option value="rating">⭐ Top Rated</option>
+            <option value="newest">🆕 Newest Arrivals</option>
+            <option value="popular">🔥 Most Popular</option>
+          </select>
+          <select [(ngModel)]="priceRange" (change)="filterProducts()"
+                  class="px-6 py-3 border-2 border-sage-green rounded-lg text-forest-green font-medium hover:border-forest-green transition-colors">
+            <option value="all">💵 All Prices</option>
+            <option value="0-50">{{ currencySymbol }}0 - {{ currencySymbol }}50</option>
+            <option value="50-100">{{ currencySymbol }}50 - {{ currencySymbol }}100</option>
+            <option value="100-200">{{ currencySymbol }}100 - {{ currencySymbol }}200</option>
+            <option value="200+">{{ currencySymbol }}200+</option>
+          </select>
+          <label class="flex items-center gap-2 px-6 py-3 border-2 border-sage-green rounded-lg cursor-pointer hover:border-forest-green transition-colors">
+            <input type="checkbox" [(ngModel)]="inStockOnly" (change)="filterProducts()" class="w-5 h-5">
+            <span class="text-forest-green font-medium">📦 In Stock Only</span>
+          </label>
+          <label class="flex items-center gap-2 px-6 py-3 border-2 border-sage-green rounded-lg cursor-pointer hover:border-forest-green transition-colors">
+            <input type="checkbox" [(ngModel)]="rentalOnly" (change)="filterProducts()" class="w-5 h-5">
+            <span class="text-forest-green font-medium">📅 Rental Available</span>
+          </label>
+        </div>
+        <div class="flex items-center gap-4">
+          <p class="text-olive-green font-medium">
+            <span class="text-2xl font-bold text-forest-green">{{filteredProducts.length}}</span> products
+          </p>
+          <button (click)="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+                  class="p-3 bg-sage-green/20 rounded-lg hover:bg-sage-green/40 transition-colors">
+            {{viewMode === 'grid' ? '☰' : '⊞'}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         PRODUCTS GRID / LIST
+         ══════════════════════════════════════════════════ -->
+    <div [class.grid]="viewMode === 'grid'"
+         [class.grid-cols-1]="viewMode === 'grid'"
+         [class.md:grid-cols-2]="viewMode === 'grid'"
+         [class.lg:grid-cols-4]="viewMode === 'grid'"
+         [class.space-y-6]="viewMode === 'list'"
+         class="gap-6 mb-12">
+
+      <div *ngFor="let product of paginatedProducts"
+           [class.flex]="viewMode === 'list'"
+           [class.gap-6]="viewMode === 'list'"
+           class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-1 relative">
+
+        <!-- ── Quality Badge (top-left overlay on card) ── -->
+        <div class="absolute top-3 left-3 z-20">
+          <app-quality-badge
+            [productId]="product.id"
+            size="sm">
+          </app-quality-badge>
+        </div>
+
+        <!-- Product Image -->
+        <div [class.w-80]="viewMode === 'list'"
+             [class.h-80]="viewMode === 'list'"
+             [class.h-64]="viewMode === 'grid'"
+             class="relative overflow-hidden group flex-shrink-0">
+          <img [src]="product.image" [alt]="product.name"
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+
+          <!-- Badges overlay (top-right) -->
+          <div class="absolute top-3 right-3 flex flex-col gap-2 items-end">
+            <span *ngIf="product.featured"
+                  class="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+              ⭐ Featured
+            </span>
+            <span *ngIf="product.discount"
+                  class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+              -{{product.discount}}% OFF
+            </span>
+            <span *ngIf="!product.inStock"
+                  class="bg-gray-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+              Out of Stock
+            </span>
+            <span *ngIf="product.rentalPrice"
+                  class="bg-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+              📅 Rental
+            </span>
+          </div>
+
+          <!-- Hover actions (bottom-right) -->
+          <div class="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button (click)="quickView(product)"
+                    class="bg-white text-forest-green p-3 rounded-full shadow-lg hover:bg-forest-green hover:text-cream-beige transition-all">
+              👁️
+            </button>
+            <button (click)="addToWishlist(product)"
+                    class="bg-white text-red-500 p-3 rounded-full shadow-lg hover:bg-red-500 hover:text-white transition-all">
+              ❤️
+            </button>
+          </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="p-6 flex-1 flex flex-col">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-xs font-bold text-olive-green bg-sage-green/20 px-3 py-1 rounded-full">
+              {{product.category}}
+            </span>
+            <div class="flex items-center gap-1">
+              <span class="text-yellow-500 text-lg">★</span>
+              <span class="font-bold text-forest-green">{{product.rating}}</span>
+              <span class="text-xs text-olive-green">({{product.reviews}})</span>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold text-forest-green mb-2 line-clamp-2 hover:text-olive-green transition-colors cursor-pointer"
+              (click)="quickView(product)">
+            {{product.name}}
+          </h3>
+
+          <p *ngIf="viewMode === 'list'" class="text-olive-green mb-4 line-clamp-2">
+            {{product.description}}
+          </p>
+          <div *ngIf="viewMode === 'list' && product.specs" class="mb-4">
+            <ul class="space-y-1">
+              <li *ngFor="let spec of product.specs"
+                  class="text-sm text-olive-green flex items-center gap-2">
+                <span class="text-forest-green">✓</span>{{spec}}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Quality badge (md size) in list mode for more detail -->
+          <div *ngIf="viewMode === 'list'" class="mb-3">
+            <app-quality-badge [productId]="product.id" size="lg"></app-quality-badge>
+          </div>
+
+          <div class="flex items-center gap-2 text-sm text-olive-green mb-4">
+            <span class="flex items-center gap-1">📦 {{product.reviews}} reviews</span>
+            <span>•</span>
+            <span class="flex items-center gap-1">
+              💎 <span class="font-bold text-purple-600">{{product.loyaltyPoints}}</span> points
+            </span>
+          </div>
+
+          <!-- Price block -->
+          <div class="mb-4 mt-auto">
+            <div class="flex items-center gap-3 flex-wrap">
+              <div class="text-3xl font-bold text-forest-green">
+                {{ getPriceWithVat(getDiscountedPrice(product)) | number:'1.2-2' }} {{ currencySymbol }}
+              </div>
+              <div class="flex flex-col">
+                <div *ngIf="product.discount" class="text-sm text-gray-400 line-through">
+                  {{ getPriceWithVat(product.price) | number:'1.2-2' }} {{ currencySymbol }}
+                </div>
+                <span class="text-xs text-gray-400">TTC ({{ currentVatRate }}% TVA)</span>
+              </div>
+            </div>
+            <div *ngIf="product.rentalPrice" class="text-sm text-purple-600 font-medium mt-2">
+              ou {{ getPriceWithVat(product.rentalPrice) | number:'1.2-2' }} {{ currencySymbol }}/semaine
+            </div>
+          </div>
+
+          <!-- CTA buttons -->
+          <div [class.grid-cols-1]="!product.rentalPrice"
+               [class.grid-cols-2]="product.rentalPrice"
+               class="grid gap-2">
+            <button [disabled]="!product.inStock"
+                    [class.opacity-50]="!product.inStock"
+                    [class.cursor-not-allowed]="!product.inStock"
+                    (click)="addToCart(product, 'purchase')"
+                    class="bg-forest-green text-cream-beige py-3 px-4 rounded-lg hover:bg-olive-green transition-all font-bold shadow-md hover:shadow-lg transform hover:scale-105 disabled:transform-none disabled:hover:shadow-md flex items-center justify-center gap-2">
+              <span class="text-xl">🛒</span>
+              <span>{{!product.inStock ? 'Out of Stock' : 'Buy Now'}}</span>
+            </button>
+            <button *ngIf="product.rentalPrice"
+                    [disabled]="!product.inStock"
+                    [class.opacity-50]="!product.inStock"
+                    (click)="addToCart(product, 'rental')"
+                    class="bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 transition-all font-bold shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2">
+              <span class="text-xl">📅</span><span>Rent</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="flex justify-center items-center gap-2 mb-12">
+      <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+              class="px-4 py-2 bg-white border-2 border-sage-green rounded-lg hover:bg-sage-green/20 disabled:opacity-50 disabled:cursor-not-allowed">
+        ← Previous
+      </button>
+      <button *ngFor="let page of pageNumbers" (click)="changePage(page)"
+              [class.bg-forest-green]="page === currentPage"
+              [class.text-cream-beige]="page === currentPage"
+              [class.bg-white]="page !== currentPage"
+              class="px-4 py-2 border-2 border-sage-green rounded-lg hover:bg-sage-green/20 font-bold">
+        {{page}}
+      </button>
+      <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages"
+              class="px-4 py-2 bg-white border-2 border-sage-green rounded-lg hover:bg-sage-green/20 disabled:opacity-50 disabled:cursor-not-allowed">
+        Next →
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredProducts.length === 0 && !isLoading"
+         class="text-center py-20 bg-white rounded-xl shadow-lg">
+      <p class="text-8xl mb-4 animate-bounce">🔍</p>
+      <h3 class="text-3xl font-bold text-forest-green mb-2">No products found</h3>
+      <p class="text-olive-green mb-6">Try adjusting your search or filters</p>
+      <button (click)="resetFilters()"
+              class="bg-forest-green text-cream-beige px-8 py-3 rounded-lg hover:bg-olive-green font-bold">
+        Reset Filters
+      </button>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div *ngIf="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div *ngFor="let _ of [1,2,3,4,5,6,7,8]"
+           class="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
+        <div class="h-64 bg-gray-200"></div>
+        <div class="p-6 space-y-3">
+          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-6 bg-gray-200 rounded"></div>
+          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+          <div class="h-10 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits Banner -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+      <div class="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+        <div class="text-5xl mb-3">🚚</div>
+        <h4 class="font-bold text-forest-green mb-2">Free Shipping</h4>
+        <p class="text-sm text-olive-green">On orders over {{ currencySymbol }}100</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+        <div class="text-5xl mb-3">🔒</div>
+        <h4 class="font-bold text-forest-green mb-2">Secure Payment</h4>
+        <p class="text-sm text-olive-green">100% protected checkout</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+        <div class="text-5xl mb-3">↩️</div>
+        <h4 class="font-bold text-forest-green mb-2">Easy Returns</h4>
+        <p class="text-sm text-olive-green">30-day return policy</p>
+      </div>
+      <div class="bg-white rounded-xl p-6 shadow-lg text-center hover:shadow-xl transition-shadow">
+        <div class="text-5xl mb-3">💎</div>
+        <h4 class="font-bold text-forest-green mb-2">Loyalty Rewards</h4>
+        <p class="text-sm text-olive-green">Earn points on every purchase</p>
+      </div>
+    </div>
+
+    <!-- Loyalty Banner -->
+    <div class="relative bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 rounded-2xl p-10 shadow-2xl text-center overflow-hidden">
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute transform rotate-45 bg-white w-96 h-96 -top-48 -right-48 rounded-full"></div>
+        <div class="absolute transform -rotate-45 bg-white w-64 h-64 -bottom-32 -left-32 rounded-full"></div>
+      </div>
+      <div class="relative z-10 max-w-3xl mx-auto">
+        <h3 class="text-4xl font-bold text-white mb-4">🏆 Join Our Loyalty Program</h3>
+        <p class="text-purple-100 text-xl mb-8">Earn points, unlock exclusive discounts, and get VIP perks!</p>
+        <div class="grid grid-cols-3 gap-6 mb-8">
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
+            <p class="text-5xl mb-3">💰</p>
+            <p class="text-white font-bold text-xl">1 point = {{ currencySymbol }}1</p>
+            <p class="text-purple-100 text-sm">On every purchase</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
+            <p class="text-5xl mb-3">🎁</p>
+            <p class="text-white font-bold text-xl">Free Shipping</p>
+            <p class="text-purple-100 text-sm">Priority delivery</p>
+          </div>
+          <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
+            <p class="text-5xl mb-3">✨</p>
+            <p class="text-white font-bold text-xl">Exclusive Deals</p>
+            <p class="text-purple-100 text-sm">Members-only offers</p>
+          </div>
+        </div>
+        <button class="bg-white text-purple-600 px-10 py-4 rounded-xl hover:bg-purple-50 transition-all font-bold text-lg shadow-xl">
+          Join Now - It's Free! →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     QUICK VIEW MODAL
+     ══════════════════════════════════════════════════ -->
+<div *ngIf="showQuickView"
+     class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
+     (click)="showQuickView = false">
+  <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
+       (click)="$event.stopPropagation()">
+    <div *ngIf="selectedProduct" class="flex flex-col md:flex-row gap-8 p-8">
+
+      <!-- Image -->
+      <div class="md:w-1/2">
+        <div class="relative">
+          <img [src]="selectedProduct.image" [alt]="selectedProduct.name"
+               class="w-full h-auto rounded-xl shadow-lg">
+          <div class="absolute top-4 right-4 flex flex-col gap-2 items-end">
+            <span *ngIf="selectedProduct.featured"
+                  class="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+              ⭐ Featured
+            </span>
+            <span *ngIf="selectedProduct.discount"
+                  class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+              -{{selectedProduct.discount}}% OFF
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="md:w-1/2 flex flex-col">
+        <span class="text-sm font-bold text-olive-green bg-sage-green/20 px-3 py-1 rounded-full inline-block w-fit mb-3">
+          {{selectedProduct.category}}
+        </span>
+
+        <h2 class="text-3xl font-bold text-forest-green mb-2">{{selectedProduct.name}}</h2>
+
+        <div class="flex items-center gap-2 mb-3">
+          <div class="flex items-center gap-1">
+            <span class="text-yellow-500 text-xl">★</span>
+            <span class="font-bold text-forest-green">{{selectedProduct.rating}}</span>
+          </div>
+          <span class="text-olive-green">({{selectedProduct.reviews}} reviews)</span>
+        </div>
+
+        <!-- Quality badge in modal — LG size with breakdown tooltip -->
+        <div class="mb-4">
+          <app-quality-badge [productId]="selectedProduct.id" size="lg"></app-quality-badge>
+        </div>
+
+        <p class="text-forest-green mb-4 leading-relaxed">{{selectedProduct.description}}</p>
+
+        <div *ngIf="selectedProduct.specs" class="mb-4">
+          <h4 class="font-bold text-forest-green mb-2">Product Features:</h4>
+          <ul class="space-y-1">
+            <li *ngFor="let spec of selectedProduct.specs"
+                class="text-olive-green flex items-center gap-2 text-sm">
+              <span class="text-forest-green text-xl">✓</span>{{spec}}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Price block -->
+        <div class="bg-sage-green/10 rounded-xl p-5 mb-5 mt-auto">
+          <div class="flex items-center gap-4 mb-2 flex-wrap">
+            <div class="text-4xl font-bold text-forest-green">
+              {{ getPriceWithVat(getDiscountedPrice(selectedProduct)) | number:'1.2-2' }} {{ currencySymbol }}
+            </div>
+            <div *ngIf="selectedProduct.discount" class="text-lg text-gray-400 line-through">
+              {{ getPriceWithVat(selectedProduct.price) | number:'1.2-2' }} {{ currencySymbol }}
+            </div>
+          </div>
+          <p *ngIf="selectedProduct.rentalPrice" class="text-purple-600 font-medium">
+            ou {{ getPriceWithVat(selectedProduct.rentalPrice) | number:'1.2-2' }} {{ currencySymbol }}/semaine
+          </p>
+          <p class="text-sm text-olive-green mt-1">
+            💎 Earn {{selectedProduct.loyaltyPoints}} points with this purchase
+          </p>
+          <p class="text-xs text-gray-400 mt-1">TTC ({{ currentVatRate }}% TVA · {{ currentCountryCode }})</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <button (click)="addToCart(selectedProduct, 'purchase'); showQuickView = false"
+                  [disabled]="!selectedProduct.inStock"
+                  class="bg-forest-green text-cream-beige py-4 rounded-xl hover:bg-olive-green transition-all font-bold shadow-lg hover:shadow-xl disabled:opacity-50">
+            🛒 Add to Cart
+          </button>
+          <button *ngIf="selectedProduct.rentalPrice"
+                  (click)="addToCart(selectedProduct, 'rental'); showQuickView = false"
+                  [disabled]="!selectedProduct.inStock"
+                  class="bg-purple-600 text-white py-4 rounded-xl hover:bg-purple-700 transition-all font-bold shadow-lg hover:shadow-xl">
+            📅 Rent Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button (click)="showQuickView = false"
+            class="absolute top-4 right-4 w-10 h-10 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center font-bold text-gray-600">
+      ✕
+    </button>
+  </div>
+</div>
+
+<!-- Cart Toast -->
+<div *ngIf="showCartToast"
+     class="fixed bottom-8 right-8 bg-forest-green text-cream-beige px-6 py-4 rounded-xl shadow-2xl z-50">
+  <div class="flex items-center gap-3">
+    <span class="text-2xl">✅</span>
+    <div>
+      <p class="font-bold">Added to cart!</p>
+      <a routerLink="/cart" class="text-sage-green text-sm hover:underline">View cart →</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,308 @@
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <div class="mb-12 text-center">
+        <a routerLink="/emergency/list"
+            class="text-red-600 hover:text-black transition-colors flex justify-center items-center mb-6 font-black uppercase tracking-widest text-xs">
+            <i class="fas fa-chevron-left mr-2"></i>
+            Active Alerts Dashboard
+        </a>
+        <h2 class="text-4xl font-black text-forest uppercase tracking-tighter italic">REPORT AN EMERGENCY</h2>
+        <div class="h-1.5 w-32 bg-red-600 mx-auto mt-4 rounded-full"></div>
+    </div>
+
+    <div class="bg-white rounded-[3rem] shadow-2xl p-10 border-4 border-red-600/5 relative overflow-hidden">
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-red-600/5 rounded-full blur-3xl"></div>
+
+        <form [formGroup]="alertForm" (ngSubmit)="onSubmit()" class="space-y-8 relative z-10">
+
+            <!-- Critical Header Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Emergency Type
+                        *</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button *ngFor="let t of alertTypes" type="button"
+                            (click)="alertForm.get('emergencyType')?.setValue(t)"
+                            [ngClass]="alertForm.get('emergencyType')?.value === t ? 'bg-red-600 text-white border-red-600 shadow-lg' : 'bg-cream text-forest border-transparent hover:border-red-200'"
+                            class="px-4 py-3 rounded-xl border-2 font-black text-[10px] transition-all uppercase tracking-wider flex items-center justify-center gap-2">
+                            <i class="fas" [ngClass]="{
+                  'fa-fire': t === 'FIRE',
+                  'fa-ambulance': t === 'MEDICAL',
+                  'fa-shield-alt': t === 'SECURITY',
+                  'fa-cloud': t === 'WEATHER',
+                  'fa-exclamation-triangle': t === 'OTHER'
+                }"></i>
+                            {{ t }}
+                        </button>
+                    </div>
+                    <div *ngIf="submitted && !alertForm.get('emergencyType')?.value"
+                        class="text-red-500 text-[10px] font-bold mt-2 uppercase">* Required Selection</div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Severity Level
+                        *</label>
+                    <select formControlName="severity"
+                        class="w-full px-5 py-4 rounded-2xl border-2 border-cream bg-cream/30 focus:bg-white focus:border-red-600 outline-none font-black text-forest transition-all">
+                        <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
+                    </select>
+                    <p class="text-[10px] mt-4 text-gray-400 font-medium">Choose 'CRITICAL' for immediate
+                        life-threatening situations.</p>
+                </div>
+            </div>
+
+            <!-- Title & Location -->
+            <div class="space-y-6 pt-6 border-t border-sage/10">
+                <div>
+                    <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Alert Headline
+                        * (Min 5 characters)</label>
+                    <input type="text" formControlName="title"
+                        placeholder="Short description (e.g., Gas Leaking in Zone B)"
+                        class="w-full px-5 py-4 rounded-2xl border-2 border-cream bg-cream/30 focus:bg-white focus:border-red-600 outline-none font-bold text-forest placeholder:text-gray-300">
+                    <div *ngIf="submitted && alertForm.get('title')?.errors?.['minlength']"
+                        class="text-red-500 text-[10px] font-bold mt-2 uppercase">* Title must be at least 5 characters
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest">Exact Location /
+                            Zone *</label>
+                        <div *ngIf="locationLoading"
+                            class="flex items-center gap-2 text-[10px] font-black text-blue-500 animate-pulse">
+                            <i class="fas fa-satellite-dish"></i>
+                            CAPTURING GPS...
+                        </div>
+                        <div *ngIf="!locationLoading && alertForm.get('latitude')?.value"
+                            class="flex items-center gap-2 text-[10px] font-black text-forest">
+                            <i class="fas fa-check-circle"></i>
+                            GPS FIXED
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-red-500">
+                            <i class="fas fa-map-pin"></i>
+                        </span>
+                        <input type="text" formControlName="location"
+                            placeholder="e.g., Near the main campfire, South Exit"
+                            class="w-full pl-12 pr-5 py-4 rounded-2xl border-2 border-cream bg-cream/30 focus:bg-white focus:border-red-600 outline-none font-bold text-forest placeholder:text-gray-300">
+                    </div>
+
+                    <!-- Map Preview -->
+                    <div class="mt-6">
+                        <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">📍 Pinpoint
+                            Exact Location on Map</label>
+                        <div
+                            class="rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-cream h-[350px] relative group bg-gray-100">
+                            <div id="map" class="w-full h-full z-10 relative"></div>
+
+                            <!-- GPS Status Overlay (Top Right) -->
+                            <div *ngIf="alertForm.get('latitude')?.value"
+                                class="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-[8px] font-black uppercase tracking-widest text-forest">Live GPS
+                                    Signal</span>
+                            </div>
+                            <div *ngIf="!alertForm.get('latitude')?.value && locationLoading"
+                                class="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-gray-100 flex items-center gap-2 text-blue-500">
+                                <i class="fas fa-satellite-dish animate-pulse text-[10px]"></i>
+                                <span class="text-[8px] font-black uppercase tracking-widest">Searching GPS...</span>
+                            </div>
+                        </div>
+                        <p class="text-[10px] mt-4 text-gray-400 font-medium italic"><i
+                                class="fas fa-hand-pointer mr-1"></i> Click on the map to adjust your location manually
+                            if GPS is inaccurate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EONET Natural Events Nearby -->
+            <div *ngIf="eonetLoading || nearbyEvents.length > 0">
+                <div *ngIf="eonetLoading"
+                    class="flex items-center gap-2 text-sm text-blue-500 font-medium animate-pulse">
+                    <i class="fas fa-satellite-dish"></i>
+                    Scanning NASA EONET for natural events nearby...
+                </div>
+                <div *ngIf="!eonetLoading && nearbyEvents.length > 0"
+                    class="rounded-2xl border-2 border-amber-200 bg-amber-50 p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-2xl">🛰️</span>
+                        <div>
+                            <h4 class="font-black text-sm uppercase tracking-wider text-amber-800">
+                                NASA EONET — Natural Events Nearby
+                            </h4>
+                            <p class="text-xs text-amber-600">
+                                {{ nearbyEvents.length }} active event(s) detected within ~500 km
+                            </p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div *ngFor="let evt of nearbyEvents"
+                            class="flex items-center justify-between bg-white rounded-xl p-3 border border-amber-100 shadow-sm gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <span class="text-xl flex-shrink-0">{{ eonetCategoryIcon(evt) }}</span>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-xs text-gray-800 truncate">{{ evt.title }}</p>
+                                    <p class="text-[10px] text-gray-400">
+                                        {{ evt.categories[0]?.title }}
+                                        <ng-container *ngIf="evt.geometry && evt.geometry.length > 0">
+                                            · {{ evt.geometry[0].date | date:'dd/MM/yyyy' }}
+                                        </ng-container>
+                                    </p>
+                                </div>
+                            </div>
+                            <button type="button" (click)="applyEonetSuggestion(evt)"
+                                [class]="appliedEonetId === evt.id
+                                    ? 'flex-shrink-0 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg bg-green-500 text-white flex items-center gap-1'
+                                    : 'flex-shrink-0 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors'">
+                                <i *ngIf="appliedEonetId === evt.id" class="fas fa-check"></i>
+                                {{ appliedEonetId === evt.id ? 'Applied!' : 'Use as Type' }}
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Bannière confirmation après application -->
+                    <div *ngIf="appliedEonetId" class="mt-3 flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
+                        <i class="fas fa-check-circle text-green-500 text-sm"></i>
+                        <div>
+                            <p class="text-[10px] font-black text-green-700 uppercase tracking-wider">Type &amp; sévérité appliqués</p>
+                            <p class="text-[10px] text-green-600">
+                                Type → <strong>{{ alertForm.get('emergencyType')?.value }}</strong>
+                                &nbsp;·&nbsp;
+                                Sévérité → <strong>{{ alertForm.get('severity')?.value }}</strong>
+                                &nbsp;·&nbsp; Titre pré-rempli
+                            </p>
+                        </div>
+                    </div>
+                    <p *ngIf="!appliedEonetId" class="text-[10px] text-amber-600 mt-3 italic">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        "Use as Type" auto-fills emergency type &amp; severity based on the detected NASA event.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Full Description -->
+            <div>
+                <label class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Detailed
+                    Information * (Min 10 characters)</label>
+                <textarea formControlName="description" rows="4"
+                    placeholder="Briefly explain the situation, any injured persons, and what you see..."
+                    class="w-full px-5 py-4 rounded-2xl border-2 border-cream bg-cream/30 focus:bg-white focus:border-red-600 outline-none font-medium text-forest placeholder:text-gray-300 resize-none"></textarea>
+                <div *ngIf="submitted && alertForm.get('description')?.errors?.['minlength']"
+                    class="text-red-500 text-[10px] font-bold mt-2 uppercase">* Description must be at least 10
+                    characters</div>
+            </div>
+
+            <!-- ML Severity Prediction Panel -->
+            <div class="rounded-[2rem] border-2 border-purple-200 bg-purple-50 p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-2xl">🤖</span>
+                    <div>
+                        <h4 class="font-black text-sm uppercase tracking-wider text-purple-800">ML Severity Prediction</h4>
+                        <p class="text-xs text-purple-600">Remplis le titre, type et description pour activer l'analyse.</p>
+                    </div>
+                </div>
+
+                <!-- Predict button -->
+                <button type="button" (click)="runMLPredict()"
+                    [disabled]="!canPredict || mlLoading"
+                    [ngClass]="canPredict && !mlLoading ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-purple-200 text-purple-400 cursor-not-allowed'"
+                    class="w-full py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 mb-4">
+                    <i class="fas" [ngClass]="mlLoading ? 'fa-spinner fa-spin' : 'fa-brain'"></i>
+                    {{ mlLoading ? 'Analyzing...' : 'Predict Severity & Response Time' }}
+                </button>
+
+                <!-- ML Error -->
+                <div *ngIf="mlError" class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-600 font-medium">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>{{ mlError }}
+                </div>
+
+                <!-- ML Results -->
+                <div *ngIf="mlResult && !mlResult.error" class="space-y-3">
+
+                    <!-- Predicted severity + current severity side by side -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 bg-white rounded-xl border border-gray-100 text-center">
+                            <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Your Choice</p>
+                            <p class="font-black text-lg" [ngClass]="mlSeverityColor(alertForm.get('severity')?.value)">
+                                {{ alertForm.get('severity')?.value || '—' }}
+                            </p>
+                        </div>
+                        <div class="p-3 rounded-xl border text-center" [ngClass]="mlSeverityBg(mlResult.predictedSeverity!)">
+                            <p class="text-[10px] font-black text-gray-400 uppercase mb-1">ML Prediction</p>
+                            <p class="font-black text-lg" [ngClass]="mlSeverityColor(mlResult.predictedSeverity!)">
+                                {{ mlResult.predictedSeverity }}
+                            </p>
+                            <p *ngIf="mlResult.confidence" class="text-[9px] text-gray-500 mt-0.5">
+                                {{ (mlResult.confidence * 100).toFixed(0) }}% confidence
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Probabilities -->
+                    <div *ngIf="mlResult.probabilities" class="p-3 bg-white rounded-xl border border-gray-100">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Probabilities</p>
+                        <div *ngFor="let entry of mlResult.probabilities | keyvalue" class="mb-1.5">
+                            <div class="flex justify-between text-[10px] font-bold mb-0.5">
+                                <span [ngClass]="mlSeverityColor(entry.key)">{{ entry.key }}</span>
+                                <span class="text-gray-500">{{ (entry.value * 100).toFixed(1) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-1.5">
+                                <div class="h-1.5 rounded-full transition-all bg-purple-500"
+                                    [style.width.%]="entry.value * 100"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Response time -->
+                    <div *ngIf="mlResult.predictedMinutes" class="p-3 bg-white rounded-xl border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase">Estimated Response Time</p>
+                            <p *ngIf="mlResult.confidenceRange" class="text-[9px] text-gray-400 mt-0.5">
+                                Range: {{ mlResult.confidenceRange.min.toFixed(0) }}–{{ mlResult.confidenceRange.max.toFixed(0) }} min
+                            </p>
+                        </div>
+                        <p class="text-2xl font-black text-amber-500">{{ mlResult.predictedMinutes.toFixed(0) }}<span class="text-xs font-bold ml-1">min</span></p>
+                    </div>
+
+                    <!-- Apply ML suggestion button -->
+                    <button *ngIf="mlResult.predictedSeverity !== alertForm.get('severity')?.value"
+                        type="button" (click)="applyMLSeverity()"
+                        class="w-full py-2.5 bg-purple-100 hover:bg-purple-200 text-purple-700 border border-purple-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        ✓ Apply ML Severity ({{ mlResult.predictedSeverity }})
+                    </button>
+                    <p *ngIf="mlResult.predictedSeverity === alertForm.get('severity')?.value"
+                        class="text-center text-[10px] text-green-600 font-black">
+                        ✓ Your choice matches the ML prediction
+                    </p>
+                </div>
+
+                <!-- ML Server Error -->
+                <div *ngIf="mlResult?.error" class="p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-500 font-medium">
+                    <i class="fas fa-robot mr-1"></i>{{ mlResult?.errorMessage }}
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage"
+                class="bg-red-600 text-white p-6 rounded-2xl font-black text-sm flex items-center gap-4 animate-bounce">
+                <i class="fas fa-exclamation-triangle text-2xl"></i>
+                {{ errorMessage }}
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-6 flex flex-col gap-4">
+                <button type="submit" [disabled]="loading"
+                    [ngClass]="loading ? 'bg-gray-400' : 'bg-red-600 hover:bg-black'"
+                    class="w-full py-5 rounded-[2.5rem] text-white font-black text-2xl shadow-2xl shadow-red-600/30 transition-all flex items-center justify-center gap-4 group">
+                    <i class="fas fa-radiation animate-spin-slow" *ngIf="loading"></i>
+                    <i class="fas fa-paper-plane group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform"
+                        *ngIf="!loading"></i>
+                    {{ loading ? 'BROADCASTING...' : 'SEND SOS ALERT' }}
+                </button>
+                <button type="button" routerLink="/emergency/list"
+                    class="text-gray-400 font-black text-xs uppercase tracking-widest hover:text-forest transition-colors mt-2">
+                    Discard and cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

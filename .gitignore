@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Angular build & cache
+.angular/
+dist/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+
+<<<<<<< Updated upstream
+# Misc build logs
+build_error.txt
+build_log.txt
+build_output.txt
+build_output_final.txt
+build_output_final_v2.txt
+blank.txt
+=======
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional coverage directory
+coverage/
+
+# Angular cache
+.angular/
+>>>>>>> Stashed changes
+node_modules

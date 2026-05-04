@@ -1,0 +1,14 @@
+{
+  "/api": {
+    "target": "http://localhost:8089",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/eonet": {
+    "target": "https://eonet.gsfc.nasa.gov",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": { "^/eonet": "/api/v3" },
+    "headers": { "Origin": "https://eonet.gsfc.nasa.gov" }
+  }
+}

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connectcamp-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: connectcamp-frontend
+  template:
+    metadata:
+      labels:
+        app: connectcamp-frontend
+    spec:
+      containers:
+      - name: connectcamp-frontend
+        image: yazidebouthouri/connectcamp-frontend:latest
+        ports:
+        - containerPort: 80

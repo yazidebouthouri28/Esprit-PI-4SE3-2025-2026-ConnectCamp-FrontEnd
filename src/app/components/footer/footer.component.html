@@ -1,0 +1,58 @@
+<footer class="bg-forest text-cream mt-auto">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          @if (!logoError) {
+          <img src="assets/logo.png" alt="ConnectCamp" class="h-8 w-auto object-contain brightness-0 invert"
+            (error)="logoError = true" />
+          }
+          @if (logoError) {
+          <span class="text-xl font-bold">ConnectCamp</span>
+          }
+        </div>
+        <p class="text-sage text-sm">
+          Your gateway to unforgettable outdoor adventures and camping experiences.
+        </p>
+        <div class="flex gap-4">
+          <a href="#" class="text-sage hover:text-cream transition-colors" aria-label="Facebook">FB</a>
+          <a href="#" class="text-sage hover:text-cream transition-colors" aria-label="Instagram">IG</a>
+          <a href="#" class="text-sage hover:text-cream transition-colors" aria-label="Twitter">TW</a>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-3 font-semibold">Quick Links</h3>
+        <ul class="space-y-1 text-sm">
+          <li><a href="#home" class="text-sage hover:text-cream transition-colors">Home</a></li>
+          <li><a href="#campsites" class="text-sage hover:text-cream transition-colors">Campsites</a></li>
+          <li><a href="#marketplace" class="text-sage hover:text-cream transition-colors">Marketplace</a></li>
+          <li><a href="#events" class="text-sage hover:text-cream transition-colors">Events</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="mb-3 font-semibold">Community</h3>
+        <ul class="space-y-1 text-sm">
+          <li><a href="#community" class="text-sage hover:text-cream transition-colors">Forum</a></li>
+          <li><a href="#map" class="text-sage hover:text-cream transition-colors">Map</a></li>
+          <li><a href="#" class="text-sage hover:text-cream transition-colors">Blog</a></li>
+          <li><a href="#" class="text-sage hover:text-cream transition-colors">About Us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="mb-3 font-semibold">Contact</h3>
+        <ul class="space-y-1 text-sm text-sage">
+          <li class="flex items-center gap-2">✉ hello&#64;campconnect.com</li>
+          <li class="flex items-center gap-2">📞 1-800-CAMP-NOW</li>
+          <li class="flex items-center gap-2">123 Adventure Blvd, Mountain View, CA 94043</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-olive/30 text-center text-sm text-sage">
+      <p>&copy; {{ currentYear }} ConnectCamp. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

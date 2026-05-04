@@ -1,0 +1,392 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+    @if (!selectedSite()) {
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-black text-[#1a2e1a]">Campsite Destinations</h1>
+            <p class="text-sm text-[#617152] font-medium">Monitor site availability, maintenance status, and guest
+                capacity.</p>
+        </div>
+        <div class="flex gap-3">
+            <button (click)="openCreateSiteForm()"
+                class="px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a] transition-all shadow-sm flex items-center gap-2">
+                <span>+</span> Add New Site
+            </button>
+        </div>
+    </div>
+
+    @if (errorMessage) {
+    <div class="px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-bold">
+        {{ errorMessage }}
+    </div>
+    }
+
+    @if (showCreateSiteForm) {
+    <div class="fixed inset-0 bg-[#1a2e1a]/65 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div
+            class="bg-gradient-to-br from-white to-[#f8f5e6] rounded-3xl p-8 max-w-4xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-auto animate-fade-in">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-black text-[#1a2e1a] tracking-tight">Create New Campsite</h2>
+                <button (click)="closeCreateSiteForm()"
+                    class="w-9 h-9 rounded-full bg-[#2C4A3C]/10 text-[#1a2e1a] font-black hover:bg-[#2C4A3C]/20">x</button>
+            </div>
+            <p class="text-sm text-[#617152] font-medium">Fill key info and upload multiple campsite photos.</p>
+
+            @if (createSiteError) {
+            <div class="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm font-bold">
+                {{ createSiteError }}
+            </div>
+            }
+
+            <form #siteForm="ngForm" (ngSubmit)="submitCreateSite(siteForm)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Name *</label>
+                    <input [(ngModel)]="newSiteForm.name" name="name" required minlength="3" maxlength="200" #nameRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': nameRef.invalid && nameRef.touched}">
+                    @if (nameRef.invalid && nameRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">Name is required (3-200 chars)</span>
+                    }
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">City / Region *</label>
+                    <input [(ngModel)]="newSiteForm.city" name="city" required #cityRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': cityRef.invalid && cityRef.touched}">
+                    @if (cityRef.invalid && cityRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">City is required</span>
+                    }
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Capacity</label>
+                    <input [(ngModel)]="newSiteForm.capacity" name="capacity" type="number" min="1" #capRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': capRef.invalid && capRef.touched}">
+                    @if (capRef.invalid && capRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">Capacity must be at least 1</span>
+                    }
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Price Per Night (DT) *</label>
+                    <input [(ngModel)]="newSiteForm.pricePerNight" name="price" type="number" min="0" required #priceRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': priceRef.invalid && priceRef.touched}">
+                    @if (priceRef.invalid && priceRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">Valid price required</span>
+                    }
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Type *</label>
+                    <select [(ngModel)]="newSiteForm.type" name="type" required #typeRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': typeRef.invalid && typeRef.touched}">
+                        <option value="FOREST">Forest</option>
+                        <option value="MOUNTAIN">Mountain</option>
+                        <option value="BEACH">Beach</option>
+                        <option value="DESERT">Desert</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Country</label>
+                    <input [(ngModel)]="newSiteForm.country" name="country"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Check-in Time</label>
+                    <input [(ngModel)]="newSiteForm.checkInTime" name="checkIn" type="time"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Check-out Time</label>
+                    <input [(ngModel)]="newSiteForm.checkOutTime" name="checkOut" type="time"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Address</label>
+                    <input [(ngModel)]="newSiteForm.address" name="address" maxlength="255"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">House Rules</label>
+                    <textarea [(ngModel)]="newSiteForm.houseRules" name="rules" rows="2"
+                        placeholder="e.g. Quiet hours 10PM-7AM, No fires outside designated rings"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Description</label>
+                    <textarea [(ngModel)]="newSiteForm.description" name="description" rows="3" maxlength="2000" #descRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': descRef.invalid && descRef.touched}"></textarea>
+                    @if (descRef.invalid && descRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">Description max 2000 chars</span>
+                    }
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Campsite Images</label>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input #siteImagesInput type="file" accept="image/*" multiple class="hidden"
+                            (change)="onSiteImagesSelected($event)">
+                        <button type="button" (click)="siteImagesInput.click()"
+                            class="px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all">
+                            + Import Images
+                        </button>
+                        <span class="text-xs text-[#617152] font-bold">{{ newSiteImagePreviews.length }} image(s)
+                            selected</span>
+                    </div>
+                    @if (newSiteImagePreviews.length) {
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                        @for (image of newSiteImagePreviews; track i; let i = $index) {
+                        <div class="relative group rounded-xl overflow-hidden border border-gray-200 bg-white">
+                            <img [src]="image" alt="Campsite image preview" class="w-full h-24 object-cover">
+                            <button type="button" (click)="removeSelectedImage(i)"
+                                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white text-xs font-black opacity-0 group-hover:opacity-100 transition-opacity">
+                                x
+                            </button>
+                        </div>
+                        }
+                    </div>
+                    }
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Contact Phone</label>
+                    <input [(ngModel)]="newSiteForm.contactPhone" name="phone" pattern="^(\+?[0-9. ()-]{7,25})?$" #phoneRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': phoneRef.invalid && phoneRef.touched}">
+                    @if (phoneRef.invalid && phoneRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">Invalid phone format</span>
+                    }
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Contact Email</label>
+                    <input [(ngModel)]="newSiteForm.contactEmail" name="email" type="email" email #emailRef="ngModel"
+                        class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"
+                        [ngClass]="{'border-red-500': emailRef.invalid && emailRef.touched}">
+                    @if (emailRef.invalid && emailRef.touched) {
+                        <span class="text-xs text-red-500 mt-1">Invalid email address</span>
+                    }
+                </div>
+                <div class="flex items-center gap-2 mt-6">
+                    <input id="siteActive" type="checkbox" name="active" [(ngModel)]="newSiteForm.isActive">
+                    <label for="siteActive" class="text-xs font-bold text-gray-500 uppercase tracking-widest">Active
+                        Site</label>
+                </div>
+
+            <div class="flex justify-end gap-3 pt-4 col-span-1 md:col-span-2">
+                <button type="button" (click)="closeCreateSiteForm()"
+                    class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700" [disabled]="isCreatingSite">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-6 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold disabled:opacity-50"
+                    [disabled]="isCreatingSite || siteForm.invalid">
+                    {{ isCreatingSite ? 'Saving...' : 'Create Site' }}
+                </button>
+            </div>
+            </form>
+        </div>
+    </div>
+    }
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-4 mb-3">
+                <div
+                    class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 text-xl">
+                    S
+                </div>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Sites</span>
+            </div>
+            <div class="flex items-end gap-3">
+                <p class="text-3xl font-black text-[#1a2e1a]">{{ campsites.length }}</p>
+            </div>
+            <p class="text-[10px] text-gray-400 font-bold mt-1">Registered Locations</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 text-xl">
+                    CAP
+                </div>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Overall Cap</span>
+            </div>
+            <div class="flex items-end gap-3">
+                <p class="text-3xl font-black text-[#1a2e1a]">{{ totalCapacity }}</p>
+            </div>
+            <p class="text-[10px] text-gray-400 font-bold mt-1">Total Camper Capacity</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-4 mb-3">
+                <div
+                    class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center text-orange-600 text-xl">
+                    M
+                </div>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Under Maintenance</span>
+            </div>
+            <div class="flex items-end gap-3">
+                <p class="text-3xl font-black text-[#1a2e1a]">{{ maintenanceCount }}</p>
+            </div>
+            <p class="text-[10px] text-gray-400 font-bold mt-1">Requiring Attention</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex items-center gap-4 mb-3">
+                <div
+                    class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 text-xl">
+                    R
+                </div>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Avg Rating</span>
+            </div>
+            <div class="flex items-end gap-3">
+                <p class="text-3xl font-black text-[#1a2e1a]">{{ averageRatingValue }}</p>
+            </div>
+            <p class="text-[10px] text-gray-400 font-bold mt-1">Based on Guest Reviews</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 items-center">
+        <div class="relative flex-1 w-full">
+            <input [(ngModel)]="searchTerm" type="text" placeholder="Search campsites by name or region..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1a2e1a]/10 focus:border-[#1a2e1a]/30 transition-all">
+            <span class="absolute left-3 top-2.5 text-gray-400">Q</span>
+        </div>
+        <div class="flex gap-2">
+            <select [(ngModel)]="selectedRegion"
+                class="px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold text-[#1a2e1a] focus:outline-none cursor-pointer">
+                <option value="ALL">All Regions</option>
+                @for (region of regions; track region) {
+                <option [value]="region">{{ region }}</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        @if (isLoading) {
+        <div class="col-span-full py-10 text-center text-sm font-bold text-gray-500">
+            Loading campsites...
+        </div>
+        } @else {
+        @for (site of filteredCampsites; track site.id) {
+        <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all group flex flex-col">
+            <div class="flex justify-between items-start mb-8">
+                <div
+                    class="w-14 h-14 bg-[#f8f5e6] text-[#1a2e1a] rounded-2xl flex items-center justify-center text-3xl font-black group-hover:scale-110 transition-transform">
+                    {{ site.name.charAt(0) }}
+                </div>
+                <span
+                    class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-current"
+                    [ngClass]="getStatusClass(site.status)">
+                    * {{ site.status }}
+                </span>
+            </div>
+
+            <h3 class="font-black text-[#1a2e1a] text-xl mb-2 line-clamp-1 flex items-center gap-2" [title]="site.name">
+              {{ site.name }}
+              <span *ngIf="site.verified" class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-[#1877F2] text-white shadow shrink-0" title="Verified campsite">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+              </span>
+            </h3>
+            <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-6 border-b border-gray-50 pb-4">Site ID: #00{{ site.id }}</p>
+
+            <div class="space-y-4 mb-8 flex-1">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-gray-300 uppercase">Region / Location</span>
+                    <span class="text-xs font-bold text-[#1a2e1a]"><span class="text-[10px] text-gray-400">L </span>{{ site.location || site.city }}, Tunisia</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-gray-300 uppercase">Capacity</span>
+                    <span class="text-xs font-black text-[#1a2e1a]">{{ site.capacity }} Slots</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-gray-300 uppercase">Base Price</span>
+                    <span class="text-xs font-black text-[#1a2e1a]">{{ site.price }} DT</span>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button (click)="viewDetails(site)"
+                    class="flex-1 py-3 bg-[#2C4A3C] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all">Manage</button>
+            </div>
+        </div>
+        }
+        @if (!filteredCampsites.length) {
+        <div class="col-span-full py-10 text-center text-sm font-bold text-gray-500">
+            No campsite found for current filters.
+        </div>
+        }
+        }
+    </div>
+
+    <div class="px-8 py-4 bg-emerald-50/30 border border-emerald-100 rounded-xl mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-emerald-500 text-lg">OK</span>
+            <p class="text-[10px] font-bold text-gray-500 italic">All destinations are verified for environmental
+                compliance and visitor safety protocols.</p>
+        </div>
+    </div>
+    } @else {
+    <div class="space-y-6 animate-fade-in">
+        <button (click)="closeDetails()"
+            class="flex items-center gap-2 text-[#617152] hover:text-[#1a2e1a] font-bold text-sm transition-colors mb-4">
+            <span>&lt;</span> Back to Destinations
+        </button>
+
+        <div class="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-emerald-900/5 overflow-hidden">
+            <div class="p-8 bg-[#2C4A3C] text-white flex justify-between items-end">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">Campsite Management
+                        Portal</p>
+                    <h2 class="text-4xl font-black">{{ selectedSite()?.name }}</h2>
+                    <p class="text-emerald-200/80 font-bold mt-1 flex items-center gap-2">
+                        <span>L</span> {{ selectedSite()?.location || selectedSite()?.city }}, Tunisia
+                    </p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <p class="text-3xl font-black">{{ selectedSite()?.price || selectedSite()?.pricePerNight }} DT
+                        </p>
+                        <p class="text-[10px] font-bold uppercase text-white/40">Base Per Night</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button (click)="deleteSite(selectedSite()!.id)" title="Delete Campsite"
+                            class="w-10 h-10 rounded-xl bg-white/10 hover:bg-red-500/80 text-white flex items-center justify-center transition-all">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex px-8 border-b border-gray-100 overflow-x-auto">
+                <button (click)="activeTab.set('general')"
+                    [class]="'px-6 py-4 text-sm font-black uppercase tracking-widest border-b-2 transition-all ' + (activeTab() === 'general' ? 'border-[#2C4A3C] text-[#2C4A3C]' : 'border-transparent text-gray-400 hover:text-gray-600')">
+                    General
+                </button>
+                <button (click)="activeTab.set('reviews')"
+                    [class]="'px-6 py-4 text-sm font-black uppercase tracking-widest border-b-2 transition-all ' + (activeTab() === 'reviews' ? 'border-[#2C4A3C] text-[#2C4A3C]' : 'border-transparent text-gray-400 hover:text-gray-600')">
+                    Reviews
+                </button>
+                <button (click)="activeTab.set('tours')"
+                    [class]="'px-6 py-4 text-sm font-black uppercase tracking-widest border-b-2 transition-all ' + (activeTab() === 'tours' ? 'border-[#2C4A3C] text-[#2C4A3C]' : 'border-transparent text-gray-400 hover:text-gray-600')">
+                    Virtual Tours
+                </button>
+                <button (click)="activeTab.set('certs')"
+                    [class]="'px-6 py-4 text-sm font-black uppercase tracking-widest border-b-2 transition-all ' + (activeTab() === 'certs' ? 'border-[#2C4A3C] text-[#2C4A3C]' : 'border-transparent text-gray-400 hover:text-gray-600')">
+                    Certifications
+                </button>
+            </div>
+
+            <div class="p-8">
+                @if (activeTab() === 'general') {
+                <app-site-general [site]="selectedSite()!" (save)="saveSite($event)" />
+                } @else if (activeTab() === 'reviews') {
+                <app-site-reviews [siteId]="selectedSite()!.id" />
+                } @else if (activeTab() === 'tours') {
+                <app-site-virtual-tours [siteId]="selectedSite()!.id" />
+                } @else if (activeTab() === 'certs') {
+                <app-site-certifications [siteId]="selectedSite()!.id" />
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>
