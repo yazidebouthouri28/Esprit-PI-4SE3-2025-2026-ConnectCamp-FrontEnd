@@ -70,6 +70,17 @@ export class AdminPanelComponent {
   }
 
   setSection(section: string) {
+    const externalRoutes: Record<string, string> = {
+      flagged_messages: '/admin/flagged-messages',
+      sponsor_assignment: '/admin/sponsorship-assignment',
+      throttle: '/admin/throttle',
+    };
+
+    if (externalRoutes[section]) {
+      this.router.navigate([externalRoutes[section]]);
+      return;
+    }
+
     this.activeSection.set(section);
   }
 

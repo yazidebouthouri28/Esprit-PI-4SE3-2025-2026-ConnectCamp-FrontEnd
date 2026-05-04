@@ -84,7 +84,7 @@ export class OrganizerGuard implements CanActivate {
 
   canActivate(): boolean {
     if (this.authService.isAuthenticated() &&
-      (this.authService.hasRole('ORGANIZER') || this.authService.hasRole('ADMIN'))) {
+      (this.authService.hasOrganizerAccess() || this.authService.hasRole('ADMIN'))) {
       return true;
     }
     this.router.navigate(['/auth/login']);
@@ -102,7 +102,7 @@ export class OrganizerOnlyGuard implements CanActivate {
       this.router.navigate(['/auth/login']);
       return false;
     }
-    if (this.authService.hasRole('ORGANIZER')) {
+    if (this.authService.hasOrganizerAccess()) {
       return true;
     }
     if (this.authService.isAdmin()) {

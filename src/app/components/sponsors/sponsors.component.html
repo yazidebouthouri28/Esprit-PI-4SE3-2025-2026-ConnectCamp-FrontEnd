@@ -8,10 +8,86 @@
                 A heartfelt thank you to all the sponsors who make ConnectCamp possible.
                 Their generous support helps us connect campers, hikers, and nature lovers across Tunisia.
             </p>
+            <button *ngIf="canManageSponsorships()" (click)="goToSponsorEvents()" 
+                    class="sponsor-dashboard-btn">
+                Manage Sponsorships
+            </button>
         </div>
     </section>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-glass">
+            <div class="search-box">
+                <i class="search-icon">🔍</i>
+                <input type="text" 
+                       [(ngModel)]="searchKeyword" 
+                       (input)="applyFilters()"
+                       placeholder="Search sponsors by name or description...">
+            </div>
+            
+            <div class="pill-filters">
+                <!-- Tier Filters -->
+                <div class="filter-group">
+                    <label>Filter by Tier</label>
+                    <div class="pill-group">
+                        <button [class.active]="selectedTier === ''" (click)="selectedTier = ''; applyFilters()">All</button>
+                        <button [class.active]="selectedTier === 'GOLD'" (click)="selectedTier = 'GOLD'; applyFilters()">Gold</button>
+                        <button [class.active]="selectedTier === 'SILVER'" (click)="selectedTier = 'SILVER'; applyFilters()">Silver</button>
+                        <button [class.active]="selectedTier === 'BRONZE'" (click)="selectedTier = 'BRONZE'; applyFilters()">Bronze</button>
+
+                    </div>
+                </div>
+                
+                <!-- Status Filters -->
+                <div class="filter-group">
+                    <label>Filter by Status</label>
+                    <div class="pill-group">
+                        <button [class.active]="selectedStatus === ''" (click)="selectedStatus = ''; applyFilters()">All</button>
+                        <button [class.active]="selectedStatus === 'ACTIVE'" (click)="selectedStatus = 'ACTIVE'; applyFilters()">Active</button>
+                        <button [class.active]="selectedStatus === 'INACTIVE'" (click)="selectedStatus = 'INACTIVE'; applyFilters()">Inactive</button>
+                    </div>
+                </div>
+
+                <!-- Location Filters -->
+                <div class="filter-group">
+                    <label>Quick Location</label>
+                    <div class="pill-group">
+                        <button [class.active]="selectedLocation === ''" (click)="selectedLocation = ''; applyFilters()">All</button>
+                        <button [class.active]="selectedLocation === 'Tunis'" (click)="selectedLocation = 'Tunis'; applyFilters()">Tunis</button>
+                        <button [class.active]="selectedLocation === 'Sousse'" (click)="selectedLocation = 'Sousse'; applyFilters()">Sousse</button>
+                        <button [class.active]="selectedLocation === 'Sfax'" (click)="selectedLocation = 'Sfax'; applyFilters()">Sfax</button>
+                        <div class="location-search">
+                            <input type="text" 
+                                   [(ngModel)]="selectedLocation" 
+                                   (input)="applyFilters()"
+                                   placeholder="Other location..."
+                                   class="mini-search">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="reset-fab" (click)="resetFilters()" *ngIf="searchKeyword || selectedTier || selectedStatus || selectedLocation">
+                    Clear All
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="sponsors-container">
+        <!-- Loading Spinner -->
+        <div class="loading-spinner-container" *ngIf="isLoading">
+            <div class="spinner"></div>
+            <p>Filtering spectacular partners...</p>
+        </div>
+
+        <!-- No Results message -->
+        <div class="no-results" *ngIf="!isLoading && goldSponsors.length === 0 && silverSponsors.length === 0 && bronzeSponsors.length === 0 && communityPartners.length === 0">
+            <div class="no-results-icon">🤷‍♂️</div>
+            <h3>No sponsors found matching your filters</h3>
+            <p>Try adjusting your search criteria or clearing filters.</p>
+            <button class="pricing-btn" (click)="resetFilters()">Clear All Filters</button>
+        </div>
 
         <!-- Gold Sponsors -->
         <section class="tier-section">
@@ -24,7 +100,7 @@
                 @for (sponsor of goldSponsors; track sponsor.name) {
                 <div class="sponsor-card gold-card">
                     <div class="card-image-wrapper">
-                        <img [src]="sponsor.logo" [alt]="sponsor.name" class="sponsor-logo-large" />
+                        <img [src]="resolveLogo(sponsor.logo)" [alt]="sponsor.name" class="sponsor-logo-large" />
                     </div>
                     <div class="card-body">
                         <h3 class="sponsor-name">{{ sponsor.name }}</h3>
@@ -48,7 +124,7 @@
             <div class="silver-grid">
                 @for (sponsor of silverSponsors; track sponsor.name) {
                 <div class="sponsor-card silver-card">
-                    <img [src]="sponsor.logo" [alt]="sponsor.name" class="sponsor-logo-medium" />
+                    <img [src]="resolveLogo(sponsor.logo)" [alt]="sponsor.name" class="sponsor-logo-medium" />
                     <div class="card-body">
                         <h3 class="sponsor-name">{{ sponsor.name }}</h3>
                         <p class="sponsor-desc">{{ sponsor.description }}</p>
@@ -71,7 +147,7 @@
             <div class="bronze-grid">
                 @for (sponsor of bronzeSponsors; track sponsor.name) {
                 <div class="sponsor-card bronze-card">
-                    <img [src]="sponsor.logo" [alt]="sponsor.name" class="sponsor-logo-small" />
+                    <img [src]="resolveLogo(sponsor.logo)" [alt]="sponsor.name" class="sponsor-logo-small" />
                     <h3 class="sponsor-name-small">{{ sponsor.name }}</h3>
                     <p class="sponsor-desc-small">{{ sponsor.description }}</p>
                 </div>

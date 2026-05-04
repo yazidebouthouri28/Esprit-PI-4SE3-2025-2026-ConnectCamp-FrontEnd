@@ -1,18 +1,19 @@
-<div *ngIf="currentUser && activeGroup; else loading" class="community-hub-container flex h-screen bg-cream-beige overflow-hidden">
+<div *ngIf="currentUser && activeGroup; else loading"
+    class="community-hub-container flex h-screen bg-cream-beige overflow-hidden">
     <!-- Left Sidebar (Users & Messages) -->
     <aside class="w-80 border-r border-olive-green/20 flex flex-col bg-white/50 backdrop-blur-md">
         <!-- Profile Section -->
         <div class="p-6 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="relative">
-                    <img [src]="currentUser?.avatar" class="w-12 h-12 rounded-full border-2 border-forest-green"
+                    <img [src]="currentUser.avatar" class="w-12 h-12 rounded-full border-2 border-forest-green"
                         alt="Profile">
                     <span
                         class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                 </div>
                 <div>
-                    <h2 class="font-bold text-forest-green leading-tight">{{currentUser?.name}}</h2>
-                    <p class="text-xs text-olive-green">{{currentUser?.role}}</p>
+                    <h2 class="font-bold text-forest-green leading-tight">{{currentUser.name}}</h2>
+                    <p class="text-xs text-olive-green">{{currentUser.role}}</p>
                 </div>
             </div>
             <button class="text-olive-green hover:text-forest-green">
@@ -61,7 +62,8 @@
 
             <!-- Test button – now visible and styled -->
             <div class="px-2 mb-4">
-                <button (click)="testApi()" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition">
+                <button (click)="testApi()"
+                    class="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 transition">
                     Test API
                 </button>
             </div>
@@ -82,7 +84,7 @@
             <div class="space-y-1">
                 <div *ngFor="let chat of recentChats" (click)="switchChat(chat)"
                     class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer hover:bg-cream-beige/80 transition-all"
-                    [ngClass]="{'bg-cream-beige/80': chat.id === activeGroup?.id}">
+                    [ngClass]="{'bg-cream-beige/80': chat.id === activeGroup.id}">
                     <div class="relative">
                         <img [src]="chat.avatar" class="w-11 h-11 rounded-full object-cover">
                         <span *ngIf="chat.type === 'typing'"
@@ -111,27 +113,27 @@
         <!-- Chat Header -->
         <header class="h-20 border-b border-olive-green/10 px-8 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <img [src]="activeGroup?.avatar" class="w-12 h-12 rounded-full border-2 border-olive-green/20"
-                    [alt]="activeGroup?.name">
+                <img [src]="activeGroup.avatar" class="w-12 h-12 rounded-full border-2 border-olive-green/20"
+                    [alt]="activeGroup.name">
                 <div>
-                    <h2 class="font-bold text-forest-green">{{activeGroup?.name}}</h2>
-                    <p class="text-xs text-olive-green">{{activeGroup?.description}}</p>
+                    <h2 class="font-bold text-forest-green">{{activeGroup.name}}</h2>
+                    <p class="text-xs text-olive-green">{{activeGroup.description}}</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
                 <div class="flex -space-x-3 ml-2">
-                    <img *ngFor="let member of activeGroup?.members?.slice(0, 3)" [src]="member.avatar"
+                    <img *ngFor="let member of activeGroup.members.slice(0, 3)" [src]="member.avatar"
                         class="w-10 h-10 rounded-full border-2 border-white">
                     <div
                         class="w-10 h-10 bg-cream-beige text-olive-green text-xs font-bold flex items-center justify-center rounded-full border-2 border-white">
-                        +{{(activeGroup?.membersCount || 0) - 3}}</div>
+                        +{{(activeGroup.membersCount || 0) - 3}}</div>
                 </div>
             </div>
         </header>
 
         <!-- Messages Area -->
         <div class="flex-1 overflow-y-auto p-8 space-y-8">
-            <div *ngFor="let msg of activeGroup?.messages" class="flex items-start gap-4"
+            <div *ngFor="let msg of activeGroup.messages" class="flex items-start gap-4"
                 [ngClass]="{'flex-row-reverse': isCurrentUser(msg.senderId)}">
                 <img [src]="getSender(msg.senderId)?.avatar"
                     class="w-10 h-10 rounded-full cursor-pointer hover:opacity-80 transition-opacity"
@@ -147,6 +149,15 @@
                     <div *ngIf="msg.type === 'text'" class="p-4 rounded-2xl shadow-sm text-sm"
                         [ngClass]="isCurrentUser(msg.senderId) ? 'bg-forest-green text-white rounded-tr-none' : 'bg-cream-beige/50 text-forest-green rounded-tl-none'">
                         {{msg.content}}
+                    </div>
+
+                    <!-- Sentiment Badge -->
+                    <div *ngIf="msg.sentimentLabel" class="mt-1 flex items-center gap-1"
+                        [ngClass]="isCurrentUser(msg.senderId) ? 'justify-end' : 'justify-start'">
+                        <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full border"
+                              [ngClass]="getSentimentClass(msg.sentimentLabel)">
+                            {{getSentimentIcon(msg.sentimentLabel)}} {{msg.sentimentLabel}} ({{formatSentimentScore(msg.sentimentScore)}})
+                        </span>
                     </div>
 
                     <!-- Image Message -->
@@ -210,7 +221,7 @@
         <!-- Group Profile -->
         <div class="p-8 text-center border-b border-olive-green/5 bg-cream-beige/20">
             <div class="relative inline-block mb-4">
-                <img [src]="activeGroup?.avatar"
+                <img [src]="activeGroup.avatar"
                     class="w-32 h-32 rounded-[2.5rem] border-4 border-white shadow-xl object-cover rotate-3 hover:rotate-0 transition-transform duration-500">
                 <div
                     class="absolute -bottom-1 -right-1 w-8 h-8 bg-forest-green text-white rounded-2xl flex items-center justify-center border-2 border-white shadow-lg">
@@ -220,8 +231,8 @@
                     </svg>
                 </div>
             </div>
-            <h2 class="text-xl font-black text-forest-green tracking-tight leading-tight">{{activeGroup?.name}}</h2>
-            <p class="text-xs font-bold text-olive-green mt-1 uppercase tracking-widest">{{activeGroup?.membersCount}}
+            <h2 class="text-xl font-black text-forest-green tracking-tight leading-tight">{{activeGroup.name}}</h2>
+            <p class="text-xs font-bold text-olive-green mt-1 uppercase tracking-widest">{{activeGroup.membersCount}}
                 Members</p>
         </div>
 
@@ -229,7 +240,7 @@
         <div class="p-6">
             <h3 class="text-xs font-black text-forest-green uppercase tracking-widest mb-3 opacity-50">About</h3>
             <p class="text-sm text-forest-green/80 leading-relaxed font-medium">
-                {{activeGroup?.description}}
+                {{activeGroup.description}}
             </p>
         </div>
 
@@ -241,7 +252,7 @@
                     All</button>
             </div>
             <div class="space-y-4">
-                <div *ngFor="let member of activeGroup?.members" (click)="viewProfile(member)"
+                <div *ngFor="let member of activeGroup.members" (click)="viewProfile(member)"
                     class="flex items-center justify-between group cursor-pointer hover:bg-cream-beige/30 p-2 rounded-2xl transition-all">
                     <div class="flex items-center gap-3">
                         <div class="relative">
@@ -276,7 +287,7 @@
                             </svg>
                         </div>
                         <p class="text-[10px] font-black text-forest-green uppercase tracking-tighter">
-                            {{activeGroup?.mediaCount?.docs}} Docs</p>
+                            {{activeGroup.mediaCount.docs}} Docs</p>
                     </div>
                     <div
                         class="p-3 rounded-2xl bg-cream-beige/30 hover:bg-cream-beige/50 transition-colors cursor-pointer border border-olive-green/5">
@@ -291,7 +302,7 @@
                             </svg>
                         </div>
                         <p class="text-[10px] font-black text-forest-green uppercase tracking-tighter">
-                            {{activeGroup?.mediaCount?.photos}} Photos</p>
+                            {{activeGroup.mediaCount.photos}} Photos</p>
                     </div>
                 </div>
             </div>
@@ -299,6 +310,10 @@
     </aside>
 </div>
 
+<ng-template #loading>
+    <div class="flex items-center justify-center h-screen text-forest-green">
+        Loading community...
+    </div>
 <ng-template #loading>
     <div class="flex items-center justify-center h-screen text-forest-green">
         Loading community...

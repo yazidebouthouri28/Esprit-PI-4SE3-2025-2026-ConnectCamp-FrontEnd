@@ -30,3 +30,63 @@
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(44, 74, 60, 0.2);
 }
+
+@keyframes galleryIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-gallery-in {
+    animation: galleryIn 0.3s ease-out forwards;
+}
+
+/* Play Store Style Reviews */
+.review-card {
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.review-card:hover {
+    transform: translateX(4px);
+}
+
+.review-card:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    padding-bottom: 2.5rem;
+}
+
+textarea:focus {
+    box-shadow: 0 4px 20px rgba(44, 74, 60, 0.05);
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
+/* Avatar colors based on initials (aesthetic only for now) */
+.review-card:nth-child(4n+1) .rounded-full {
+    background: #2C4A3C;
+}
+
+.review-card:nth-child(4n+2) .rounded-full {
+    background: #606C38;
+}
+
+.review-card:nth-child(4n+3) .rounded-full {
+    background: #BC6C25;
+}
+
+.review-card:nth-child(4n+4) .rounded-full {
+    background: #DDA15E;
+}
+
+/* Desktop side padding for better readability */
+@media (min-width: 640px) {
+    .review-card {
+        padding-right: 2rem;
+    }
+}

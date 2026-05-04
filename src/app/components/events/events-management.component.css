@@ -1,1 +1,262 @@
-/* component styles */
+/* Premium Filter Bar (Ported from Campsites) */
+.price-slider-panel {
+    width: 100%;
+    max-width: 440px;
+    flex-shrink: 0;
+}
+
+.range-inputs {
+    position: relative;
+    height: 28px;
+}
+
+.range-inputs input[type='range'] {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 6px;
+    margin: 0;
+    top: 10px;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    z-index: 2;
+}
+
+.range-inputs input[type='range']::-webkit-slider-thumb {
+    pointer-events: auto;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid #255646;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    cursor: grab;
+}
+
+.range-inputs input[type='range']:last-of-type::-webkit-slider-thumb {
+    border-color: #255646;
+}
+
+.range-inputs input[type='range']::-moz-range-thumb {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid #255646;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    cursor: grab;
+}
+
+.range-inputs input[type='range']:last-of-type::-moz-range-thumb {
+    border-color: #255646;
+}
+
+.range-track-bg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 10px;
+    height: 6px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    z-index: 0;
+}
+
+.range-track-fill {
+    position: absolute;
+    top: 10px;
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #255646 0%, #4a8c7a 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.sort-dropdown {
+    position: relative;
+}
+
+.sort-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.sort-trigger:hover {
+    border-color: #255646;
+    color: #255646;
+    box-shadow: 0 2px 8px rgba(37, 86, 70, 0.12);
+}
+
+.sort-trigger.open {
+    border-color: #255646;
+    background: linear-gradient(135deg, #255646 0%, #3a7a67 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(37, 86, 70, 0.25);
+}
+
+.sort-trigger-icon {
+    font-size: 15px;
+    line-height: 1;
+}
+
+.sort-chevron {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    opacity: 0.7;
+}
+
+.sort-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+.sort-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 200;
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 6px;
+    min-width: 170px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.sort-panel.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.sort-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.sort-option:hover {
+    background: #f3f4f6;
+    color: #255646;
+}
+
+.sort-option.active {
+    background: linear-gradient(135deg, #255646 0%, #3a7a67 100%);
+    color: #fff;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #4b5563;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.filter-chip:hover {
+    background: #f7f5f0;
+    border-color: #255646;
+}
+
+.filter-chip:has(input:checked) {
+    background: #255646;
+    border-color: #255646;
+    color: #fff;
+}
+
+.animate-bounce-subtle {
+    animation: bounce-subtle 2s infinite;
+}
+
+@keyframes bounce-subtle {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+.recommendation-vertical-progress {
+    position: absolute;
+    right: 20px;
+    top: 96px;
+    bottom: 92px;
+    width: 8px;
+    border-radius: 999px;
+    background: rgba(250, 204, 21, 0.25);
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    overflow: hidden;
+    z-index: 30;
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.18);
+}
+
+.recommendation-vertical-progress__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fde68a 0%, #facc15 45%, #f59e0b 100%);
+    transition: height 0.1s linear;
+}
+
+.recommendation-vertical-progress__seconds {
+    position: absolute;
+    right: 10px;
+    bottom: 64px;
+    z-index: 30;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #fef08a;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.65);
+}

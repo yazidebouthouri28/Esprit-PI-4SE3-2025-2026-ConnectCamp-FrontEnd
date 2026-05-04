@@ -8,7 +8,11 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../models/api.models';
 import { Site } from '../../models/camping.models';
 import { SiteService } from '../../services/site.service';
-import { GamificationService, Gamification } from '../../services/gamification.service';
+import { GamificationService } from '../../services/gamification.service';
+import { Badge } from '../../models/gamification.models';
+import { extractPagedContent, isUnreachableApiRoute } from '../../utils/http-api-fallback';
+import { EventService, MLPredictionResponse } from '../../services/event.service';
+import { NotificationService } from '../../services/notification.service';
 
 interface AdminEvent {
     id: number;
@@ -34,8 +38,14 @@ interface AdminEvent {
     organizerName: string;
     siteId: number | null;
     siteName: string;
+    gamifications?: Badge[];
 }
 
+interface Participant {
+    id: number;
+    user: any;
+    status: string;
+}
 
 interface EventForm {
     title: string;             // CHANGED: from 'name' to 'title'
@@ -49,6 +59,7 @@ interface EventForm {
     price: number | null;
     isFree: boolean;
     picture: string;
+    images: string[];          // ADDED
     status: string;
     organizerId: number | null;
     siteId: number | null;
@@ -70,6 +81,8 @@ export class OrganizerEventsComponent implements OnInit {
     private authService = inject(AuthService);
     private siteService = inject(SiteService);
     private gamificationService = inject(GamificationService);
+    private eventService = inject(EventService);
+    private notifications = inject(NotificationService);
 
     private apiUrl = `${environment.apiUrl}/api/events`;
     private uploadUrl = `${environment.apiUrl}/api/files/upload`;
@@ -84,17 +97,125 @@ export class OrganizerEventsComponent implements OnInit {
     deleteMode = false;
     selectedEventIds = new Set<number>();
     imagePreview: string | null = null;
+    imagePreviews: string[] = []; // Store multiple previews
     selectedFileName = '';
     selectedFile: File | null = null;
+    selectedFiles: File[] = [];   // Store multiple files
+    uploadedImages: string[] = []; // Store names of already uploaded images (for edits)
     imageError = '';
+    isUploading = false;
     activeActionMenu: number | null = null;
     editingEventId: number | null = null;
     otherEventType = '';
     otherCategory = '';
     myOrganizerId: number | null = null;
-    availableBadges: Gamification[] = [];
+    availableBadges: Badge[] = [];
     selectedBadgeIds = new Set<number>();
+    selectedBadgeMedalFilter: 'ALL' | 'COMMUNITY' | 'SCIENCE' | 'SCOUT' = 'ALL';
     availableSites: Site[] = [];
+
+    showPrediction = false;
+    predictionLoading = false;
+    predictedAttendees: number | null = null;
+    predictedPopularity: string | null = null;
+    suggestedBadge: string | null = null;
+    private predictTimer: any = null;
+
+
+
+    onPredictionInputChange() {
+        if (this.predictTimer) {
+            clearTimeout(this.predictTimer);
+        }
+        this.predictTimer = setTimeout(() => this.predictNow(), 350);
+    }
+
+    private predictNow() {
+        const category = (this.newEvent.category === 'Other'
+            ? this.otherCategory
+            : this.newEvent.category) || '';
+
+        const eventType = (this.newEvent.eventType === 'Other'
+            ? this.otherEventType
+            : this.newEvent.eventType) || '';
+
+        const start = this.parseLocalDateTime(this.newEvent.startDate);
+        const end = this.parseLocalDateTime(this.newEvent.endDate);
+
+        // ✅ Require category AND event type AND start date before predicting
+        if (!category || !eventType || !start) {
+            this.showPrediction = false;
+            return;
+        }
+
+        // ✅ Duration: only compute if end is valid AND after start
+        const durationHours = (end && start && end.getTime() > start.getTime())
+            ? Math.max(1, Math.round((end.getTime() - start.getTime()) / 3600000))
+            : 2;
+
+        // Location: keep real input so backend can provide a meaningful fallback estimate if ML model rejects the label.
+        const state = (this.newEvent.location || '').trim() || 'Tunis';
+
+        // ✅ Price: handle null explicitly
+        const price = this.newEvent.isFree
+            ? 0
+            : (this.newEvent.price != null ? Number(this.newEvent.price) : 0);
+
+        const request = {
+            category,
+            event_type: eventType,
+            state,
+            hour: start.getHours(),
+            month: start.getMonth() + 1,
+            day_of_week: this.toMondayFirstDayOfWeek(start.getDay()),
+            duration_hours: durationHours,
+            price
+        };
+
+        this.predictionLoading = true;
+        this.showPrediction = false; // hide stale result while loading
+
+        this.eventService.predictEvent(request).subscribe({
+            next: (prediction: MLPredictionResponse) => {
+                this.showPrediction = true;
+                const rawPred = Number(prediction.predicted_attendees ?? 0);
+                const max = Number(this.newEvent.maxParticipants ?? 0);
+                this.predictedAttendees = (max > 0) ? Math.min(rawPred, max) : rawPred;
+                this.predictedPopularity = String(prediction.popularity ?? '');
+                this.suggestedBadge = String(prediction.badge_suggestion ?? '');
+                this.predictionLoading = false;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.predictionLoading = false;
+                this.showPrediction = false;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    private parseLocalDateTime(value: string | null | undefined): Date | null {
+        const raw = String(value ?? '').trim();
+        if (!raw) return null;
+        const d = new Date(raw);
+        return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    private toMondayFirstDayOfWeek(jsDay: number): number {
+        return (jsDay + 6) % 7;
+    }
+
+
+
+
+    // Participant Management
+    showParticipantsModal = false;
+    participants: Participant[] = [];
+    currentParticipantsEvent: AdminEvent | null = null;
+    selectedParticipantIds = new Set<number>();
+    awardBadgeModalOpen = false;
+    badgeToAwardId: number | null = null;
+    eventAssociatedBadges: Badge[] = [];
 
     private readonly ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
     private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -111,6 +232,7 @@ export class OrganizerEventsComponent implements OnInit {
         price: null,
         isFree: false,
         picture: '',
+        images: [],             // ADDED
         status: 'PUBLISHED',
         organizerId: null,
         siteId: null,
@@ -170,6 +292,17 @@ export class OrganizerEventsComponent implements OnInit {
                         }
                     }, 100);
                     setTimeout(() => clearInterval(checkInterval), 3000);
+                } else if (action === 'award-badges' && id) {
+                    const checkInterval = setInterval(() => {
+                        if (!this.loading) {
+                            const eventToAward = this.events.find(e => e.id === Number(id));
+                            if (eventToAward) {
+                                this.openParticipantsModal(eventToAward);
+                            }
+                            clearInterval(checkInterval);
+                        }
+                    }, 100);
+                    setTimeout(() => clearInterval(checkInterval), 3000);
                 }
             });
         });
@@ -177,7 +310,7 @@ export class OrganizerEventsComponent implements OnInit {
 
     private resolveOrganizerId(done: () => void) {
         const user = this.authService.getCurrentUser();
-        if (!user || user.role !== 'ORGANIZER') {
+        if (!user || !this.authService.hasOrganizerAccess()) {
             this.errorMessage = 'Organizer access required.';
             this.loading = false;
             this.cdr.detectChanges();
@@ -261,7 +394,8 @@ export class OrganizerEventsComponent implements OnInit {
                         organizerId: e.organizerId || null,
                         organizerName: e.organizerName || '',
                         siteId: e.siteId || null,
-                        siteName: e.siteName || ''
+                        siteName: e.siteName || '',
+                        gamifications: e.gamifications || []
                     }));
                 this.loading = false;
                 this.cdr.detectChanges();
@@ -276,12 +410,12 @@ export class OrganizerEventsComponent implements OnInit {
     }
 
     loadAvailableBadges() {
-        this.gamificationService.getAll().subscribe({
-            next: (data) => {
+        this.gamificationService.getBadges().subscribe({
+            next: (data: Badge[]) => {
                 this.availableBadges = data;
                 this.cdr.detectChanges();
             },
-            error: (err) => console.error('Failed to load badges:', err)
+            error: (err: any) => console.error('Failed to load badges:', err)
         });
     }
 
@@ -309,6 +443,39 @@ export class OrganizerEventsComponent implements OnInit {
             this.newEvent.siteId = null;
         }
         this.cdr.detectChanges();
+    }
+
+    setBadgeMedalFilter(filter: 'ALL' | 'COMMUNITY' | 'SCIENCE' | 'SCOUT'): void {
+        this.selectedBadgeMedalFilter = filter;
+    }
+
+    get filteredAvailableBadges(): Badge[] {
+        if (this.selectedBadgeMedalFilter === 'ALL') {
+            return this.availableBadges;
+        }
+        return this.availableBadges.filter((badge) => {
+            const medal = (badge.medalName || '').toLowerCase();
+            if (this.selectedBadgeMedalFilter === 'COMMUNITY') return medal.includes('community leadership');
+            if (this.selectedBadgeMedalFilter === 'SCIENCE') return medal.includes('science and arts');
+            if (this.selectedBadgeMedalFilter === 'SCOUT') return medal.includes('scout leadership');
+            return true;
+        });
+    }
+
+    resolveBadgeIcon(icon?: string): string {
+        const clean = (icon || '').trim();
+        if (!clean) {
+            return 'assets/images/Badge/placeholder.png';
+        }
+        if (
+            clean.startsWith('http://') ||
+            clean.startsWith('https://') ||
+            clean.startsWith('/') ||
+            clean.startsWith('assets/')
+        ) {
+            return clean;
+        }
+        return `assets/images/Badge/${clean}`;
     }
 
     formatSiteLabel(site: Site): string {
@@ -351,11 +518,11 @@ export class OrganizerEventsComponent implements OnInit {
         return map[type] || 'Workshop';
     }
 
-    private mapStatus(status: string): 'Published' | 'Draft' {
-        switch (status) {
-            case 'PUBLISHED': return 'Published';
-            default: return 'Draft';
-        }
+    private mapStatus(status: string): 'Published' | 'Draft' | 'Completed' {
+        const s = (status || '').toUpperCase();
+        if (s === 'PUBLISHED') return 'Published';
+        if (s === 'COMPLETED') return 'Completed';
+        return 'Draft';
     }
 
     getCategoryIcon(category: string): string {
@@ -402,6 +569,7 @@ export class OrganizerEventsComponent implements OnInit {
             price: null,
             isFree: false,
             picture: '',
+            images: [],             // ADDED
             status: 'PUBLISHED',
             organizerId: null,
             siteId: null,
@@ -430,44 +598,73 @@ export class OrganizerEventsComponent implements OnInit {
         }
     }
 
+    // -1 => main picture, 0..n => gallery images
+    currentUploadSlot: number | null = null;
+
+    prepareMainUpload() {
+        this.currentUploadSlot = -1;
+    }
+
+    handleGalleryUpload(slotIndex: number) {
+        this.currentUploadSlot = slotIndex;
+        const fileInput = document.getElementById('fileUpload') as HTMLInputElement;
+        if (fileInput) fileInput.click();
+    }
+
     onFileSelected(event: Event) {
         const input = event.target as HTMLInputElement;
         this.imageError = '';
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
+        if (input.files && input.files.length) {
+            const files = Array.from(input.files);
+            for (const file of files) {
+                if (!this.ALLOWED_TYPES.includes(file.type)) {
+                    this.imageError = `Invalid file type "${file.type || 'unknown'}". Only JPG, PNG, and WebP are allowed.`;
+                    input.value = '';
+                    return;
+                }
 
-            if (!this.ALLOWED_TYPES.includes(file.type)) {
-                this.imageError = `Invalid file type "${file.type || 'unknown'}". Only JPG, PNG, and WebP are allowed.`;
-                input.value = '';
-                return;
+                if (file.size > this.MAX_FILE_SIZE) {
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                    this.imageError = `File is too large (${sizeMB}MB). Maximum allowed size is 5MB.`;
+                    input.value = '';
+                    return;
+                }
+
+                this.selectedFiles.push(file);
+                this.imagePreviews.push(URL.createObjectURL(file));
             }
-
-            if (file.size > this.MAX_FILE_SIZE) {
-                const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-                this.imageError = `File is too large (${sizeMB}MB). Maximum allowed size is 5MB.`;
-                input.value = '';
-                return;
-            }
-
-            if (this.imagePreview) {
-                URL.revokeObjectURL(this.imagePreview);
-            }
-
-            this.selectedFile = file;
-            this.selectedFileName = file.name;
-            this.imagePreview = URL.createObjectURL(file);
-            this.newEvent.picture = file.name;
-            input.value = '';
+            this.imagePreview = this.imagePreviews[0] || null;
+            this.newEvent.picture = this.selectedFiles[0]?.name || '';
+            input.value = ''; // Reset to allow re-selection
         }
     }
 
-    removeImage() {
-        if (this.imagePreview) {
-            URL.revokeObjectURL(this.imagePreview);
+    removeImageAtIndex(index: number): void {
+        if (this.imagePreviews[index]?.startsWith('blob:')) {
+            URL.revokeObjectURL(this.imagePreviews[index]);
         }
+
+        const existingCount = this.uploadedImages.length;
+        if (index < existingCount) {
+            this.uploadedImages.splice(index, 1);
+        } else {
+            this.selectedFiles.splice(index - existingCount, 1);
+        }
+
+        this.imagePreviews.splice(index, 1);
+        this.imagePreview = this.imagePreviews[0] || null;
+        this.newEvent.picture = this.uploadedImages[0] || this.selectedFiles[0]?.name || '';
+        this.cdr.detectChanges();
+    }
+
+    removeImage() {
+        this.imagePreviews.forEach(p => {
+            if (p.startsWith('blob:')) URL.revokeObjectURL(p);
+        });
+        this.imagePreviews = [];
         this.imagePreview = null;
-        this.selectedFileName = '';
-        this.selectedFile = null;
+        this.selectedFiles = [];
+        this.uploadedImages = [];
         this.newEvent.picture = '';
         this.imageError = '';
     }
@@ -486,33 +683,42 @@ export class OrganizerEventsComponent implements OnInit {
             finalCategory = this.otherCategory.trim() || 'Other';
         }
 
-        if (!this.newEvent.picture && !this.imagePreview) {
+        if (this.editingEventId === null && !this.newEvent.picture && !this.imagePreview) {
             this.modalErrorMessage = 'L\'image de l\'événement est obligatoire.';
             return;
         }
 
         this.loading = true;
 
-        if (this.selectedFile) {
-            const formData = new FormData();
-            formData.append('file', this.selectedFile);
-
-            this.http.post<any>(this.uploadUrl, formData).subscribe({
-                next: (res) => {
-                    this.newEvent.picture = res.data.fileName;
-                    this.selectedFile = null;
-                    this.proceedWithSubmit(finalEventType, finalCategory);
-                },
-                error: (err) => {
-                    console.error('Upload failed:', err);
-                    this.modalErrorMessage = 'Échec du chargement de l\'image.';
-                    this.loading = false;
-                    this.cdr.detectChanges();
-                }
-            });
+        if (this.selectedFiles.length > 0) {
+            this.uploadFilesBeforeSubmit(0, [], finalEventType, finalCategory);
         } else {
             this.proceedWithSubmit(finalEventType, finalCategory);
         }
+    }
+
+    private uploadFilesBeforeSubmit(index: number, uploaded: string[], finalEventType: string, finalCategory: string): void {
+        if (index >= this.selectedFiles.length) {
+            this.uploadedImages = [...this.uploadedImages, ...uploaded];
+            this.proceedWithSubmit(finalEventType, finalCategory);
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', this.selectedFiles[index]);
+        this.http.post<any>(this.uploadUrl, formData).subscribe({
+            next: (res) => {
+                if (res?.data?.fileName) {
+                    uploaded.push(res.data.fileName);
+                }
+                this.uploadFilesBeforeSubmit(index + 1, uploaded, finalEventType, finalCategory);
+            },
+            error: (err) => {
+                console.error('Upload failed:', err);
+                this.modalErrorMessage = 'Échec du chargement des images.';
+                this.loading = false;
+                this.cdr.detectChanges();
+            }
+        });
     }
 
     private proceedWithSubmit(finalEventType: string, finalCategory: string) {
@@ -520,13 +726,11 @@ export class OrganizerEventsComponent implements OnInit {
 
         if (organizerId == null) {
             this.modalErrorMessage = 'Organizer profile not found. Please sign in again with your organizer account.';
-            this.loading = false;
             return;
         }
         // Validate required fields
         if (!this.newEvent.title) {
             this.modalErrorMessage = 'Le titre de l\'événement est obligatoire.';
-            this.loading = false;
             return;
         }
 
@@ -534,21 +738,20 @@ export class OrganizerEventsComponent implements OnInit {
         const typeNeedsLocation = ['TRIP', 'CAMPING', 'HIKING'].includes(finalEventType.toUpperCase());
         if (typeNeedsLocation && !this.newEvent.location) {
             this.modalErrorMessage = 'Le lieu est obligatoire pour ce type d\'événement.';
-            this.loading = false;
             this.cdr.detectChanges();
             return;
         }
 
         if (!this.newEvent.startDate) {
             this.modalErrorMessage = 'La date de début est obligatoire.';
-            this.loading = false;
             return;
         }
         if (!this.newEvent.endDate) {
             this.modalErrorMessage = 'La date de fin est obligatoire.';
-            this.loading = false;
             return;
         }
+
+        this.loading = true;
 
         // Format dates: ensure they end with ':00' for seconds
         const startDateFormatted = this.newEvent.startDate.includes(':') ?
@@ -558,7 +761,10 @@ export class OrganizerEventsComponent implements OnInit {
             (this.newEvent.endDate.length === 16 ? this.newEvent.endDate + ':00' : this.newEvent.endDate) :
             this.newEvent.endDate;
 
-        const normalizedPicture = this.normalizeStoredImagePath(this.newEvent.picture);
+        const normalizedImages = (this.uploadedImages.length ? this.uploadedImages : (this.newEvent.picture ? [this.newEvent.picture] : []))
+            .map((path) => this.normalizeStoredImagePath(path))
+            .filter((path) => !!path);
+
         const payload: Record<string, unknown> = {
             title: this.newEvent.title,
             description: this.newEvent.description,
@@ -570,8 +776,9 @@ export class OrganizerEventsComponent implements OnInit {
             maxParticipants: this.newEvent.maxParticipants,
             price: this.newEvent.price,
             isFree: this.newEvent.isFree,
-            thumbnail: normalizedPicture,
-            images: normalizedPicture ? [normalizedPicture] : [],
+            thumbnail: normalizedImages[0] || '',
+            picture: normalizedImages[0] || '',
+            images: normalizedImages,
             status: this.newEvent.status,
             organizerId
         };
@@ -603,7 +810,7 @@ export class OrganizerEventsComponent implements OnInit {
                 }
             });
         } else {
-            this.http.post<any>(`${this.apiUrl}`, payload).subscribe({
+            this.eventService.createEvent(payload).subscribe({
                 next: () => {
                     this.loadEvents();
                     this.showAddForm = false;
@@ -627,6 +834,7 @@ export class OrganizerEventsComponent implements OnInit {
     getStatusClass(status: string): string {
         switch (status) {
             case 'Published': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            case 'Completed': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'Draft': return 'bg-slate-100 text-slate-700 border-slate-200';
             default: return 'bg-gray-100 text-gray-700';
         }
@@ -694,26 +902,44 @@ export class OrganizerEventsComponent implements OnInit {
         this.closeActionMenu();
         this.editingEventId = event.id;
 
+        // Reset and populate images for the premium grid
+        this.uploadedImages = [];
+        this.imagePreviews = [];
+        this.selectedFiles = [];
+
+        if ((event as any).images && Array.isArray((event as any).images) && (event as any).images.length > 0) {
+            this.uploadedImages = [...(event as any).images];
+        } else if (event.picture) {
+            this.uploadedImages = [event.picture];
+        }
+
+        this.imagePreviews = this.uploadedImages.map(img => this.resolveStoredImageUrl(img));
+
         this.newEvent = {
-            title: event.name || event.title,        // CHANGED
-            description: event.description,
-            eventType: event.eventType,
-            category: event.category,
-            startDate: event.startDate ? event.startDate.substring(0, 16) : '', // ADDED
+            title: event.name || event.title,
+            description: event.description || '',
+            eventType: event.eventType || '',
+            category: event.category || '',
+            startDate: event.startDate ? event.startDate.substring(0, 16) : '',
             endDate: event.endDate ? event.endDate.substring(0, 16) : '',
-            location: event.location,
-            maxParticipants: event.capacity,
-            price: event.price,
-            isFree: event.isFree,
-            picture: event.picture,
-            status: (event.status === 'PUBLISHED' || event.status === 'Published') ? 'PUBLISHED' : 'DRAFT',
+            location: event.location || '',
+            maxParticipants: event.capacity || null,
+            price: event.price || 0,
+            isFree: event.isFree || false,
+            picture: event.picture || '',
+            images: this.uploadedImages,
+            status: (() => {
+                const s = (event.status || '').toUpperCase();
+                if (s === 'COMPLETED') return 'COMPLETED';
+                if (s === 'PUBLISHED') return 'PUBLISHED';
+                return 'DRAFT';
+            })(),
             organizerId: event.organizerId,
             siteId: event.siteId,
             gamificationIds: []
         };
 
-        const originalEvent = this.events.find(e => e.id === event.id);
-        // We need to get the real event object which has gamifications
+        // ... existing badge loading logic ...
         this.http.get<ApiResponse<any>>(`${this.apiUrl}/${event.id}`).subscribe({
             next: (res) => {
                 const gams = res.data?.gamifications || [];
@@ -784,7 +1010,7 @@ export class OrganizerEventsComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    private resolveStoredImageUrl(path: string): string {
+    public resolveStoredImageUrl(path: string): string {
         if (!path) return '';
         if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:')) {
             return path;
@@ -816,5 +1042,98 @@ export class OrganizerEventsComponent implements OnInit {
             }
         }
         return path.replace(/^\/+/, '');
+    }
+
+    openParticipantsModal(event: AdminEvent) {
+        this.currentParticipantsEvent = event;
+        this.loading = true;
+        this.http.get<ApiResponse<Participant[]>>(`${this.apiUrl}/${event.id}/participants`).subscribe({
+            next: (res) => {
+                this.participants = res.data || [];
+                this.eventAssociatedBadges = event.gamifications || [];
+                this.showParticipantsModal = true;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                if (isUnreachableApiRoute(err)) {
+                    this.http.get<any>(`${environment.apiUrl}/api/participants/event/${event.id}?page=0&size=500`).subscribe({
+                        next: (legacyRes) => {
+                            const rows = extractPagedContent(legacyRes);
+                            this.participants = rows.map((p: any) => ({
+                                id: Number(p.id ?? 0),
+                                status: String(p.status ?? 'UNKNOWN'),
+                                user: {
+                                    id: Number(p.userId ?? p.user?.id ?? 0),
+                                    username: p.userName || p.name || p.user?.username || 'Unknown User',
+                                    email: p.email || p.user?.email || ''
+                                }
+                            }));
+                            this.eventAssociatedBadges = event.gamifications || [];
+                            this.showParticipantsModal = true;
+                            this.loading = false;
+                            this.modalErrorMessage = '';
+                            this.cdr.detectChanges();
+                        },
+                        error: (legacyErr) => {
+                            console.error('Failed to load participants (legacy fallback):', legacyErr);
+                            this.loading = false;
+                            this.modalErrorMessage = legacyErr.error?.message || 'Failed to load participants.';
+                            this.cdr.detectChanges();
+                        }
+                    });
+                    return;
+                }
+                console.error('Failed to load participants:', err);
+                this.loading = false;
+                this.modalErrorMessage = err.error?.message || 'Failed to load participants.';
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    closeParticipantsModal() {
+        this.showParticipantsModal = false;
+        this.currentParticipantsEvent = null;
+        this.selectedParticipantIds.clear();
+    }
+
+    toggleParticipantSelection(id: number) {
+        if (this.selectedParticipantIds.has(id)) {
+            this.selectedParticipantIds.delete(id);
+        } else {
+            this.selectedParticipantIds.add(id);
+        }
+    }
+
+    awardBadges() {
+        if (this.selectedParticipantIds.size === 0) return;
+        if (!this.badgeToAwardId) {
+            alert('Please select a badge to award.');
+            return;
+        }
+
+        const participantIds = Array.from(this.selectedParticipantIds);
+        const payload = {
+            userIds: participantIds.map(pid => this.participants.find(p => p.id === pid)?.user?.id).filter(id => !!id),
+            badgeId: this.badgeToAwardId,
+            eventId: this.currentParticipantsEvent?.id
+        };
+
+        this.loading = true;
+        this.gamificationService.awardBulkBadges(payload.userIds as number[], Number(payload.badgeId), Number(payload.eventId)).subscribe({
+            next: () => {
+                alert('Badges awarded successfully!');
+                this.awardBadgeModalOpen = false;
+                this.loading = false;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error('Failed to award badges:', err);
+                alert('Failed to award badges.');
+                this.loading = false;
+                this.cdr.detectChanges();
+            }
+        });
     }
 }

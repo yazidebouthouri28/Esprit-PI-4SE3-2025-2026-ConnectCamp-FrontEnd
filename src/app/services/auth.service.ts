@@ -342,6 +342,11 @@ export class AuthService {
   isOrganizer(): boolean { return this.hasRole('ORGANIZER'); }
   isCamper(): boolean { return this.hasRole('CAMPER'); }
   isSponsor(): boolean { return this.hasRole('SPONSOR'); }
+  hasOrganizerAccess(): boolean {
+    const user = this.getCurrentUser();
+    return this.hasRole('ORGANIZER') || (!!user?.organizerId && Number(user.organizerId) > 0);
+  }
+
   isParticipant(): boolean {
     const role = this.getCurrentUser()?.role;
     return role === 'PARTICIPANT' || role === 'CAMPER';

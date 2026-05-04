@@ -3,7 +3,7 @@
   <!-- ═══════════════════════════════════════════════════ -->
   <!-- LEFT SIDEBAR — Room List                           -->
   <!-- ═══════════════════════════════════════════════════ -->
-  <aside class="w-80 border-r border-olive-green/20 flex flex-col bg-white/50 backdrop-blur-md">
+  <aside class="w-[28rem] border-r border-olive-green/20 flex flex-col bg-white/50 backdrop-blur-md">
 
     <!-- Header -->
     <div class="p-6 border-b border-olive-green/10 flex items-center justify-between">
@@ -11,16 +11,149 @@
         <h2 class="font-bold text-forest-green text-lg">Community</h2>
         <p class="text-xs text-olive-green">{{ rooms.length }} group{{ rooms.length !== 1 ? 's' : '' }}</p>
       </div>
-      <!-- Create button — organizers only -->
-      <button *ngIf="isOrganizer"
-        (click)="openCreateModal()"
-        class="w-9 h-9 bg-forest-green text-white rounded-xl flex items-center justify-center hover:bg-forest-green/80 transition-all shadow-md"
-        title="Create new group">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </button>
+      <!-- Create button & Logs -->
+      <div class="flex gap-2">
+        <button (click)="openLogsModal()" class="w-9 h-9 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center hover:bg-blue-100 transition-all shadow-md" title="View Schedulers Logs">
+          📊
+        </button>
+        <!-- ML-Driven Smart Suggestions Button -->
+        <button *ngIf="isOrganizer && activeRoom; else noSuggestionsBtn"
+          (click)="openSuggestionsModal()"
+          class="w-9 h-9 bg-purple-50 text-purple-700 rounded-xl flex items-center justify-center hover:bg-purple-100 transition-all shadow-md relative smart-suggestions-btn"
+          title="AI Smart Suggestions"
+          [class.animate-pulse]="smartSuggestions?.urgentCount > 0">
+          🤖
+          <span *ngIf="smartSuggestions?.urgentCount > 0" 
+                class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+            {{smartSuggestions.urgentCount}}
+          </span>
+        </button>
+        <ng-template #noSuggestionsBtn>
+          <!-- Debug: Show disabled button when conditions not met -->
+          <button *ngIf="isOrganizer" disabled
+            class="w-9 h-9 bg-gray-100 text-gray-400 rounded-xl flex items-center justify-center cursor-not-allowed opacity-50"
+            title="Select a room to see suggestions">
+            🤖
+          </button>
+        </ng-template>
+        <button *ngIf="isOrganizer"
+          (click)="openCreateModal()"
+          class="w-9 h-9 bg-forest-green text-white rounded-xl flex items-center justify-center hover:bg-forest-green/80 transition-all shadow-md"
+          title="Create new group">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search / Filter -->
+    <div class="px-6 py-4 border-b border-olive-green/10 bg-white/60">
+      <div class="relative group">
+        <input type="text" [(ngModel)]="keywordFilter" (keyup.enter)="filterChatsByKeyword()" 
+               placeholder="Search messages keyword..." 
+               class="w-full bg-cream-beige/50 border border-olive-green/20 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest-green/30 pl-10">
+        <span class="absolute left-3 top-2.5 text-olive-green/40 group-focus-within:text-forest-green">🔍</span>
+        <button *ngIf="keywordFilter" (click)="keywordFilter = ''; loadRooms()" 
+                class="absolute right-12 top-2.5 text-[10px] text-red-500 hover:text-red-700 font-bold transition-all">
+          Clear
+        </button>
+        <button (click)="filterChatsByKeyword()" 
+                class="absolute right-2 top-1.5 bottom-1.5 bg-forest-green text-white px-3 rounded-lg text-[10px] font-black hover:bg-forest-green/80 transition-all shadow-sm">
+          GO
+        </button>
+      </div>
+      <p class="text-[9px] text-olive-green/60 mt-2 px-1">Tip: Searches through all group conversations</p>
+    </div>
+  
+    <!-- Integrated Room Activity & Sentiment Overview -->
+    <div class="px-6 py-4 border-b border-olive-green/10 bg-gradient-to-br from-forest-green/5 to-red-50/20">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-[11px] font-black text-forest-green uppercase tracking-tighter flex items-center gap-1">
+          <span>📊</span> Room Activity & Sentiment
+        </h3>
+        <div class="flex gap-2">
+          <button (click)="loadChatStats()" class="text-[10px] text-forest-green font-bold hover:underline">Refresh</button>
+          <button (click)="loadRooms()" class="text-[10px] text-forest-green font-bold hover:underline">Reload</button>
+        </div>
+      </div>
+      <div class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+        <!-- Show chat stats for all users -->
+        <div *ngFor="let stat of chatStats" class="flex flex-col gap-2 p-3 bg-white/90 border border-olive-green/20 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-olive-green/20">
+                <img [src]="getAvatar(stat.roomName)" [alt]="stat.roomName" class="w-full h-full object-cover">
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="font-black text-sm text-forest-green truncate group-hover:text-olive-green transition-colors">{{stat.roomName}}</span>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-[9px] font-black uppercase tracking-widest bg-forest-green/10 text-forest-green px-1.5 py-0.5 rounded-md">
+                    {{stat.type || 'GROUP'}}
+                  </span>
+                  <span *ngIf="stat.lastActivity" class="text-[9px] text-olive-green/60">
+                    Active {{formatTime(stat.lastActivity)}}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <span class="text-[10px] font-black bg-cream-beige px-2 py-0.5 rounded-full text-forest-green flex items-center gap-1 shadow-sm border border-olive-green/5">
+                {{stat.memberCount}} <i class="fas fa-users text-[8px]"></i>
+              </span>
+              <span class="text-[9px] font-bold text-olive-green/80 flex items-center gap-1">
+                {{stat.totalMessages || 0}} <i class="fas fa-comment text-[8px]"></i>
+              </span>
+              <span *ngIf="stat.sentimentLabel" 
+                    class="px-1.5 py-0.5 text-[8px] font-bold rounded-full border"
+                    [ngClass]="getSentimentClass(stat.sentimentLabel)"
+                    [title]="'Sentiment: ' + stat.sentimentLabel">
+                {{getSentimentIcon(stat.sentimentLabel)}}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-[9px] text-olive-green/60">
+            <span>Created by <span class="font-bold text-forest-green/70">{{stat.creatorUsername}}</span></span>
+            <ng-container *ngIf="!stat.lastActivity">
+              <span class="italic opacity-50">No activity yet</span>
+            </ng-container>
+          </div>
+        </div>
+        
+        <!-- Show additional room sentiment for organizers -->
+        <ng-container *ngIf="isOrganizer">
+          <ng-container *ngFor="let room of rooms">
+            <ng-container *ngIf="isRoomCreator(room) && !isRoomInChatStats(room.id)">
+              <div class="flex items-center justify-between p-3 bg-white/90 border border-olive-green/20 rounded-xl shadow-sm">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-olive-green/20">
+                    <img [src]="room.image || getAvatar(room.name)" [alt]="room.name" class="w-full h-full object-cover">
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="font-bold text-sm text-forest-green truncate">{{room.name}}</span>
+                    <div class="text-[9px] text-olive-green/60">{{room.memberCount}} members</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span *ngIf="room.sentimentLabel" 
+                        class="px-2 py-1 text-[9px] font-bold rounded-full border"
+                        [ngClass]="getSentimentClass(room.sentimentLabel)">
+                    {{getSentimentIcon(room.sentimentLabel)}} {{room.sentimentLabel}}
+                  </span>
+                  <span *ngIf="!room.sentimentLabel" class="text-[9px] text-olive-green/50 italic">No sentiment data</span>
+                </div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+        
+        <div *ngIf="chatStats.length === 0 && (!isOrganizer || myRooms.length === 0)" class="flex flex-col items-center justify-center py-4 bg-white/40 rounded-xl border border-dashed border-olive-green/20">
+          <span class="text-lg opacity-40">🌵</span>
+          <p class="text-[10px] text-gray-400 mt-1">No room activity found.</p>
+        </div>
+      </div>
+      <p class="text-[9px] text-olive-green/60 mt-2 px-1" *ngIf="isOrganizer">Red badges indicate groups needing moderation • Sentiment analysis available for your rooms</p>
     </div>
 
     <!-- Loading rooms -->
@@ -37,23 +170,38 @@
     </div>
 
     <!-- Room list -->
-    <div *ngIf="!isLoadingRooms && rooms.length > 0" class="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+    <div *ngIf="!isLoadingRooms && rooms.length > 0" class="flex-1 overflow-y-auto px-4 py-4 space-y-2">
       <div *ngFor="let room of rooms"
         (click)="selectRoom(room)"
-        class="flex items-center gap-3 p-3 rounded-2xl cursor-pointer hover:bg-cream-beige/80 transition-all"
-        [ngClass]="{'bg-cream-beige/80 shadow-sm': activeRoom?.id === room.id}">
+        class="flex items-center gap-4 p-4 rounded-2xl cursor-pointer hover:bg-cream-beige/80 transition-all"
+        [ngClass]="{
+          'bg-cream-beige/80 shadow-sm': activeRoom?.id === room.id,
+          'border-2 border-red-400 bg-red-50/30': room.sentimentLabel === 'negative' || room.sentimentLabel === 'very negative'
+        }">
 
         <div class="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 border-2"
-          [ngClass]="activeRoom?.id === room.id ? 'border-forest-green' : 'border-transparent'">
+          [ngClass]="{
+            'border-forest-green': activeRoom?.id === room.id,
+            'border-red-400': room.sentimentLabel === 'negative' || room.sentimentLabel === 'very negative',
+            'border-transparent': !room.sentimentLabel || (room.sentimentLabel !== 'negative' && room.sentimentLabel !== 'very negative' && activeRoom?.id !== room.id)
+          }">
           <img [src]="room.image || getAvatar(room.name)" [alt]="room.name" class="w-full h-full object-cover">
         </div>
 
         <div class="flex-1 min-w-0">
           <div class="flex justify-between items-center">
-            <h4 class="font-bold text-sm text-forest-green truncate">{{ room.name }}</h4>
-            <span *ngIf="room.lastMessageAt" class="text-[10px] text-olive-green/60 ml-1 flex-shrink-0">
-              {{ formatTime(room.lastMessageAt) }}
-            </span>
+            <h4 class="font-bold text-base text-forest-green truncate">{{ room.name }}</h4>
+            <div class="flex items-center gap-1">
+              <!-- Room Sentiment Indicator -->
+              <span *ngIf="room.sentimentLabel && isRoomCreator(room)"
+                    class="px-1.5 py-0.5 text-[9px] font-bold rounded-full border pointer-events-none"
+                    [ngClass]="getSentimentClass(room.sentimentLabel)">
+                {{getSentimentIcon(room.sentimentLabel)}}
+              </span>
+              <span *ngIf="room.lastMessageAt" class="text-[10px] text-olive-green/60 ml-1 flex-shrink-0">
+                {{ formatTime(room.lastMessageAt) }}
+              </span>
+            </div>
           </div>
           <p class="text-xs text-olive-green truncate">
             {{ room.lastMessageContent || room.description || 'No messages yet' }}
@@ -90,12 +238,19 @@
         </div>
 
         <!-- Edit/Delete — only creator who is organizer -->
-        <div *ngIf="isOrganizer && isCreator()" class="flex gap-2">
-          <button (click)="openEditModal()"
+        <div *ngIf="isOrganizer" class="flex gap-2">
+          <button *ngIf="isCreator()" (click)="openEditModal()"
             class="px-3 py-1.5 text-sm font-bold text-forest-green border border-forest-green/30 rounded-lg hover:bg-forest-green/10 transition-colors">
             ✏️ Edit
           </button>
-          <button (click)="openDeleteConfirm()"
+          
+          <!-- Add Member Button for Admins/Creators -->
+          <button (click)="openAddMemberModal()"
+            class="px-3 py-1.5 text-sm font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">
+            ➕ Add Member
+          </button>
+
+          <button *ngIf="isCreator()" (click)="openDeleteConfirm()"
             class="px-3 py-1.5 text-sm font-bold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
             🗑️ Delete
           </button>
@@ -131,13 +286,50 @@
               [ngClass]="{'text-right': isCurrentUser(msg.senderId)}">
               {{ isCurrentUser(msg.senderId) ? 'You' : msg.senderName }}
             </span>
-            <div class="px-4 py-3 rounded-2xl text-sm shadow-sm"
-              [ngClass]="isCurrentUser(msg.senderId)
-                ? 'bg-forest-green text-white rounded-br-none'
-                : 'bg-cream-beige/60 text-forest-green rounded-bl-none'">
-              <span *ngIf="!msg.isDeleted">{{ msg.content }}</span>
-              <span *ngIf="msg.isDeleted" class="italic opacity-60">Message deleted</span>
+            <div class="group relative">
+              <div class="px-4 py-3 rounded-2xl text-sm shadow-sm"
+                [ngClass]="isCurrentUser(msg.senderId)
+                  ? 'bg-forest-green text-white rounded-br-none mb-1'
+                  : 'bg-cream-beige/60 text-forest-green rounded-bl-none mb-1'">
+                <span *ngIf="!msg.isDeleted">{{ msg.content }}</span>
+                <span *ngIf="msg.isDeleted" class="italic opacity-60">Message deleted</span>
+              </div>
+
+              <!-- Sentiment Badge -->
+              <div *ngIf="msg.sentimentLabel && isCreator()" class="mb-2 flex items-center gap-1"
+                   [ngClass]="isCurrentUser(msg.senderId) ? 'justify-end' : 'justify-start'">
+                <span class="px-2 py-0.5 text-[10px] font-semibold rounded-full border"
+                      [ngClass]="getSentimentClass(msg.sentimentLabel)">
+                  {{getSentimentIcon(msg.sentimentLabel)}} {{msg.sentimentLabel}}
+                </span>
+                <span class="text-[9px] text-olive-green/60">({{msg.sentimentScore | number:'1.2-2'}})</span>
+              </div>
+
+              <!-- Reactions display array - Grouped -->
+              <div *ngIf="msg.reactions && msg.reactions.length > 0" 
+                  class="absolute -bottom-2 flex flex-wrap gap-1"
+                  [ngClass]="isCurrentUser(msg.senderId) ? 'right-2' : 'left-2'">
+                <div *ngFor="let group of getGroupedReactions(msg.reactions)" 
+                     (click)="reactToMessage(msg.id, group.emoji)"
+                     class="bg-white text-[12px] rounded-full px-2 py-0.5 shadow-sm border border-olive-green/20 flex items-center gap-1 -mt-2 z-10 cursor-pointer hover:bg-cream-beige transition-colors" 
+                     [title]="group.userNames.join(', ')">
+                  <span>{{group.emoji}}</span>
+                  <span class="font-bold text-[10px]">{{group.count}}</span>
+                </div>
+              </div>
+
+              <!-- Reaction Hover Picker - Fixed Visibility & Clickability -->
+              <div *ngIf="!msg.isDeleted" 
+                class="opacity-0 group-hover:opacity-100 absolute bottom-full mb-1 bg-white border border-olive-green/20 rounded-full px-2 py-1 flex gap-2 shadow-lg transition-all z-20" 
+                [ngClass]="isCurrentUser(msg.senderId) ? 'right-0' : 'left-0'">
+                <button *ngFor="let emo of availableEmojis" 
+                  (click)="reactToMessage(msg.id, emo)" 
+                  class="hover:scale-150 transition-transform text-lg px-0.5">
+                  {{emo}}
+                </button>
+              </div>
             </div>
+
             <span class="text-[10px] text-olive-green/50 mt-1 block"
               [ngClass]="{'text-right': isCurrentUser(msg.senderId)}">
               {{ formatTime(msg.sentAt || msg.createdAt) }}
@@ -168,7 +360,7 @@
   <!-- ═══════════════════════════════════════════════════ -->
   <!-- RIGHT SIDEBAR — About                              -->
   <!-- ═══════════════════════════════════════════════════ -->
-  <aside class="w-72 border-l border-olive-green/20 bg-white/50 backdrop-blur-md hidden xl:flex flex-col">
+  <aside class="w-72 border-l border-olive-green/20 bg-white/50 backdrop-blur-md hidden xl:flex flex-col overflow-y-auto">
     <ng-container *ngIf="activeRoom">
 
       <!-- Group image -->
@@ -213,6 +405,47 @@
           <span class="font-bold text-forest-green">{{ activeRoom.allowJoin ? 'Yes' : 'No' }}</span>
         </div>
       </div>
+
+      <!-- Room Sentiment Overview -->
+      <div class="p-6 space-y-3 border-t border-olive-green/10" *ngIf="roomSentiment && isCreator()">
+        <h3 class="text-xs font-black text-forest-green uppercase tracking-widest mb-2 opacity-50 flex items-center gap-1">
+          <span>🧠</span> Sentiment Overview
+        </h3>
+
+        <!-- Overall Score -->
+        <div class="text-center p-3 rounded-xl border"
+             [ngClass]="getSentimentClass(roomSentiment.overallLabel)">
+          <div class="text-2xl font-black">{{getSentimentIcon(roomSentiment.overallLabel)}}</div>
+          <div class="text-sm font-bold capitalize">{{roomSentiment.overallLabel}}</div>
+          <div class="text-xs">Score: {{roomSentiment.averageScore | number:'1.2-2'}}</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <div class="bg-green-50 rounded-lg p-2">
+            <div class="font-bold text-green-700">{{roomSentiment.positiveCount}}</div>
+            <div class="text-green-600">Positive</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-2">
+            <div class="font-bold text-gray-700">{{roomSentiment.neutralCount}}</div>
+            <div class="text-gray-600">Neutral</div>
+          </div>
+          <div class="bg-red-50 rounded-lg p-2">
+            <div class="font-bold text-red-700">{{roomSentiment.negativeCount}}</div>
+            <div class="text-red-600">Negative</div>
+          </div>
+        </div>
+
+        <div class="text-[10px] text-olive-green/60 text-center">
+          Analyzed {{roomSentiment.analyzedMessages}} of {{roomSentiment.totalMessages}} messages
+        </div>
+      </div>
+
+      <!-- No sentiment data -->
+      <div class="p-6 border-t border-olive-green/10" *ngIf="!roomSentiment">
+        <h3 class="text-xs font-black text-forest-green uppercase tracking-widest mb-2 opacity-50">Sentiment</h3>
+        <p class="text-xs text-olive-green/60 italic">No sentiment data available yet.</p>
+      </div>
     </ng-container>
 
     <!-- No room selected -->
@@ -220,7 +453,6 @@
       <p class="text-sm text-olive-green">Select a group to see details</p>
     </div>
   </aside>
-</div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- CREATE / EDIT ROOM MODAL                               -->
@@ -305,6 +537,296 @@
       <button (click)="deleteRoom()"
         class="flex-1 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700">
         Yes, Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SCHEDULER LOGS MODAL -->
+<div *ngIf="showLogsModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+    <div class="flex justify-between items-center p-6 border-b border-olive-green/10">
+      <h2 class="text-xl font-black text-forest-green">Automatic Schedulers Logs</h2>
+      <button (click)="closeLogsModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+    </div>
+    <div class="p-6 overflow-y-auto flex-1 bg-cream-beige/10">
+      <div *ngIf="schedulerLogs.length === 0" class="text-center text-olive-green py-10 font-medium text-sm">
+        No scheduler logs recorded yet. They will appear here once they run automatically.
+      </div>
+      <div class="space-y-4">
+        <div *ngFor="let log of schedulerLogs" class="bg-white border border-olive-green/10 p-4 rounded-xl shadow-sm flex items-start gap-3">
+          <div class="text-2xl mt-1 text-forest-green">🕒</div>
+          <div class="flex-1">
+            <h4 class="font-bold text-forest-green">{{log.schedulerName}}</h4>
+            <p class="text-sm text-olive-green">{{log.details}}</p>
+            <p class="text-xs text-olive-green/60 mt-2 font-mono">{{log.executedAt | date:'medium'}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+<div *ngIf="showAddMemberModal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col">
+    <div class="flex justify-between items-center p-6 border-b border-olive-green/10">
+      <h2 class="text-xl font-black text-forest-green">Add Members to {{activeRoom?.name}}</h2>
+      <button (click)="closeAddMemberModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+    </div>
+    
+    <div class="p-6 space-y-4">
+      <div class="flex gap-2">
+        <input type="text" [(ngModel)]="userSearchKeyword" (keyup.enter)="searchUsers()" placeholder="Search by name or email..." 
+               class="flex-1 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest-green/30">
+        <button (click)="searchUsers()" [disabled]="isSearchingUsers"
+                class="bg-forest-green text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-forest-green/80 disabled:opacity-50">
+          {{ isSearchingUsers ? '...' : 'Search' }}
+        </button>
+      </div>
+
+      <div class="max-h-60 overflow-y-auto space-y-2">
+        <div *ngFor="let user of foundUsers" class="flex items-center justify-between p-3 border rounded-xl hover:bg-cream-beige/20 transition-all">
+          <div class="flex items-center gap-3">
+            <img [src]="getAvatar(user.name)" class="w-8 h-8 rounded-full">
+            <div>
+              <p class="text-sm font-bold text-forest-green">{{user.name}}</p>
+              <p class="text-[10px] text-olive-green">{{user.email}}</p>
+            </div>
+          </div>
+          <button (click)="addMemberToRoom(user)" [disabled]="isAddingMember"
+                  class="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-100 transition-all">
+            {{ isAddingMember ? '...' : 'Add' }}
+          </button>
+        </div>
+        <div *ngIf="foundUsers.length === 0 && !isSearchingUsers" class="text-center text-xs text-olive-green py-4">
+          {{ userSearchKeyword ? 'No users found.' : 'Type a name to search users.' }}
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-4 border-t text-center">
+      <button (click)="closeAddMemberModal()" class="w-full py-2 text-sm font-bold text-gray-500 hover:text-gray-700">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ML-DRIVEN SMART SUGGESTIONS MODAL                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<div *ngIf="showSuggestionsModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col">
+    <!-- Header -->
+    <div class="flex justify-between items-center p-6 border-b">
+      <div>
+        <h2 class="text-xl font-black text-purple-900 flex items-center gap-2">
+          <span>🤖</span> AI Smart Suggestions
+        </h2>
+        <p class="text-sm text-gray-500 mt-0.5">ML-powered insights for {{ activeRoom?.name }}</p>
+      </div>
+      <button (click)="closeSuggestionsModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+    </div>
+
+    <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
+      <!-- Loading -->
+      <div *ngIf="isLoadingSuggestions" class="text-center py-10">
+        <div class="animate-spin h-8 w-8 border-4 border-purple-600 border-t-transparent rounded-full mx-auto"></div>
+        <p class="mt-3 text-gray-500 text-sm">Analyzing chat sentiment with AI...</p>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="!isLoadingSuggestions && !smartSuggestions" class="text-center text-gray-500 py-10">
+        <div class="text-4xl mb-3">🤖</div>
+        <p class="font-bold">No suggestions available</p>
+        <p class="text-sm mt-1">AI analysis will appear here once available.</p>
+      </div>
+
+      <!-- Suggestions Content -->
+      <div *ngIf="!isLoadingSuggestions && smartSuggestions" class="space-y-4">
+        <!-- Health Dashboard -->
+        <div class="bg-white rounded-xl p-5 shadow-sm border">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-gray-900">Community Health Dashboard</h3>
+            <span class="px-3 py-1 rounded-full text-xs font-bold"
+                  [class]="getRiskColor(smartSuggestions.riskLevel)">
+              {{ smartSuggestions.riskLevel || 'NONE' }} Risk
+            </span>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 mb-4">
+            <!-- Overall Health Score -->
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <div class="text-2xl font-black mb-1"
+                   [class]="getHealthStatusColor(smartSuggestions.healthStatus)">
+                {{ (smartSuggestions.overallHealthScore * 100) | number:'1.0-0' }}%
+              </div>
+              <div class="text-xs text-gray-500">Health Score</div>
+            </div>
+            
+            <!-- Total Suggestions -->
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <div class="text-2xl font-black text-purple-600 mb-1">
+                {{ smartSuggestions.totalSuggestions }}
+              </div>
+              <div class="text-xs text-gray-500">Total Suggestions</div>
+            </div>
+            
+            <!-- Urgent Count -->
+            <div class="text-center p-3 rounded-lg"
+                 [class]="smartSuggestions.urgentCount > 0 ? 'bg-red-50' : 'bg-green-50'">
+              <div class="text-2xl font-black mb-1"
+                   [class]="smartSuggestions.urgentCount > 0 ? 'text-red-600' : 'text-green-600'">
+                {{ smartSuggestions.urgentCount }}
+              </div>
+              <div class="text-xs text-gray-500">Urgent Actions</div>
+            </div>
+          </div>
+          
+          <!-- Key Insights -->
+          <div *ngIf="smartSuggestions.keyInsights?.length > 0" class="mt-4">
+            <h4 class="text-sm font-bold text-gray-700 mb-2">📊 Key Insights</h4>
+            <div class="space-y-1">
+              <div *ngFor="let insight of smartSuggestions.keyInsights" 
+                   class="flex items-start gap-2 text-sm text-gray-600">
+                <span class="text-purple-500">•</span>
+                <span>{{ insight }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recommended Next Action -->
+          <div *ngIf="smartSuggestions.recommendedNextAction" class="mt-4 p-3 bg-purple-50 rounded-lg">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-purple-600 font-bold">💡 Recommended:</span>
+              <span class="text-purple-700">{{ smartSuggestions.recommendedNextAction }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority Tabs -->
+        <div class="flex gap-2 mb-4">
+          <button (click)="activeSuggestionTab = 'high'"
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all"
+                  [class]="activeSuggestionTab === 'high' ? 'bg-red-100 text-red-700 border-2 border-red-200' : 'bg-white text-gray-600 border border-gray-200'">
+            🔴 High ({{ smartSuggestions.highPriority?.length || 0 }})
+          </button>
+          <button (click)="activeSuggestionTab = 'medium'"
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all"
+                  [class]="activeSuggestionTab === 'medium' ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-200' : 'bg-white text-gray-600 border border-gray-200'">
+            🟡 Medium ({{ smartSuggestions.mediumPriority?.length || 0 }})
+          </button>
+          <button (click)="activeSuggestionTab = 'low'"
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all"
+                  [class]="activeSuggestionTab === 'low' ? 'bg-green-100 text-green-700 border-2 border-green-200' : 'bg-white text-gray-600 border border-gray-200'">
+            🟢 Low ({{ smartSuggestions.lowPriority?.length || 0 }})
+          </button>
+        </div>
+
+        <!-- High Priority Suggestions -->
+        <div *ngIf="activeSuggestionTab === 'high'" class="space-y-3">
+          <div *ngFor="let suggestion of smartSuggestions.highPriority" 
+               class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-red-500">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">{{ getSuggestionIcon(suggestion.type) }}</span>
+                <h4 class="font-bold text-gray-900">{{ suggestion.title }}</h4>
+              </div>
+              <span class="px-2 py-1 rounded text-xs font-bold text-red-600 bg-red-50">
+                {{ suggestion.priority }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">{{ suggestion.description }}</p>
+            
+            <!-- Metrics -->
+            <div class="flex gap-4 text-xs text-gray-500 mb-3">
+              <span *ngIf="suggestion.confidenceScore">Confidence: {{ (suggestion.confidenceScore * 100) | number:'1.0-0' }}%</span>
+              <span *ngIf="suggestion.severityScore">Severity: {{ (suggestion.severityScore * 100) | number:'1.0-0' }}%</span>
+              <span *ngIf="suggestion.sentimentScore">Sentiment: {{ suggestion.sentimentScore | number:'1.2-2' }}</span>
+            </div>
+            
+            <!-- Recommended Actions -->
+            <div *ngIf="suggestion.recommendedActions?.length > 0" class="mb-3">
+              <div class="text-xs font-bold text-gray-500 mb-1">Recommended Actions:</div>
+              <div class="flex flex-wrap gap-2">
+                <span *ngFor="let action of suggestion.recommendedActions" 
+                      class="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">
+                  {{ action }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Action Button -->
+            <button (click)="executeSuggestionAction('EXECUTE', suggestion)"
+                    class="w-full py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors">
+              Take Action
+            </button>
+          </div>
+          
+          <div *ngIf="!smartSuggestions.highPriority?.length" class="text-center py-8 text-gray-500">
+            <div class="text-3xl mb-2">✅</div>
+            <p>No high priority issues!</p>
+          </div>
+        </div>
+
+        <!-- Medium Priority Suggestions -->
+        <div *ngIf="activeSuggestionTab === 'medium'" class="space-y-3">
+          <div *ngFor="let suggestion of smartSuggestions.mediumPriority" 
+               class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-yellow-500">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">{{ getSuggestionIcon(suggestion.type) }}</span>
+                <h4 class="font-bold text-gray-900">{{ suggestion.title }}</h4>
+              </div>
+              <span class="px-2 py-1 rounded text-xs font-bold text-yellow-600 bg-yellow-50">
+                {{ suggestion.priority }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">{{ suggestion.description }}</p>
+            <button (click)="executeSuggestionAction('EXECUTE', suggestion)"
+                    class="w-full py-2 bg-yellow-500 text-white rounded-lg text-sm font-bold hover:bg-yellow-600 transition-colors">
+              Take Action
+            </button>
+          </div>
+          
+          <div *ngIf="!smartSuggestions.mediumPriority?.length" class="text-center py-8 text-gray-500">
+            <div class="text-3xl mb-2">✅</div>
+            <p>No medium priority suggestions!</p>
+          </div>
+        </div>
+
+        <!-- Low Priority Suggestions -->
+        <div *ngIf="activeSuggestionTab === 'low'" class="space-y-3">
+          <div *ngFor="let suggestion of smartSuggestions.lowPriority" 
+               class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-green-500">
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">{{ getSuggestionIcon(suggestion.type) }}</span>
+                <h4 class="font-bold text-gray-900">{{ suggestion.title }}</h4>
+              </div>
+              <span class="px-2 py-1 rounded text-xs font-bold text-green-600 bg-green-50">
+                {{ suggestion.priority }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">{{ suggestion.description }}</p>
+            <button (click)="executeSuggestionAction('EXECUTE', suggestion)"
+                    class="w-full py-2 bg-green-500 text-white rounded-lg text-sm font-bold hover:bg-green-600 transition-colors">
+              Take Action
+            </button>
+          </div>
+          
+          <div *ngIf="!smartSuggestions.lowPriority?.length" class="text-center py-8 text-gray-500">
+            <div class="text-3xl mb-2">✅</div>
+            <p>No low priority suggestions!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t bg-white">
+      <button (click)="closeSuggestionsModal()" class="w-full py-2 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700">
+        Close Suggestions
       </button>
     </div>
   </div>

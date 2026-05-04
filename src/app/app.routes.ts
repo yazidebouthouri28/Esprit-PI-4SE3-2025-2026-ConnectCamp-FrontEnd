@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard, SellerGuard, ClientGuard, AdminGuard, OrganizerOnlyGuard, OrganizerGuard } from './guards/auth.guard';
 import { ParticipantGuard } from './guards/participant.guard';
+import { AdminGuard as ThrottleAdminGuard } from './throttle/guards/admin.guard';
 
 export const routes: Routes = [
   // Landing Page (Home Hub) - Publicly accessible
@@ -31,6 +32,7 @@ export const routes: Routes = [
   // Must be BEFORE events/:id to avoid route conflict
   { path: 'events/:eventId/work-roles', loadComponent: () => import('./modules/services/components/event-apply/event-apply.component').then(m => m.EventApplyComponent), canActivate: [ParticipantGuard] },
   { path: 'events/:id', loadComponent: () => import('./components/event-detail/event-detail.component').then(m => m.EventDetailComponent) },
+  { path: 'gamification', loadComponent: () => import('./admin/gamification-management/gamification-management.component').then(m => m.GamificationManagementComponent) },
 
   // --- Events management for admin/organizer (protected) ---
   { path: 'events/manage', loadComponent: () => import('./admin/events-management/events-management.component').then(m => m.EventsAdminManagementComponent), canActivate: [OrganizerOnlyGuard] },
@@ -106,6 +108,13 @@ export const routes: Routes = [
   },
   { path: 'admin/gamification', loadComponent: () => import('./admin/gamification-management/gamification-management.component').then(m => m.GamificationManagementComponent), canActivate: [AdminGuard] },
   { path: 'admin/settings', loadComponent: () => import('./components/account-settings/account-settings.component').then(m => m.AccountSettingsComponent), canActivate: [AdminGuard] },
+  { path: 'admin/flagged-messages', loadComponent: () => import('./admin/flagged-messages/flagged-messages.component').then(m => m.FlaggedMessagesComponent), canActivate: [AdminGuard] },
+  { path: 'admin/sponsors', loadComponent: () => import('./admin/sponsors-management/sponsors-management.component').then(m => m.SponsorsManagementComponent), canActivate: [AdminGuard] },
+  { path: 'admin/sponsorship-assignment', loadComponent: () => import('./admin/sponsorship-assignment/sponsorship-assignment.component').then(m => m.SponsorshipAssignmentComponent), canActivate: [AdminGuard] },
+  { path: 'admin/throttle', loadComponent: () => import('./throttle/throttle-monitor/throttle-monitor.component').then(m => m.ThrottleMonitorComponent), canActivate: [ThrottleAdminGuard] },
+
+  // --- Sponsor routes ---
+  { path: 'sponsor/events', loadComponent: () => import('./components/sponsor-event-request/sponsor-event-request.component').then(m => m.SponsorEventRequestComponent), canActivate: [AuthGuard], data: { role: 'SPONSOR' } },
 
   // --- Authentication routes ---
   { path: 'auth', loadComponent: () => import('./components/auth/auth.component').then(m => m.AuthComponent) },

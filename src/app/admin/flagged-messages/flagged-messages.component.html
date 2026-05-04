@@ -1,0 +1,133 @@
+<div class="p-6 bg-white min-h-screen">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Flagged Messages</h1>
+      <p class="text-gray-500 mt-1">Messages with negative sentiment for moderation review</p>
+    </div>
+    <button (click)="refresh()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+        <path d="M16 21h5v-5"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div class="text-red-600 text-sm font-medium">Total Flagged</div>
+      <div class="text-2xl font-bold text-red-700">{{flaggedMessages.length}}</div>
+    </div>
+    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+      <div class="text-orange-600 text-sm font-medium">Negative</div>
+      <div class="text-2xl font-bold text-orange-700">{{negativeCount}}</div>
+    </div>
+    <div class="bg-red-100 border border-red-300 rounded-lg p-4">
+      <div class="text-red-700 text-sm font-medium">Very Negative</div>
+      <div class="text-2xl font-bold text-red-800">{{veryNegativeCount}}</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-6">
+    <div class="relative">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        placeholder="Search by content or sender..."
+        class="w-full max-w-md pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <svg class="absolute left-3 top-2.5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex items-center justify-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <span class="ml-3 text-gray-600">Loading flagged messages...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+    <div class="flex items-center gap-2 text-red-700">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      {{errorMessage}}
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !errorMessage && filteredMessages.length === 0" class="text-center py-12">
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+      <svg class="text-green-600" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900">No flagged messages</h3>
+    <p class="text-gray-500 mt-1">Great! No negative sentiment messages found.</p>
+  </div>
+
+  <!-- Messages Table -->
+  <div *ngIf="!isLoading && filteredMessages.length > 0" class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <table class="w-full">
+      <thead class="bg-gray-50 border-b border-gray-200">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sender</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sentiment</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let message of filteredMessages" class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <div class="max-w-md">
+              <p class="text-sm text-gray-900 line-clamp-2">{{message.content}}</p>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium">
+                {{getSenderInitial(message.senderName)}}
+              </div>
+              <span class="text-sm text-gray-700">{{message.senderName}}</span>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 text-xs font-medium rounded-full border" [ngClass]="getSentimentClass(message.sentimentLabel)">
+                {{message.sentimentLabel}}
+              </span>
+              <span class="text-xs text-gray-500">({{message.sentimentScore | number:'1.2-2'}})</span>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-sm text-gray-600">{{formatDate(message.sentAt)}}</span>
+          </td>
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-2">
+              <button (click)="deleteMessage(message.id)" class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50" title="Delete message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

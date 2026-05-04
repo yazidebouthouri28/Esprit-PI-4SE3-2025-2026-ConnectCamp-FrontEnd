@@ -13,6 +13,8 @@ interface Message {
   timestamp: string;
   type: 'text' | 'image' | 'file';
   imageUrls?: string[];
+  sentimentScore?: number;
+  sentimentLabel?: string;
 }
 
 interface ChatGroup {
@@ -144,7 +146,7 @@ export class CommunityForumComponent implements OnInit {
     private http: HttpClient,
     private authService: AuthService,
     private userService: UserService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('CommunityForumComponent initialized');
@@ -231,7 +233,9 @@ export class CommunityForumComponent implements OnInit {
                 content: m.content,
                 timestamp: this.formatTime(m.createdAt),
                 type: m.type || 'text',
-                imageUrls: m.imageUrls
+                imageUrls: m.imageUrls,
+                sentimentScore: m.sentimentScore,
+                sentimentLabel: m.sentimentLabel
               })) : [],
               mediaCount: { docs: 0, photos: 0, music: 0, video: 0 }
             };
@@ -317,7 +321,7 @@ export class CommunityForumComponent implements OnInit {
   getSender(senderId: string): User | undefined {
     if (this.isCurrentUser(senderId)) return this.currentUser;
     return this.onlineUsers.find(u => u.id === senderId) ||
-           this.activeGroup?.members?.find(u => u.id === senderId);
+      this.activeGroup?.members?.find(u => u.id === senderId);
   }
 
   private formatTime(timestamp: string): string {
@@ -328,5 +332,45 @@ export class CommunityForumComponent implements OnInit {
 
   private getDefaultAvatar(name: string): string {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random`;
+  }
+
+  // ── Sentiment badge helpers ────────────────────────────────────────────────
+  getSentimentClass(label: string | undefined): string {
+    if (!label) return 'bg-gray-100 text-gray-600';
+    switch (label.toLowerCase()) {
+      case 'very positive':
+      case 'positive':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'neutral':
+        return 'bg-gray-100 text-gray-600 border-gray-200';
+      case 'negative':
+      case 'very negative':
+        return 'bg-red-100 text-red-700 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-600';
+    }
+  }
+
+  getSentimentIcon(label: string | undefined): string {
+    if (!label) return '−';
+    switch (label.toLowerCase()) {
+      case 'very positive':
+        return '++';
+      case 'positive':
+        return '+';
+      case 'neutral':
+        return '−';
+      case 'negative':
+        return '−−';
+      case 'very negative':
+        return '−−−';
+      default:
+        return '−';
+    }
+  }
+
+  formatSentimentScore(score: number | undefined): string {
+    if (score === undefined || score === null) return '';
+    return score.toFixed(2);
   }
 }

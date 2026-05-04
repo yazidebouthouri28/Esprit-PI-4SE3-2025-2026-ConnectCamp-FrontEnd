@@ -1,0 +1,210 @@
+<div class="throttle-monitor">
+  <div class="header">
+    <h1>🚦 Throttle Monitor Dashboard</h1>
+    <p class="subtitle">Real-time monitoring of user throttling and ban status</p>
+  </div>
+
+  <!-- User Selection -->
+  <div class="user-selection card">
+    <h3>Monitor User</h3>
+    <div class="input-group">
+      <label for="userId">User ID:</label>
+      <input 
+        type="number" 
+        id="userId" 
+        [(ngModel)]="selectedUserId" 
+        (ngModelChange)="onUserIdChange()"
+        min="1"
+        class="user-input"
+      />
+      <button (click)="testThrottling(selectedUserId())" class="test-btn">
+        🧪 Test Throttling
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-time Status -->
+  <div class="status-section">
+    <div class="status-card card">
+      <h3>Current Status</h3>
+      @if (loading()) {
+        <div class="loading">Loading...</div>
+      } @else if (error()) {
+        <div class="error">{{ error() }}</div>
+      } @else if (throttleStatus()) {
+        <div class="status-display">
+          <div class="status-badge" [style.color]="statusColor()">
+            {{ statusIcon() }} {{ throttleStatus()!.status }}
+          </div>
+          
+          <!-- Progress Bar -->
+          <div class="progress-container">
+            <div class="progress-label">
+              Requests: {{ throttleStatus()!.currentCount }} / {{ throttleStatus()!.threshold }}
+            </div>
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                [style.width.%]="progressPercentage()"
+                [style.background-color]="progressColor()"
+              ></div>
+            </div>
+            <div class="progress-percentage">{{ progressPercentage() | number:'1.0-0' }}%</div>
+          </div>
+
+          <!-- Detailed Info -->
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Abuse Score:</span>
+              <span class="value" [class.warning]="throttleStatus()!.abuseScore > 50">
+                {{ throttleStatus()!.abuseScore }}
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="label">Remaining Requests:</span>
+              <span class="value">{{ throttleStatus()!.remainingRequests }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Window Utilization:</span>
+              <span class="value">{{ throttleStatus()!.windowUtilization | number:'1.0-0' }}%</span>
+            </div>
+            @if (throttleStatus()!.banType) {
+              <div class="info-item ban-info">
+                <span class="label">Ban Type:</span>
+                <span class="value ban-type" [class.hard-ban]="throttleStatus()!.banType === 'HARD'">
+                  {{ throttleStatus()!.banType }}
+                </span>
+              </div>
+              @if (throttleStatus()!.banExpiresAt) {
+                <div class="info-item">
+                  <span class="label">Expires:</span>
+                  <span class="value">{{ formatTimeRemaining(throttleStatus()!.banExpiresAt) }}</span>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="actions">
+            @if (throttleStatus()!.banType) {
+              <button (click)="unbanUser(throttleStatus()!.userId)" class="btn btn-danger">
+                🔓 Unban
+              </button>
+            }
+            <button (click)="resetUser(throttleStatus()!.userId)" class="btn btn-warning">
+              🔄 Reset
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Admin Actions -->
+    @if (throttleStatus()) {
+      <div class="admin-actions card">
+        <h3>Admin Actions</h3>
+        
+        <div class="action-group">
+          <label>Set Threshold:</label>
+          <div class="input-row">
+            <input 
+              type="number" 
+              [(ngModel)]="tempThreshold" 
+              min="5" 
+              max="100" 
+              placeholder="5-100"
+              class="small-input"
+            />
+            <button 
+              (click)="setThreshold(throttleStatus()!.userId, tempThreshold())" 
+              class="btn btn-primary"
+            >
+              Set
+            </button>
+          </div>
+        </div>
+
+        <div class="action-group">
+          <label>Reduce Abuse Score:</label>
+          <div class="input-row">
+            <input 
+              type="number" 
+              [(ngModel)]="tempReduction" 
+              min="1" 
+              max="100" 
+              placeholder="1-100"
+              class="small-input"
+            />
+            <button 
+              (click)="reduceScore(throttleStatus()!.userId, tempReduction())" 
+              class="btn btn-primary"
+            >
+              Reduce
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Banned Users Table -->
+  <div class="banned-users card">
+    <h3>Banned Users ({{ bannedUsers().length }})</h3>
+    @if (bannedUsers().length > 0) {
+      <div class="table-container">
+        <table class="banned-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Status</th>
+              <th>Abuse Score</th>
+              <th>Ban Type</th>
+              <th>Expires</th>
+              <th>Reason</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of bannedUsers(); track user.userId) {
+              <tr>
+                <td>{{ user.userId }}</td>
+                <td>
+                  <span class="status-badge" [style.color]="statusColor()">
+                    {{ statusIcon() }} {{ user.status }}
+                  </span>
+                </td>
+                <td [class.warning]="user.abuseScore > 50">{{ user.abuseScore }}</td>
+                <td>
+                  <span class="ban-type" [class.hard-ban]="user.banType === 'HARD'">
+                    {{ user.banType }}
+                  </span>
+                </td>
+                <td>{{ formatTimeRemaining(user.banExpiresAt) }}</td>
+                <td>{{ user.banReason || 'N/A' }}</td>
+                <td>
+                  <button 
+                    (click)="unbanUser(user.userId)" 
+                    class="btn btn-small btn-danger"
+                  >
+                    Unban
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="no-banned">No users are currently banned</p>
+    }
+  </div>
+
+  <!-- System Stats -->
+  @if (systemStats()) {
+    <div class="system-stats card">
+      <h3>System Statistics</h3>
+      <pre class="stats-text">{{ systemStats() }}</pre>
+    </div>
+  }
+</div>
+

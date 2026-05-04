@@ -15,11 +15,11 @@ describe('EventsAdminManagementComponent', () => {
     beforeEach(async () => {
         const authSpy = jasmine.createSpyObj('AuthService', ['hasRole', 'getCurrentUser', 'isAuthenticated']);
         const siteSpy = jasmine.createSpyObj('SiteService', ['getAllSites']);
-        const gamificationSpy = jasmine.createSpyObj('GamificationService', ['getAll']);
+        const gamificationSpy = jasmine.createSpyObj('GamificationService', ['getBadges']);
 
         authSpy.getCurrentUser.and.returnValue({ id: 1, name: 'Admin', role: 'ADMIN' });
         siteSpy.getAllSites.and.returnValue(of([]));
-        gamificationSpy.getAll.and.returnValue(of([]));
+        gamificationSpy.getBadges.and.returnValue(of([]));
 
         await TestBed.configureTestingModule({
             imports: [EventsAdminManagementComponent, FormsModule, HttpClientTestingModule],

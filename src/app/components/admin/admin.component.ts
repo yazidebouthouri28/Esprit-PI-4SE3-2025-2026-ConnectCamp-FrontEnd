@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin',
@@ -17,7 +18,7 @@ export class AdminComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
-  private apiUrl = 'http://localhost:8089/api/admin';
+  private apiUrl = `${environment.apiUrl}/api/admin`;
 
   menuItems = [
     { id: 'dashboard',  label: 'Dashboard',  icon: '📊' },

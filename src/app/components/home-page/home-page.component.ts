@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HomeHubComponent } from '../home-hub/home-hub.component';
-import { HeroSectionComponent } from '../hero-section/hero-section.component';
 import { CampsiteListingsComponent } from '../campsite-listings/campsite-listings.component';
 import { CommunityForumComponent } from '../community-forum/community-forum.component';
 import { EventsManagementComponent } from '../events-management/events-management.component';
@@ -15,7 +14,6 @@ import { SponsorsComponent } from '../sponsors/sponsors.component';
   standalone: true,
   imports: [
     CommonModule,
-    HeroSectionComponent,
     HomeHubComponent,
     CampsiteListingsComponent,
     CommunityForumComponent,

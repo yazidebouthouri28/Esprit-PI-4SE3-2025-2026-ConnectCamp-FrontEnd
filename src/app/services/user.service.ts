@@ -20,7 +20,7 @@ export interface User {
     achievements?: { title: string; icon: string; description?: string; date?: string }[];
     experiencePoints?: number;
     level?: number;
-    earnedBadges?: any[];
+    earnedBadges?: import('../models/gamification.models').Badge[];
 }
 
 @Injectable({

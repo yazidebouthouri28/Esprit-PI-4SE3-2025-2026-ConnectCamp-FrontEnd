@@ -1,0 +1,343 @@
+<div class="p-8 space-y-8 animate-fade-in bg-transparent min-h-screen">
+
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <button (click)="goBack()" class="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to Dashboard</span>
+      </button>
+      <h1 class="text-2xl font-black text-[#1a2e1a]">Sponsor Events</h1>
+      <p class="text-sm text-[#617152] font-medium">Explore available events and manage your sponsorships</p>
+    </div>
+    <div class="text-right">
+      <p class="text-sm text-gray-600">Welcome, {{ currentUser?.name || currentUser?.username }}</p>
+      <p class="text-xs text-gray-500">Sponsor Account</p>
+    </div>
+  </div>
+
+  <!-- Sponsor ID Display & Manual Entry -->
+  <div class="bg-white rounded-xl border shadow-sm p-4 mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <p class="text-sm text-gray-600">Current Sponsor ID: <span class="font-bold text-[#2C4A3C]">{{ sponsorId || 'Not detected' }}</span></p>
+        <p *ngIf="!sponsorId" class="text-xs text-red-600 mt-1">Unable to auto-detect your sponsor ID</p>
+      </div>
+      <button (click)="showManualInput = !showManualInput"
+              class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-bold hover:bg-gray-200">
+        {{ showManualInput ? 'Hide' : 'Enter Sponsor ID Manually' }}
+      </button>
+    </div>
+
+    <div *ngIf="showManualInput" class="mt-4 pt-4 border-t">
+      <div class="flex gap-3">
+        <input type="number" [(ngModel)]="manualSponsorId"
+               placeholder="Enter your Sponsor ID"
+               class="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2C4A3C]/30">
+        <button (click)="updateSponsorId()"
+                class="px-6 py-2 bg-[#2C4A3C] text-white rounded-lg font-bold hover:bg-[#1a2e1a]">
+          Load Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Total Sponsorships</p>
+      <p class="text-3xl font-black text-[#1a2e1a]">{{ stats.totalSponsorships }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Pending Invitations</p>
+      <p class="text-3xl font-black text-yellow-600">{{ stats.pendingInvitations }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Accepted</p>
+      <p class="text-3xl font-black text-green-600">{{ stats.acceptedSponsorships }}</p>
+    </div>
+    <div class="bg-white p-6 rounded-xl border shadow-sm">
+      <p class="text-xs font-bold text-gray-500 uppercase">Total Committed</p>
+      <p class="text-2xl font-black text-[#1a2e1a]">{{ formatCurrency(stats.totalAmountCommitted, 'TND') }}</p>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- Left Column: Pending Invitations -->
+    <div class="space-y-6">
+      <div class="bg-white rounded-2xl border shadow-sm p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-2xl">📨</span>
+          <h2 class="text-lg font-bold text-[#1a2e1a]">Pending Invitations</h2>
+          <span *ngIf="pendingInvitations.length > 0" 
+                class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">
+            {{ pendingInvitations.length }} new
+          </span>
+        </div>
+
+        <div *ngIf="isLoadingSponsorships" class="text-center py-8">
+          <div class="animate-spin h-8 w-8 border-4 border-[#2C4A3C] border-t-transparent rounded-full mx-auto"></div>
+          <p class="mt-2 text-sm text-gray-500">Loading invitations...</p>
+        </div>
+
+        <div *ngIf="!isLoadingSponsorships" class="space-y-4 max-h-[500px] overflow-y-auto">
+          <div *ngFor="let invitation of pendingInvitations" 
+               class="p-4 rounded-xl border-2 border-yellow-200 bg-yellow-50">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <p class="font-bold text-[#1a2e1a] text-lg">{{ invitation.eventTitle || 'Unknown Event' }}</p>
+                <p class="text-sm text-gray-600">
+                  📅 {{ invitation.eventStartDate | date:'mediumDate' }}
+                </p>
+                <p class="text-sm text-gray-600" *ngIf="invitation.eventLocation">
+                  📍 {{ invitation.eventLocation }}
+                </p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="font-semibold">From:</span> Camp Connect Admin
+                </p>
+              </div>
+              <span class="px-2 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">
+                PENDING
+              </span>
+            </div>
+
+            <div class="bg-white rounded-lg p-3 mb-3 text-sm">
+              <p><span class="font-semibold">Sponsorship Type:</span> {{ invitation.sponsorshipType }}</p>
+              <p><span class="font-semibold">Level:</span> {{ invitation.sponsorshipLevel }}</p>
+              <p><span class="font-semibold">Amount:</span> {{ formatCurrency(invitation.amount, invitation.currency) }}</p>
+              <p><span class="font-semibold">Duration:</span> {{ invitation.startDate }} to {{ invitation.endDate }}</p>
+              <p *ngIf="invitation.benefits" class="mt-2 text-green-700">
+                <span class="font-semibold">Benefits:</span> {{ invitation.benefits }}
+              </p>
+            </div>
+
+            <p class="text-xs text-gray-500 mb-3">
+              <span class="font-semibold">📎 Note:</span> A detailed PDF sponsorship agreement has been sent to your email.
+            </p>
+
+            <div class="flex gap-3">
+              <button (click)="acceptInvitation(invitation)"
+                      [disabled]="isResponding"
+                      class="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 disabled:opacity-50">
+                {{ isResponding ? 'Processing...' : '✅ Accept Invitation' }}
+              </button>
+              <button (click)="declineInvitation(invitation)"
+                      [disabled]="isResponding"
+                      class="flex-1 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-bold hover:bg-red-100 disabled:opacity-50">
+                ❌ Decline
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="pendingInvitations.length === 0" class="text-center py-8 text-gray-500">
+            <p class="text-4xl mb-3">📭</p>
+            <p class="font-medium">No pending invitations</p>
+            <p class="text-sm mt-1">Check back later for new sponsorship opportunities</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- My Sponsorships History -->
+      <div class="bg-white rounded-2xl border shadow-sm p-6">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-2xl">📊</span>
+          <h2 class="text-lg font-bold text-[#1a2e1a]">My Sponsorships</h2>
+        </div>
+
+        <div *ngIf="isLoadingSponsorships" class="text-center py-4">
+          <div class="animate-spin h-6 w-6 border-4 border-[#2C4A3C] border-t-transparent rounded-full mx-auto"></div>
+        </div>
+
+        <div *ngIf="!isLoadingSponsorships" class="space-y-3 max-h-[300px] overflow-y-auto">
+          <div *ngFor="let sponsorship of mySponsorships" 
+               class="p-4 rounded-xl border transition-all"
+               [ngClass]="{
+                 'border-green-200 bg-green-50': sponsorship.status === 'ACCEPTED',
+                 'border-red-200 bg-red-50': sponsorship.status === 'DECLINED',
+                 'border-blue-200 bg-blue-50': sponsorship.status === 'APPROVED' || sponsorship.status === 'PAID',
+                 'border-yellow-200 bg-yellow-50': sponsorship.status === 'PENDING'
+               }">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex-1">
+                <p class="font-bold text-[#1a2e1a] text-sm">{{ sponsorship.eventTitle || 'Unknown Event' }}</p>
+                <p class="text-xs text-gray-600 mt-1">
+                  📅 {{ sponsorship.eventStartDate | date:'mediumDate' }}
+                </p>
+                <p class="text-xs text-gray-600 mt-1">
+                  💰 {{ formatCurrency(sponsorship.amount, sponsorship.currency) }} | {{ sponsorship.sponsorshipType }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1" *ngIf="sponsorship.description">
+                  📝 {{ sponsorship.description }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1" *ngIf="sponsorship.startDate && sponsorship.endDate">
+                  📆 Sponsorship: {{ sponsorship.startDate | date:'shortDate' }} - {{ sponsorship.endDate | date:'shortDate' }}
+                </p>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-xs font-bold ml-2"
+                    [ngClass]="getStatusClass(sponsorship.status)">
+                {{ sponsorship.status }}
+              </span>
+            </div>
+            
+            <!-- PDF Download Button (for accepted sponsorships) -->
+            <div *ngIf="sponsorship.status === 'ACCEPTED' || sponsorship.status === 'PAID'" class="mt-2 pt-2 border-t border-gray-200">
+              <button (click)="downloadSponsorshipPDF(sponsorship)" 
+                      class="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Agreement PDF
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="mySponsorships.length === 0" class="text-center py-6 text-gray-500 text-sm">
+            No sponsorship history yet.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Available Events -->
+    <div class="bg-white rounded-2xl border shadow-sm p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">🎯</span>
+        <h2 class="text-lg font-bold text-[#1a2e1a]">Available Events</h2>
+      </div>
+      <p class="text-sm text-gray-600 mb-4">Browse upcoming events and request to become a sponsor</p>
+
+      <div *ngIf="isLoadingEvents" class="text-center py-10">
+        <div class="animate-spin h-8 w-8 border-4 border-[#2C4A3C] border-t-transparent rounded-full mx-auto"></div>
+        <p class="mt-2 text-sm text-gray-500">Loading events...</p>
+      </div>
+
+      <!-- Request Form Modal -->
+      <div *ngIf="showRequestForm" class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="font-bold text-blue-900">Request Sponsorship for {{ selectedEvent?.title }}</h3>
+          <button (click)="cancelRequestForm()" class="text-blue-600 hover:text-blue-800">✕</button>
+        </div>
+
+        <div class="space-y-3">
+          <!-- Validation Errors Summary -->
+          <div *ngIf="requestFormErrors.length > 0" class="p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-xs font-bold text-red-700 mb-1">Please fix the following errors:</p>
+            <ul class="text-xs text-red-600 list-disc list-inside">
+              <li *ngFor="let error of requestFormErrors">{{ error }}</li>
+            </ul>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+              <select [(ngModel)]="requestForm.sponsorshipType" 
+                      class="w-full border rounded-lg px-3 py-2 text-sm"
+                      [ngClass]="{'border-red-500': requestFormErrors.includes('Sponsorship type is required')}">
+                <option *ngFor="let type of sponsorshipTypes" [value]="type">{{ type }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Level</label>
+              <select [(ngModel)]="requestForm.sponsorshipLevel" 
+                      class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option *ngFor="let tier of tierOptions" [value]="tier">{{ tier }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Amount <span class="text-red-500">*</span></label>
+              <input type="number" [(ngModel)]="requestForm.amount"
+                     min="1"
+                     class="w-full border rounded-lg px-3 py-2 text-sm"
+                     [ngClass]="{'border-red-500': requestFormErrors.includes('Amount must be greater than 0') || requestFormErrors.includes('Amount is required')}">
+              <p *ngIf="requestForm.amount <= 0" class="text-xs text-red-600 mt-1">Amount must be greater than 0</p>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Currency <span class="text-red-500">*</span></label>
+              <select [(ngModel)]="requestForm.currency"
+                      class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option *ngFor="let curr of currencies" [value]="curr">{{ curr }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Start Date <span class="text-red-500">*</span></label>
+              <input type="date" [(ngModel)]="requestForm.startDate"
+                     class="w-full border rounded-lg px-3 py-2 text-sm"
+                     [ngClass]="{'border-red-500': requestFormErrors.includes('Start date is required')}">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">End Date <span class="text-red-500">*</span></label>
+              <input type="date" [(ngModel)]="requestForm.endDate"
+                     class="w-full border rounded-lg px-3 py-2 text-sm"
+                     [ngClass]="{'border-red-500': requestFormErrors.includes('End date is required') || requestFormErrors.includes('End date must be after start date')}">
+            </div>
+          </div>
+          <p *ngIf="requestForm.startDate && requestForm.endDate && requestForm.endDate < requestForm.startDate" 
+             class="text-xs text-red-600">End date must be after start date</p>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Description</label>
+            <textarea [(ngModel)]="requestForm.description" rows="2"
+                      placeholder="Briefly describe your sponsorship proposal"
+                      class="w-full border rounded-lg px-3 py-2 text-sm"></textarea>
+          </div>
+
+          <div class="flex gap-2">
+            <button (click)="cancelRequestForm()"
+                    class="flex-1 py-2 border rounded-lg text-sm font-bold hover:bg-white">
+              Cancel
+            </button>
+            <button (click)="submitSponsorshipRequest()" 
+                    [disabled]="isSubmittingRequest"
+                    class="flex-1 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a] disabled:opacity-50">
+              {{ isSubmittingRequest ? 'Submitting...' : 'Submit Request' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Events List -->
+      <div *ngIf="!isLoadingEvents" class="space-y-4 max-h-[700px] overflow-y-auto">
+        <div *ngFor="let event of availableEvents" 
+             class="p-4 rounded-xl border border-gray-200 hover:border-[#2C4A3C] transition-all">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <p class="font-bold text-[#1a2e1a]">{{ event.title }}</p>
+              <p class="text-sm text-gray-600">
+                📅 {{ event.startDateTime | date:'mediumDate' }}
+              </p>
+              <p class="text-sm text-gray-600" *ngIf="event.location">
+                📍 {{ event.location }}
+              </p>
+            </div>
+            <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+              OPEN
+            </span>
+          </div>
+
+          <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ event.description }}</p>
+
+          <button (click)="selectEventForRequest(event)"
+                  class="w-full py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold hover:bg-[#1a2e1a]">
+            Request to Sponsor
+          </button>
+        </div>
+
+        <div *ngIf="availableEvents.length === 0" class="text-center py-10 text-gray-500">
+          <p class="text-4xl mb-3">🗓️</p>
+          <p class="font-medium">No upcoming events</p>
+          <p class="text-sm mt-1">Check back later for new sponsorship opportunities</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
