@@ -22,7 +22,7 @@ type Criteria = CertificationItem['criteriaName'];
             A certification is <strong>auto-approved</strong> when its total score exceeds <strong>25</strong>.
           </p>
         </div>
-        <button type="button" (click)="createNewCertification()"
+        <button type="button" (click)="openCreateModal()"
           class="px-4 py-2 bg-[#2C4A3C] text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all shrink-0">
           New verification request
         </button>
@@ -94,18 +94,11 @@ type Criteria = CertificationItem['criteriaName'];
               <p class="text-xs font-bold text-[#1a2e1a]">{{ item.name }}</p>
               <p class="text-xs text-[#617152] mt-1 mb-3">{{ item.comment }}</p>
 
-              <!-- Inline score editor -->
+              <!-- Read-only score display -->
               <div class="flex items-center gap-2 mt-2">
                 <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Score:</span>
                 <div class="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="0"
-                    [max]="item.requiredScore || 10"
-                    [(ngModel)]="item.score"
-                    (change)="saveItemScore(cert, item)"
-                    class="w-14 px-2 py-0.5 border border-gray-200 rounded-lg text-xs font-black text-center text-[#1a2e1a] focus:outline-none focus:ring-2 focus:ring-[#1F4D36]/30 bg-white"
-                  >
+                  <span class="text-sm font-black text-[#1a2e1a]">{{ item.score || 0 }}</span>
                   <span class="text-xs font-bold text-gray-400">/ {{ item.requiredScore || 10 }}</span>
                 </div>
                 <!-- Progress bar -->
@@ -122,45 +115,62 @@ type Criteria = CertificationItem['criteriaName'];
               </div>
             </div>
           </div>
-          <button type="button" (click)="selectedCertId = cert.id"
-            class="w-full sm:w-auto px-4 py-2 border-2 border-dashed border-gray-200 rounded-xl text-[10px] font-black text-gray-400 hover:border-[#2C4A3C] hover:text-[#2C4A3C] transition-all">
-            + Add custom criterion
-          </button>
         </div>
       </div>
 
       <div *ngIf="certifications.length === 0" class="py-12 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
         <p class="text-gray-500 font-bold">No certification requests yet.</p>
-        <p class="text-xs text-gray-400 mt-2">Click <strong>New verification request</strong> to generate the standard rules checklist.</p>
+        <p class="text-xs text-gray-400 mt-2">Click <strong>New verification request</strong> to evaluate real-time criteria.</p>
       </div>
 
-      <!-- Add custom criterion modal -->
-      <div *ngIf="selectedCertId" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl space-y-6">
-          <h2 class="text-xl font-bold text-[#1a2e1a]">Add criterion</h2>
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Criteria</label>
-              <select [(ngModel)]="newItem.criteriaName" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none">
-                <option value="SAFETY">Safety</option>
-                <option value="CLEANLINESS">Cleanliness</option>
-                <option value="EQUIPMENT">Equipment</option>
-                <option value="SERVICES">Services</option>
-                <option value="LOCATION">Location</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Score (0–10)</label>
-              <input type="number" [(ngModel)]="newItem.score" max="10" min="0" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Comment</label>
-              <textarea [(ngModel)]="newItem.comment" rows="2" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none"></textarea>
+      <!-- New verification request modal -->
+      <div *ngIf="showCreateModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-8 max-w-2xl w-full shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+          <div>
+            <h2 class="text-xl font-bold text-[#1a2e1a]">New verification request</h2>
+            <p class="text-xs text-[#617152] mt-1">Assess the campsite across standard criteria to generate the initial score.</p>
+          </div>
+          
+          <div class="space-y-6">
+            <div *ngFor="let item of pendingCertItems; let i = index" class="p-4 bg-gray-50 rounded-xl border border-gray-100">
+              <div class="flex justify-between items-start mb-2">
+                <div>
+                  <h4 class="text-sm font-bold text-[#1a2e1a] flex items-center gap-2">
+                    {{ item.name }}
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ item.criteriaName }}</span>
+                  </h4>
+                  <p class="text-xs text-[#617152] mt-1">{{ item.comment }}</p>
+                </div>
+                <div class="bg-white px-3 py-1 rounded-lg border border-gray-200 text-lg font-black"
+                     [ngClass]="(item.score || 0) >= (item.requiredScore || 10) ? 'text-emerald-600' : 'text-[#1a2e1a]'">
+                  {{ item.score || 0 }}<span class="text-xs text-gray-400">/10</span>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <input type="range" min="0" max="10" step="1" [(ngModel)]="item.score"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#2C4A3C]">
+                <div class="flex justify-between text-[10px] font-bold text-gray-400 mt-2 px-1">
+                  <span>0 (Poor)</span>
+                  <span>5 (Average)</span>
+                  <span>10 (Excellent)</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="flex justify-end gap-3 pt-4">
-            <button type="button" (click)="selectedCertId = null" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700">Cancel</button>
-            <button type="button" (click)="addItem()" class="px-6 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold">Add</button>
+          
+          <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+            <div class="mt-2">
+              <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Initial Score</p>
+              <p class="text-2xl font-black text-[#2C4A3C]">{{ getPendingTotalScore() }} <span class="text-sm text-gray-400 font-bold">/ 50</span></p>
+            </div>
+            <div class="flex gap-3">
+              <button type="button" (click)="closeCreateModal()" class="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700">Cancel</button>
+              <button type="button" (click)="createNewCertification()" [disabled]="isSubmitting"
+                class="px-6 py-2 bg-[#2C4A3C] text-white rounded-lg text-sm font-bold disabled:opacity-50">
+                {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -170,9 +180,11 @@ type Criteria = CertificationItem['criteriaName'];
 export class SiteCertificationsComponent implements OnInit, OnChanges {
   @Input() siteId!: number;
   certifications: Certification[] = [];
-  selectedCertId: number | null = null;
-  newItem: Partial<CertificationItem> = { criteriaName: 'SAFETY', score: 0 };
   actionError = '';
+  
+  showCreateModal = false;
+  isSubmitting = false;
+  pendingCertItems: Array<Partial<CertificationItem>> = [];
 
   private readonly defaultRuleTemplates: Array<{
     criteriaName: Criteria;
@@ -240,38 +252,42 @@ export class SiteCertificationsComponent implements OnInit, OnChanges {
     return (cert.items ?? []).reduce((sum, item) => sum + (item.requiredScore || 10), 0);
   }
 
-  /** Save score edit and auto-approve if total > 25 */
-  saveItemScore(cert: Certification, item: CertificationItem): void {
-    this.actionError = '';
-    const clampedScore = Math.max(0, Math.min(item.requiredScore || 10, item.score || 0));
-    item.score = clampedScore;
+  /** Score auto-approve logic if total > 25 is now handled during creation! */
 
-    this.certService.updateItemScore(item.id, clampedScore).subscribe({
-      next: () => {
-        const total = this.getTotalScore(cert);
-        // Auto-approve if total > 25 and cert is still pending
-        if (total > 25 && this.isPendingLike(cert.status)) {
-          this.certService.updateCertificationStatus(cert.id, 'APPROVED').subscribe({
-            next: () => this.loadCertifications(),
-            error: () => (this.actionError = 'Score saved but auto-approve failed.')
-          });
-        }
-      },
-      error: () => (this.actionError = 'Unable to save score.')
-    });
+  openCreateModal() {
+    // Initialize pending items from default templates
+    this.pendingCertItems = this.defaultRuleTemplates.map(tpl => ({
+      ...tpl,
+      score: 0 // Default start score
+    }));
+    this.showCreateModal = true;
+    this.actionError = '';
+  }
+
+  closeCreateModal() {
+    this.showCreateModal = false;
+    this.pendingCertItems = [];
+  }
+
+  getPendingTotalScore(): number {
+    return this.pendingCertItems.reduce((acc, item) => acc + (item.score || 0), 0);
   }
 
   createNewCertification() {
     this.actionError = '';
+    this.isSubmitting = true;
     const rulesBody = this.defaultRuleTemplates.map((r) => `• ${r.name}: ${r.comment}`).join('\n');
+    const totalScore = this.getPendingTotalScore();
+    const willBeApproved = totalScore > 25;
+    
     const cert: Partial<Certification> = {
       title: 'CampConnect site verification',
       description:
         'This campsite is evaluated against CampConnect operating rules. Inspectors must confirm each criterion before approval.\n\n' +
         rulesBody,
       issuingOrganization: 'CampConnect Compliance',
-      status: 'PENDING',
-      score: 0,
+      status: willBeApproved ? 'APPROVED' : 'PENDING',
+      score: totalScore,
       issueDate: new Date(),
       expirationDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
     };
@@ -280,23 +296,30 @@ export class SiteCertificationsComponent implements OnInit, OnChanges {
       .createCertification(this.siteId, cert)
       .pipe(
         switchMap((created) => {
-          const items$ = this.defaultRuleTemplates.map((tpl) =>
+          const items$ = this.pendingCertItems.map((tpl) =>
             this.certService.addCertificationItem({
               certificationId: created.id,
               criteriaName: tpl.criteriaName,
               name: tpl.name,
               comment: tpl.comment,
-              score: 0,
+              score: tpl.score || 0,
               requiredScore: tpl.requiredScore,
-              passed: false
+              passed: (tpl.score || 0) >= (tpl.requiredScore || 0)
             })
           );
           return forkJoin(items$);
         })
       )
       .subscribe({
-        next: () => this.loadCertifications(),
-        error: () => (this.actionError = 'Unable to create certification request.')
+        next: () => {
+          this.isSubmitting = false;
+          this.closeCreateModal();
+          this.loadCertifications();
+        },
+        error: () => {
+          this.isSubmitting = false;
+          this.actionError = 'Unable to create certification request.';
+        }
       });
   }
 
@@ -322,21 +345,7 @@ export class SiteCertificationsComponent implements OnInit, OnChanges {
     }
   }
 
-  addItem() {
-    if (this.selectedCertId && this.newItem.criteriaName) {
-      const item = {
-        ...this.newItem,
-        name: `${this.newItem.criteriaName} check`,
-        requiredScore: 7,
-        certificationId: this.selectedCertId
-      } as CertificationItem;
-      this.certService.addCertificationItem(item).subscribe(() => {
-        this.loadCertifications();
-        this.selectedCertId = null;
-        this.newItem = { criteriaName: 'SAFETY', score: 0 };
-      });
-    }
-  }
+  // Custom items are now submitted entirely upfront via modal!
 
   isPendingLike(status: string): boolean {
     const u = String(status || '').toUpperCase();

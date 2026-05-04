@@ -121,6 +121,27 @@
                     }
                 </div>
                 <div class="md:col-span-2">
+                    <div class="flex items-center justify-between gap-4 mb-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase">Campsite Tags</label>
+                        <span class="text-[11px] font-black tracking-widest uppercase"
+                            [ngClass]="(newSiteForm.tags ?? []).length >= maxSiteTags ? 'text-[#2C4A3C]' : 'text-gray-400'">
+                            {{ (newSiteForm.tags ?? []).length }}/{{ maxSiteTags }} Selected
+                        </span>
+                    </div>
+                    <p class="text-xs text-[#617152] font-medium mb-3">Choose up to 5 tags to show on the campsite page.</p>
+                    <div class="flex flex-wrap gap-2">
+                        @for (tag of siteTagOptions; track tag) {
+                        <button type="button" (click)="toggleNewSiteTag(tag)" [disabled]="isNewSiteTagDisabled(tag)"
+                            class="px-3 py-2 rounded-full border text-xs font-black tracking-wide transition-all"
+                            [ngClass]="isNewSiteTagSelected(tag)
+                                ? 'bg-[#2C4A3C] border-[#2C4A3C] text-white shadow-sm'
+                                : 'bg-white border-gray-200 text-[#1a2e1a] hover:border-[#2C4A3C]/40 hover:bg-[#f8f5e6] disabled:opacity-45 disabled:cursor-not-allowed'">
+                            {{ tag }}
+                        </button>
+                        }
+                    </div>
+                </div>
+                <div class="md:col-span-2">
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Campsite Images</label>
                     <div class="flex flex-wrap items-center gap-3">
                         <input #siteImagesInput type="file" accept="image/*" multiple class="hidden"
@@ -304,8 +325,8 @@
             </div>
 
             <div class="flex gap-2">
-                <button (click)="viewDetails(site)"
-                    class="flex-1 py-3 bg-[#2C4A3C] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all">Manage</button>
+                <button (click)="viewDetails(site)" title="Manage campsite pricing and photo analysis"
+                    class="flex-1 py-3 bg-[#2C4A3C] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#1a2e1a] transition-all">Manage + AI</button>
             </div>
         </div>
         }

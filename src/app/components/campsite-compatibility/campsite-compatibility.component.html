@@ -1,0 +1,249 @@
+<section class="min-h-screen bg-[#F5F2E8] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Back Button -->
+    <a routerLink="/campsites"
+      class="inline-flex items-center gap-2 text-[#2C4A3C] hover:text-[#1a2e1a] transition-all mb-6 font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-[#2C4A3C]/20 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md cursor-pointer">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Campsites
+    </a>
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-4xl font-black text-[#1a2e1a] mb-3 font-serif">Find Your Perfect Campsite</h1>
+      <p class="text-gray-600 text-lg">Tell us your preferences and we'll find the campsites that match you best.</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700 font-bold">
+      {{ errorMessage }}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Filter Panel -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm sticky top-4">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-[#1a2e1a]">Your Preferences</h2>
+            <button (click)="resetFilters()" 
+              class="text-sm text-gray-500 hover:text-[#2C4A3C] font-bold">
+              Reset
+            </button>
+          </div>
+
+          <!-- Capacity -->
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Guests</label>
+            <div class="flex items-center gap-3">
+              <input type="range" [(ngModel)]="capacity" min="1" max="20" 
+                class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+              <span class="text-lg font-bold text-[#2C4A3C] w-12 text-center">{{ capacity }}</span>
+            </div>
+          </div>
+
+          <!-- Budget -->
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Budget (DT/night)</label>
+            <div class="flex items-center gap-2 mb-2">
+              <input type="number" [(ngModel)]="budgetMin" placeholder="Min"
+                class="w-20 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+              <span class="text-gray-400">-</span>
+              <input type="number" [(ngModel)]="budgetMax" placeholder="Max"
+                class="w-20 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            </div>
+            <input type="range" [(ngModel)]="budgetMax" min="10" max="500" step="10"
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+          </div>
+
+          <!-- City -->
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Location</label>
+            <select [(ngModel)]="city" class="w-full px-3 py-2 border border-gray-200 rounded-lg">
+              <option value="">Any city</option>
+              <option *ngFor="let c of cityOptions" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+
+          <!-- Type -->
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Campsite Type</label>
+            <select [(ngModel)]="type" class="w-full px-3 py-2 border border-gray-200 rounded-lg">
+              <option value="">Any type</option>
+              <option *ngFor="let t of typeOptions" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+
+          <!-- Amenities -->
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-3">Must-Have Amenities</label>
+            <div class="flex flex-wrap gap-2">
+              <button *ngFor="let amenity of amenityOptions" 
+                (click)="toggleAmenity(amenity)"
+                class="px-3 py-1.5 rounded-full text-sm font-bold transition-all"
+                [class.bg-[#2C4A3C]]="selectedAmenities.includes(amenity)"
+                [class.text-white]="selectedAmenities.includes(amenity)"
+                [class.bg-gray-100]="!selectedAmenities.includes(amenity)"
+                [class.text-gray-700]="!selectedAmenities.includes(amenity)">
+                {{ amenity }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Tags/Style -->
+          <div class="mb-6">
+            <label class="block text-sm font-bold text-gray-700 mb-3">Preferred Style</label>
+            <div class="flex flex-wrap gap-2">
+              <button *ngFor="let tag of tagOptions" 
+                (click)="toggleTag(tag)"
+                class="px-3 py-1.5 rounded-full text-sm font-bold transition-all"
+                [class.bg-emerald-500]="selectedTags.includes(tag)"
+                [class.text-white]="selectedTags.includes(tag)"
+                [class.bg-gray-100]="!selectedTags.includes(tag)"
+                [class.text-gray-700]="!selectedTags.includes(tag)">
+                {{ tag }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Pet Friendly -->
+          <div class="mb-6">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" [(ngModel)]="petFriendly" class="w-5 h-5 rounded border-gray-300 text-[#2C4A3C]">
+              <span class="font-bold text-gray-700">Pet Friendly</span>
+            </label>
+          </div>
+
+          <!-- Search Button -->
+          <button (click)="findMatches()" [disabled]="isLoading"
+            class="w-full py-3 rounded-xl bg-[#2C4A3C] text-white font-bold hover:bg-[#1a2e1a] transition-colors disabled:opacity-50">
+            {{ isLoading ? 'Finding matches...' : 'Find My Campsite' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="lg:col-span-2">
+        <!-- Initial State -->
+        <div *ngIf="!hasSearched && !isLoading" class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-[#1a2e1a] mb-2">Ready to find your perfect campsite?</h3>
+          <p class="text-gray-500">Adjust your preferences and click "Find My Campsite" to see personalized matches.</p>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div class="animate-pulse space-y-4">
+            <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+          </div>
+          <p class="mt-4 text-gray-500 font-bold">Analyzing campsites...</p>
+        </div>
+
+        <!-- No Results -->
+        <div *ngIf="hasSearched && !isLoading && matches.length === 0" class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div class="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-[#1a2e1a] mb-2">No perfect matches found</h3>
+          <p class="text-gray-500 mb-4">Try adjusting your filters to be less specific.</p>
+          <button (click)="resetFilters()" 
+            class="px-6 py-2 rounded-lg bg-[#2C4A3C] text-white font-bold hover:bg-[#1a2e1a]">
+            Clear Filters
+          </button>
+        </div>
+
+        <!-- Results -->
+        <div *ngIf="hasSearched && !isLoading && matches.length > 0" class="space-y-4">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-[#1a2e1a]">{{ matches.length }} Matches Found</h2>
+            <p class="text-sm text-gray-500">Sorted by compatibility score</p>
+          </div>
+
+          <div *ngFor="let match of matches" 
+            class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+            <div class="flex flex-col sm:flex-row">
+              <!-- Image -->
+              <div class="sm:w-48 h-48 sm:h-auto flex-shrink-0">
+                <img [src]="match.thumbnail || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400'" 
+                  [alt]="match.name"
+                  class="w-full h-full object-cover">
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 p-5">
+                <div class="flex items-start justify-between gap-4">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <h3 class="font-bold text-lg text-[#1a2e1a]">{{ match.name }}</h3>
+                      <span *ngIf="match.compatibilityScore" 
+                        class="px-2 py-0.5 rounded-full text-xs font-bold text-white"
+                        [class]="getScoreColor(match.compatibilityScore)">
+                        {{ match.compatibilityScore }}%
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-2">{{ match.city }} • {{ match.type }}</p>
+                    
+                    <!-- Badges -->
+                    <div class="flex flex-wrap gap-1 mb-3">
+                      <span *ngFor="let badge of match.badges" 
+                        class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
+                        {{ badge }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="text-right">
+                    <p class="text-2xl font-black text-[#2C4A3C]">{{ match.pricePerNight ?? 0 }} DT</p>
+                    <p class="text-xs text-gray-500">per night</p>
+                  </div>
+                </div>
+
+                <!-- Match Reasons -->
+                <div *ngIf="match.reasons && match.reasons.length > 0" class="mb-3">
+                  <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Why it matches</p>
+                  <ul class="space-y-1">
+                    <li *ngFor="let reason of match.reasons.slice(0, 3)" class="text-sm text-emerald-700 flex items-center gap-2">
+                      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      {{ reason }}
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Matched Amenities -->
+                <div *ngIf="match.matchedAmenities && match.matchedAmenities.length > 0" class="mb-3">
+                  <div class="flex flex-wrap gap-1">
+                    <span *ngFor="let amenity of match.matchedAmenities" 
+                      class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
+                      {{ amenity }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 pt-3 border-t border-gray-100">
+                  <a [routerLink]="['/campsites', match.siteId]" 
+                    class="flex-1 text-center py-2 rounded-lg bg-[#2C4A3C] text-white font-bold hover:bg-[#1a2e1a] transition-colors">
+                    View Details
+                  </a>
+                  <button [routerLink]="['/campsites/compare']" [queryParams]="{ids: match.siteId}"
+                    class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-bold hover:bg-gray-50">
+                    Compare
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

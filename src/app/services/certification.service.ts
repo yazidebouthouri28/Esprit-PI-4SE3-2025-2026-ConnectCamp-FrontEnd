@@ -112,7 +112,7 @@ export class CertificationService {
         const backendStatus = this.toBackendStatus(status);
         const params = new HttpParams().set('status', backendStatus);
 
-        return this.http.put<any>(`${this.certUrl}/${id}/status`, null, { params }).pipe(
+        return this.http.patch<any>(`${this.certUrl}/${id}/status`, null, { params }).pipe(
             map((res) => {
                 const updated = res.data ? res.data : res;
                 return this.fromCertificationApi(updated, updated.siteId ?? 0);

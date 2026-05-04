@@ -21,3 +21,237 @@
 .animate-gallery-in {
   animation: gallery-in 0.2s ease-out forwards;
 }
+
+.route-ai-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(15, 127, 105, 0.14);
+  background:
+    radial-gradient(circle at top right, rgba(15, 127, 105, 0.14), transparent 26%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(239, 248, 245, 0.96) 100%);
+  padding: 1.25rem;
+}
+
+.route-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #0f7f69;
+  padding: 0.38rem 0.75rem;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.route-ai-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.route-ai-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 127, 105, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.85rem 0.95rem;
+}
+
+.route-ai-stat-label {
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6b7c6f;
+}
+
+.route-ai-stat-value {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #183728;
+}
+
+.route-ai-title {
+  margin-top: 1rem;
+  font-size: 1rem;
+  font-weight: 900;
+  color: #183728;
+}
+
+.route-ai-copy {
+  margin-top: 0.4rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #4d6256;
+}
+
+.route-preview-card {
+  display: flex;
+  min-height: 260px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  border: 1px solid #dcd5c7;
+  background:
+    radial-gradient(circle at 78% 22%, rgba(212, 168, 67, 0.16), transparent 20%),
+    linear-gradient(135deg, #fffdf9 0%, #f4efe4 100%);
+  padding: 1.5rem;
+}
+
+.route-preview-copy {
+  max-width: 24rem;
+}
+
+.route-preview-kicker {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #6b7c6f;
+}
+
+.route-preview-title {
+  margin-top: 0.75rem;
+  font-size: 1.55rem;
+  line-height: 1.1;
+  font-weight: 900;
+  color: #183728;
+}
+
+.route-preview-text {
+  margin-top: 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #55685d;
+}
+
+.route-preview-visual {
+  position: relative;
+  min-width: 210px;
+  height: 190px;
+  flex-shrink: 0;
+}
+
+.route-preview-car,
+.route-preview-pin {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 18px 26px rgba(24, 55, 40, 0.12);
+}
+
+.route-preview-car {
+  left: 0;
+  top: 18px;
+  width: 66px;
+  height: 66px;
+  font-size: 1.8rem;
+}
+
+.route-preview-pin {
+  right: 0;
+  bottom: 10px;
+  width: 62px;
+  height: 62px;
+  font-size: 1.5rem;
+}
+
+.route-preview-line {
+  position: absolute;
+  inset: 56px 48px 46px 52px;
+  border: 3px dashed rgba(15, 127, 105, 0.45);
+  border-radius: 999px;
+  transform: rotate(14deg);
+}
+
+.route-map-shell {
+  background: linear-gradient(135deg, #eef7f3 0%, #fbf8f2 100%);
+}
+
+#campsite-directions-map {
+  height: 100%;
+  width: 100%;
+}
+
+.route-steps-panel {
+  border-radius: 1.25rem;
+  border: 1px solid #e2dbce;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1rem;
+}
+
+.route-steps-title {
+  margin-bottom: 0.9rem;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #697a6e;
+}
+
+.route-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  border-radius: 1rem;
+  background: #fbfaf6;
+  padding: 0.85rem;
+  border: 1px solid #ece7db;
+}
+
+.route-step-index {
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #1f4d36;
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.route-step-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #20382c;
+}
+
+.route-step-distance {
+  margin-top: 0.25rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7a8a80;
+}
+
+@media (max-width: 767px) {
+  .route-ai-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .route-preview-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .route-preview-visual {
+    width: 100%;
+    min-width: 0;
+  }
+}

@@ -116,6 +116,14 @@
                  Save All Preferences
              </button>
         </div>
+
+        @if (prefMlUserId !== null) {
+        <section class="mt-10 pb-12 border-t border-olive/10 pt-10">
+            <h2 class="text-xl font-black text-forest mb-3">Suggested campsites (ML preferences API)</h2>
+            <p class="text-sm text-sage mb-4 font-medium">Refreshes from <code class="bg-cream px-2 py-0.5 rounded text-forest font-mono text-xs">/api/ml/user/recommendations</code> — save preferences above first for best results.</p>
+            <app-smart-recommendations [userId]="prefMlUserId!" />
+        </section>
+        }
     </div>
 </div>
 }

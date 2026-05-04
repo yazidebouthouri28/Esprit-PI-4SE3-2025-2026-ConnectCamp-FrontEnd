@@ -1,11 +1,26 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef, HostListener, ElementRef, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Site } from '../../models/camping.models';
 import { SiteService } from '../../services/site.service';
 import { AuthService } from '../../services/auth.service';
 import { PreferenceSelections, ProfilePersonalizationService } from '../../services/profile-personalization.service';
+
+// Text Highlight Pipe for search results
+@Pipe({
+  name: 'textHighlight',
+  standalone: true
+})
+export class TextHighlightPipe implements PipeTransform {
+  transform(value: string, searchKeyword: string): string {
+    if (!searchKeyword || !value) return value;
+    const regex = new RegExp(`(${searchKeyword})`, 'gi');
+    return value.replace(regex, `<mark class="bg-yellow-300 rounded px-1 font-bold text-black drop-shadow-sm">$1</mark>`);
+  }
+}
 
 interface CampsiteCard {
   id: number;
@@ -15,26 +30,31 @@ interface CampsiteCard {
   rating: number;
   reviews: number;
   price: number;
+  description: string;
   amenities: string[];
+  tags: string[];
   distance: number | null;
   /** BEACH | MOUNTAIN | FOREST | DESERT from backend */
   siteType: string;
   verified: boolean;
+  recommendationScore: number;
 }
 
 @Component({
   selector: 'app-campsite-listings',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, TextHighlightPipe],
   templateUrl: './campsite-listings.component.html',
   styleUrls: ['./campsite-listings.component.css'],
 })
-export class CampsiteListingsComponent implements OnInit {
+export class CampsiteListingsComponent implements OnInit, OnDestroy {
   isLoading = false;
   loadError = '';
   campsites: CampsiteCard[] = [];
   recommendedCampsites: CampsiteCard[] = [];
   filteredCampsites: CampsiteCard[] = [];
+  activeRecommendedIndex = 0;
+  recommendationsArePersonalized = false;
 
   viewMode: 'grid' | 'list' = 'grid';
   searchQuery = '';
@@ -53,9 +73,19 @@ export class CampsiteListingsComponent implements OnInit {
   priceRangeHigh = 500;
 
   histogramBars: Array<{ heightPct: number; inRange: boolean }> = [];
+  recommendedElapsedMs = 0;
+
+  // RxJS Debounced Search (like CampHighlight admin)
+  isSearching = false;
+  private searchSubject = new Subject<string>();
 
   private readonly fallbackImage = 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1080';
   private readonly tunisCenter = { latitude: 36.8065, longitude: 10.1815 };
+  private readonly recommendedRotationMs = 6500;
+  private readonly recommendedProgressTickMs = 100;
+  private currentPreferences: PreferenceSelections = {};
+  private recommendedRotationId: ReturnType<typeof setInterval> | null = null;
+  private recommendedLastTickAt = 0;
 
   amenityLabels: Record<string, string> = {
     wifi: 'WiFi',
@@ -71,7 +101,8 @@ export class CampsiteListingsComponent implements OnInit {
     private profilePersonalization: ProfilePersonalizationService,
     private cdr: ChangeDetectorRef,
     private elRef: ElementRef
-  ) { }
+  ) {}
+
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -82,6 +113,18 @@ export class CampsiteListingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadSites();
+
+    // RxJS Debounced Search (like CampHighlight admin)
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.executeSearch(searchTerm);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopRecommendedRotation();
   }
 
   toggleViewMode(): void {
@@ -98,10 +141,48 @@ export class CampsiteListingsComponent implements OnInit {
     return labels[this.sortBy] ?? 'Featured First';
   }
 
+  get recommendedSubtitle(): string {
+    return this.recommendationsArePersonalized
+      ? 'Curated around your camping preferences'
+      : 'Curated from top campsite ratings';
+  }
+
+  get activeRecommendedProgressPct(): number {
+    return Math.min(100, (this.recommendedElapsedMs / this.recommendedRotationMs) * 100);
+  }
+
   setSortBy(value: string): void {
     this.sortBy = value;
     this.sortDropdownOpen = false;
     this.applyFilters();
+  }
+
+  selectRecommendedCampsite(index: number): void {
+    if (index < 0 || index >= this.recommendedCampsites.length || index === this.activeRecommendedIndex) {
+      return;
+    }
+
+    this.activeRecommendedIndex = index;
+    this.resetRecommendedRotation();
+    this.cdr.markForCheck();
+  }
+
+  showPreviousRecommended(): void {
+    this.cycleRecommended(-1);
+    this.resetRecommendedRotation();
+  }
+
+  showNextRecommended(): void {
+    this.cycleRecommended(1);
+    this.resetRecommendedRotation();
+  }
+
+  pauseRecommendedRotation(): void {
+    this.stopRecommendedRotation();
+  }
+
+  resumeRecommendedRotation(): void {
+    this.startRecommendedRotation();
   }
 
   get rangeFillLeftPct(): number {
@@ -132,16 +213,66 @@ export class CampsiteListingsComponent implements OnInit {
     this.applyFilters();
   }
 
-  applyFilters(): void {
-    let result = [...this.campsites];
+  // RxJS Debounced Search Methods (like CampHighlight admin)
+  onSearchInput(value: string): void {
+    this.searchQuery = value;
+    this.isSearching = true; // Trigger skeleton loader immediately
+    this.searchSubject.next(value);
+  }
 
-    if (this.searchQuery) {
-      const query = this.searchQuery.toLowerCase();
-      result = result.filter(
-        (c) => c.name.toLowerCase().includes(query) || c.location.toLowerCase().includes(query)
-      );
+  executeSearch(keyword: string): void {
+    let result = [...this.campsites];
+    const safeKeyword = keyword.trim().toLowerCase();
+
+    if (safeKeyword) {
+      // Search across multiple fields: name, location, description, amenities, tags
+      result = result.filter(c => {
+        const nameMatch = c.name.toLowerCase().includes(safeKeyword);
+        const locationMatch = c.location.toLowerCase().includes(safeKeyword);
+        const descriptionMatch = c.description?.toLowerCase().includes(safeKeyword);
+        const amenitiesMatch = c.amenities?.some(a => a.toLowerCase().includes(safeKeyword));
+        const tagsMatch = c.tags?.some(t => t.toLowerCase().includes(safeKeyword));
+        const priceMatch = c.price.toString().includes(safeKeyword);
+        const typeMatch = c.siteType?.toLowerCase().includes(safeKeyword);
+
+        return nameMatch || locationMatch || descriptionMatch || amenitiesMatch || tagsMatch || priceMatch || typeMatch;
+      });
     }
 
+    // Apply other filters (price, tags, verified)
+    this.applyFiltersToResult(result);
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.isSearching = true;
+    this.searchSubject.next('');
+  }
+
+  applyFilters(): void {
+    // Start with search-filtered results if there's a search query
+    let result = [...this.campsites];
+    const safeKeyword = this.searchQuery.trim().toLowerCase();
+
+    if (safeKeyword) {
+      // Apply search filter first (same logic as executeSearch)
+      result = result.filter(c => {
+        const nameMatch = c.name.toLowerCase().includes(safeKeyword);
+        const locationMatch = c.location.toLowerCase().includes(safeKeyword);
+        const descriptionMatch = c.description?.toLowerCase().includes(safeKeyword);
+        const amenitiesMatch = c.amenities?.some(a => a.toLowerCase().includes(safeKeyword));
+        const tagsMatch = c.tags?.some(t => t.toLowerCase().includes(safeKeyword));
+        const priceMatch = c.price.toString().includes(safeKeyword);
+        const typeMatch = c.siteType?.toLowerCase().includes(safeKeyword);
+
+        return nameMatch || locationMatch || descriptionMatch || amenitiesMatch || tagsMatch || priceMatch || typeMatch;
+      });
+    }
+
+    this.applyFiltersToResult(result);
+  }
+
+  private applyFiltersToResult(result: CampsiteCard[]): void {
     result = result.filter(
       (c) => c.price >= this.priceRangeLow && c.price <= this.priceRangeHigh
     );
@@ -152,9 +283,45 @@ export class CampsiteListingsComponent implements OnInit {
     if (this.tagDesert) selectedTypes.push('DESERT');
     if (this.tagBeach) selectedTypes.push('BEACH');
     if (selectedTypes.length) {
-      result = result.filter((c) =>
-        selectedTypes.includes(String(c.siteType || '').toUpperCase().trim())
-      );
+      result = result.filter((c) => {
+        const siteTypeValue = String(c.siteType || '').toUpperCase().trim();
+
+        // If siteType is explicitly set to a valid type, use it strictly
+        if (siteTypeValue && ['FOREST', 'MOUNTAIN', 'DESERT', 'BEACH'].includes(siteTypeValue)) {
+          return selectedTypes.includes(siteTypeValue);
+        }
+
+        // For empty/unknown siteType, use keyword detection with CONFLICT RESOLUTION
+        const nameAndDesc = (c.name + ' ' + (c.description || '')).toLowerCase();
+
+        // First, detect what type this campsite ACTUALLY is based on content
+        let detectedType: string | null = null;
+
+        // Check for desert indicators (strongest indicators first)
+        if (nameAndDesc.includes('desert') || nameAndDesc.includes('sahara') || nameAndDesc.includes('dune')) {
+          detectedType = 'DESERT';
+        }
+        // Check for beach indicators
+        else if (nameAndDesc.includes('beach') || nameAndDesc.includes('ocean') || nameAndDesc.includes('coast') || nameAndDesc.includes('sea')) {
+          detectedType = 'BEACH';
+        }
+        // Check for mountain indicators
+        else if (nameAndDesc.includes('mountain') || nameAndDesc.includes('mont')) {
+          detectedType = 'MOUNTAIN';
+        }
+        // Check for forest indicators
+        else if (nameAndDesc.includes('forest') || nameAndDesc.includes('wood')) {
+          detectedType = 'FOREST';
+        }
+
+        // If we detected a type, only match if it's in the selected types
+        if (detectedType) {
+          return selectedTypes.includes(detectedType);
+        }
+
+        // If no type detected, don't show when any type filter is active
+        return false;
+      });
     }
 
     if (this.tagVerified) {
@@ -170,12 +337,72 @@ export class CampsiteListingsComponent implements OnInit {
     }
 
     this.filteredCampsites = result;
+    this.isSearching = false; // Disable skeleton loaders
     this.updateHistogramInRange();
     this.cdr.markForCheck();
   }
 
   getAmenityLabel(amenity: string): string {
     return this.amenityLabels[amenity] ?? this.toTitleCase(amenity);
+  }
+
+  getSiteTypeLabel(siteType: string): string {
+    return this.toTitleCase(siteType || 'Campsite');
+  }
+
+  getRecommendationSummary(card: CampsiteCard): string {
+    if (card.description.trim()) {
+      return card.description.trim();
+    }
+
+    const amenityPreview = card.amenities
+      .slice(0, 2)
+      .map((amenity) => this.getAmenityLabel(amenity).toLowerCase())
+      .join(' and ');
+
+    const prefix = this.recommendationsArePersonalized
+      ? 'Picked to match your outdoor style'
+      : 'A standout escape loved by ConnectCamp travelers';
+
+    if (amenityPreview) {
+      return `${prefix}, this ${this.getSiteTypeLabel(card.siteType).toLowerCase()} stay blends ${amenityPreview} with the scenery of ${card.location}.`;
+    }
+
+    return `${prefix}, this ${this.getSiteTypeLabel(card.siteType).toLowerCase()} retreat brings a memorable atmosphere in ${card.location}.`;
+  }
+
+  getRecommendedMetaChips(card: CampsiteCard): string[] {
+    const chips: string[] = [];
+
+    if (card.siteType) {
+      chips.push(this.getSiteTypeLabel(card.siteType));
+    }
+
+    if (card.distance !== null) {
+      chips.push(`${card.distance} mi from Tunis`);
+    } else if (card.location) {
+      chips.push(card.location);
+    }
+
+    for (const tag of card.tags.slice(0, 2)) {
+      const normalizedTag = this.toTitleCase(tag);
+      if (normalizedTag && !chips.includes(normalizedTag)) {
+        chips.push(normalizedTag);
+      }
+    }
+
+    for (const amenity of card.amenities.slice(0, 2)) {
+      const label = this.getAmenityLabel(amenity);
+      if (label && !chips.includes(label)) {
+        chips.push(label);
+      }
+    }
+
+    return chips.slice(0, 4);
+  }
+
+  getRecommendedProgressPct(index: number): number {
+    return index === this.activeRecommendedIndex ? this.activeRecommendedProgressPct : 0;
   }
 
   private loadSites(): void {
@@ -187,6 +414,7 @@ export class CampsiteListingsComponent implements OnInit {
         const mapped = sites.map((site) => this.toCard(site));
         this.campsites = mapped;
         this.recommendedCampsites = this.buildRecommendedCampsites(mapped);
+        this.initializeRecommendedCarousel();
         this.isLoading = false;
         this.initPriceRangeFromData(mapped);
         this.rebuildHistogram(mapped);
@@ -270,10 +498,13 @@ export class CampsiteListingsComponent implements OnInit {
       rating: Number(site.averageRating ?? 0),
       reviews: Number(site.reviewCount ?? 0),
       price: Number(site.pricePerNight ?? site.price ?? 0),
+      description: String(site.description ?? '').trim(),
       amenities,
+      tags: (site.tags ?? []).map((tag) => String(tag).trim()).filter(Boolean),
       distance: this.estimateDistanceInMiles(site.latitude, site.longitude),
       siteType: String(site.type || '').trim(),
-      verified: site.verified === true
+      verified: site.verified === true,
+      recommendationScore: 0
     };
   }
 
@@ -319,10 +550,17 @@ export class CampsiteListingsComponent implements OnInit {
   private buildRecommendedCampsites(cards: CampsiteCard[]): CampsiteCard[] {
     const fallback = [...cards]
       .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews)
-      .slice(0, 2);
+      .slice(0, 5)
+      .map((card, index) => ({
+        ...card,
+        recommendationScore: this.toFallbackRecommendationScore(card, index)
+      }));
 
     const preferences = this.profilePersonalization.getPreferences(this.authService.getCurrentUser());
-    if (!Object.keys(preferences).length) {
+    this.currentPreferences = preferences;
+    this.recommendationsArePersonalized = this.hasActivePreferences(preferences);
+
+    if (!this.recommendationsArePersonalized) {
       return fallback;
     }
 
@@ -330,8 +568,21 @@ export class CampsiteListingsComponent implements OnInit {
       .map((card) => ({ card, score: this.scoreCampsite(card, preferences) }))
       .sort((a, b) => b.score - a.score || b.card.rating - a.card.rating || b.card.reviews - a.card.reviews);
 
-    const personalized = ranked.filter((entry) => entry.score > 0).map((entry) => entry.card).slice(0, 2);
-    return personalized.length ? personalized : fallback;
+    const strongestScore = ranked[0]?.score ?? 0;
+    const personalized = ranked
+      .filter((entry) => entry.score > 0)
+      .slice(0, 5)
+      .map((entry, index) => ({
+        ...entry.card,
+        recommendationScore: this.toPersonalizedRecommendationScore(entry.score, strongestScore, index)
+      }));
+
+    if (personalized.length) {
+      return personalized;
+    }
+
+    this.recommendationsArePersonalized = false;
+    return fallback;
   }
 
   private scoreCampsite(card: CampsiteCard, preferences: PreferenceSelections): number {
@@ -442,4 +693,74 @@ export class CampsiteListingsComponent implements OnInit {
   private includesAny(source: string, values: string[]): boolean {
     return values.some((value) => source.includes(value));
   }
+
+  private hasActivePreferences(preferences: PreferenceSelections): boolean {
+    return Object.values(preferences).some((entries) => Array.isArray(entries) && entries.length > 0);
+  }
+
+  private toFallbackRecommendationScore(card: CampsiteCard, index: number): number {
+    const ratingContribution = Math.round((card.rating / 5) * 22);
+    const reviewContribution = Math.min(12, Math.round(card.reviews / 6));
+    return Math.max(78, Math.min(96, 68 + ratingContribution + reviewContribution - index));
+  }
+
+  private toPersonalizedRecommendationScore(score: number, strongestScore: number, index: number): number {
+    if (strongestScore <= 0) {
+      return 80;
+    }
+
+    const normalized = 80 + Math.round((score / strongestScore) * 18) - index;
+    return Math.max(80, Math.min(99, normalized));
+  }
+
+  private initializeRecommendedCarousel(): void {
+    this.activeRecommendedIndex = 0;
+    this.recommendedElapsedMs = 0;
+    this.stopRecommendedRotation();
+    this.startRecommendedRotation();
+  }
+
+  private startRecommendedRotation(): void {
+    if (this.recommendedRotationId || this.recommendedCampsites.length <= 1) {
+      return;
+    }
+
+    this.recommendedLastTickAt = Date.now();
+    this.recommendedRotationId = setInterval(() => {
+      const now = Date.now();
+      const delta = now - this.recommendedLastTickAt;
+      this.recommendedLastTickAt = now;
+      this.recommendedElapsedMs += delta;
+
+      if (this.recommendedElapsedMs >= this.recommendedRotationMs) {
+        this.recommendedElapsedMs = 0;
+        this.cycleRecommended(1);
+      }
+
+      this.cdr.markForCheck();
+    }, this.recommendedProgressTickMs);
+  }
+
+  private stopRecommendedRotation(): void {
+    if (this.recommendedRotationId) {
+      clearInterval(this.recommendedRotationId);
+      this.recommendedRotationId = null;
+    }
+  }
+
+  private resetRecommendedRotation(): void {
+    this.recommendedElapsedMs = 0;
+    this.stopRecommendedRotation();
+    this.startRecommendedRotation();
+  }
+
+  private cycleRecommended(step: 1 | -1): void {
+    if (!this.recommendedCampsites.length) {
+      return;
+    }
+
+    const total = this.recommendedCampsites.length;
+    this.activeRecommendedIndex = (this.activeRecommendedIndex + step + total) % total;
+  }
+
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -12,6 +12,7 @@ interface CampHighlightApiResponse {
     category: CampHighlight['category'];
     imageUrl?: string;
     isPublished?: boolean;
+    tags?: string[];
     siteId: number;
     createdAt?: string;
     updatedAt?: string;
@@ -23,11 +24,65 @@ interface CampHighlightApiRequest {
     category: CampHighlight['category'];
     imageUrl?: string;
     isPublished?: boolean;
+    tags?: string[];
     siteId: number;
 }
 
 interface HighlightMediaUploadApiResponse {
     url: string;
+}
+
+export interface SiteHighlightStats {
+    siteId: number;
+    siteName: string;
+    totalHighlights: number;
+    publishedHighlights: number;
+}
+
+export interface HighlightAdvancedSearchFilters {
+    keyword?: string;
+    siteId?: number;
+    category?: CampHighlight['category'];
+    published?: boolean;
+    sortBy?: 'updatedAt' | 'createdAt' | 'title' | 'category';
+    sortDirection?: 'asc' | 'desc';
+}
+
+export interface RelatedHighlight {
+    id: number;
+    title: string;
+    category?: string;
+    siteId?: number;
+    siteName?: string;
+    imageUrl?: string;
+    isPublished?: boolean;
+    relevanceScore?: number;
+}
+
+export interface HighlightQualityCheck {
+    highlightId: number;
+    qualityScore: number;
+    status: string;
+    hasImage: boolean;
+    published: boolean;
+    contentLength: number;
+    strengths: string[];
+    warnings: string[];
+}
+
+export interface HighlightCountMetric {
+    label: string;
+    count: number;
+}
+
+export interface HighlightDashboard {
+    totalHighlights: number;
+    publishedHighlights: number;
+    unpublishedHighlights: number;
+    averageContentLength: number;
+    highlightsWithImage: number;
+    byCategory: HighlightCountMetric[];
+    topSites: HighlightCountMetric[];
 }
 
 @Injectable({
@@ -45,6 +100,10 @@ export class CampHighlightService {
         );
     }
 
+    getSiteHighlightStats(): Observable<SiteHighlightStats[]> {
+        return this.http.get<SiteHighlightStats[]>(`${this.apiUrl}/stats/by-site`);
+    }
+
     getHighlightsBySite(siteId: number): Observable<CampHighlight[]> {
         return this.http.get<CampHighlightApiResponse[]>(`${this.apiUrl}/site/${siteId}`).pipe(
             map((highlights) => highlights.map((highlight) => this.fromApi(highlight)))
@@ -57,10 +116,38 @@ export class CampHighlightService {
         );
     }
 
+    searchHighlights(keyword: string): Observable<CampHighlight[]> {
+        return this.http.get<CampHighlightApiResponse[]>(`${this.apiUrl}/search`, {
+            params: { keyword }
+        }).pipe(
+            map((highlights) => highlights.map((highlight) => this.fromApi(highlight)))
+        );
+    }
+
+    searchHighlightsAdvanced(filters: HighlightAdvancedSearchFilters): Observable<CampHighlight[]> {
+        return this.http.get<CampHighlightApiResponse[]>(`${this.apiUrl}/advanced/search`, {
+            params: this.toSearchParams(filters)
+        }).pipe(
+            map((highlights) => highlights.map((highlight) => this.fromApi(highlight)))
+        );
+    }
+
     getHighlightById(id: number): Observable<CampHighlight> {
         return this.http.get<CampHighlightApiResponse>(`${this.apiUrl}/${id}`).pipe(
             map((highlight) => this.fromApi(highlight))
         );
+    }
+
+    getRelatedHighlights(id: number): Observable<RelatedHighlight[]> {
+        return this.http.get<RelatedHighlight[]>(`${this.apiUrl}/${id}/related`);
+    }
+
+    getQualityCheck(id: number): Observable<HighlightQualityCheck> {
+        return this.http.get<HighlightQualityCheck>(`${this.apiUrl}/${id}/quality-check`);
+    }
+
+    getAdvancedDashboard(): Observable<HighlightDashboard> {
+        return this.http.get<HighlightDashboard>(`${this.apiUrl}/advanced/dashboard`);
     }
 
     createHighlight(siteId: number, highlight: Partial<CampHighlight>): Observable<CampHighlight> {
@@ -70,6 +157,7 @@ export class CampHighlightService {
             category: highlight.category ?? 'FLORA',
             imageUrl: highlight.imageUrl ?? '',
             isPublished: highlight.isPublished ?? true,
+            tags: this.normalizeTags(highlight.tags),
             siteId
         };
 
@@ -86,6 +174,7 @@ export class CampHighlightService {
             category: highlight.category ?? 'FLORA',
             imageUrl: highlight.imageUrl ?? '',
             isPublished: highlight.isPublished ?? true,
+            tags: this.normalizeTags(highlight.tags),
             siteId: highlight.siteId ?? 0
         };
 
@@ -117,9 +206,34 @@ export class CampHighlightService {
             category: highlight.category,
             imageUrl: highlight.imageUrl ?? '',
             isPublished: highlight.isPublished ?? true,
+            tags: this.normalizeTags(highlight.tags),
             siteId: highlight.siteId,
             createdAt: highlight.createdAt ?? '',
             updatedAt: highlight.updatedAt ?? ''
         };
+    }
+
+    private normalizeTags(tags?: string[] | null): string[] {
+        const normalized: string[] = [];
+        for (const raw of tags ?? []) {
+            const tag = String(raw || '').trim();
+            if (tag && !normalized.some((current) => current.toLowerCase() === tag.toLowerCase())) {
+                normalized.push(tag);
+            }
+        }
+        return normalized.slice(0, 8);
+    }
+
+    private toSearchParams(filters: HighlightAdvancedSearchFilters): HttpParams {
+        let params = new HttpParams();
+
+        for (const [key, value] of Object.entries(filters ?? {})) {
+            if (value === undefined || value === null || value === '') {
+                continue;
+            }
+            params = params.set(key, String(value));
+        }
+
+        return params;
     }
 }

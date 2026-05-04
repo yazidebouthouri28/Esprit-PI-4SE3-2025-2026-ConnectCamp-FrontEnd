@@ -2,19 +2,24 @@ import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/cor
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { SiteService } from '../../services/site.service';
-import { Site, Review, CampHighlight, VirtualTour, Certification } from '../../models/camping.models';
+import { SiteService, AiInsights, AiSimilarSite } from '../../services/site.service';
+import { Site, Review, CampHighlight, VirtualTour, Certification, RouteGuide } from '../../models/camping.models';
 import { ReviewService } from '../../services/review.service';
 import { CampHighlightService } from '../../services/camp-highlight.service';
 import { VirtualTourService } from '../../services/virtual-tour.service';
 import { CertificationService } from '../../services/certification.service';
 import { AuthService } from '../../services/auth.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { normalizeSiteTags } from '../../models/site-tags';
+import { RouteGuideService } from '../../services/route-guide.service';
+import { BestTimeToBookComponent } from '../ml/best-time-to-book/best-time-to-book.component';
+import { CampsiteMatchScoreComponent } from '../ml/campsite-match-score/campsite-match-score.component';
+import { AiReviewSummaryComponent } from '../ml/ai-review-summary/ai-review-summary.component';
 
 @Component({
     selector: 'app-campsite-detail',
     standalone: true,
-    imports: [CommonModule, RouterLink, FormsModule],
+    imports: [CommonModule, RouterLink, FormsModule, BestTimeToBookComponent, CampsiteMatchScoreComponent, AiReviewSummaryComponent],
     templateUrl: './campsite-detail.component.html',
     styleUrls: ['./campsite-detail.component.css']
 })
@@ -37,15 +42,50 @@ export class CampsiteDetailComponent implements OnInit {
     editingReviewId: number | null = null;
     editingReviewDraft = { rating: 5, comment: '' };
     isSavingEdit = false;
-
-    likes = 12;
+    
+    likes = 0;
     dislikes = 0;
+
+    weatherForecast: any[] = [];
+    isWeatherLoading = false;
 
     
     userReaction: 'LIKE' | 'DISLIKE' | null = null;
     isGalleryOpen = false;
     activeGalleryIndex = 0;
     galleryImages: string[] = [];
+    aiInsights: AiInsights | null = null;
+    similarSites: AiSimilarSite[] = [];
+    routeGuides: RouteGuide[] = [];
+    
+
+    // Booking form properties
+    checkInDate: string = '';
+    checkOutDate: string = '';
+    guests: number = 1;
+
+    get minDate(): string {
+        return new Date().toISOString().split('T')[0];
+    }
+
+    get guestOptions(): number[] {
+        const cap = this.campsite?.capacity || 10;
+        return Array.from({ length: cap }, (_, i) => i + 1);
+    }
+
+    get numberOfNights(): number {
+        if (!this.checkInDate || !this.checkOutDate) return 0;
+        const start = new Date(this.checkInDate).getTime();
+        const end = new Date(this.checkOutDate).getTime();
+        const diff = end - start;
+        return diff > 0 ? Math.ceil(diff / (1000 * 3600 * 24)) : 0;
+    }
+
+    get calculatedTotal(): number {
+        const nights = this.numberOfNights > 0 ? this.numberOfNights : 1;
+        const base = (this.campsite?.price || 0) * nights;
+        return base + 45 + 32;
+    }
 
     toggleLike(): void {
         if (!this.isAuthenticated) return;
@@ -59,6 +99,7 @@ export class CampsiteDetailComponent implements OnInit {
             this.userReaction = 'LIKE';
             this.likes++;
         }
+        this.persistCampsiteReaction();
     }
 
     toggleDislike(): void {
@@ -73,6 +114,7 @@ export class CampsiteDetailComponent implements OnInit {
             this.userReaction = 'DISLIKE';
             this.dislikes++;
         }
+        this.persistCampsiteReaction();
     }
 
     openGallery(index: number = 0): void {
@@ -156,6 +198,7 @@ export class CampsiteDetailComponent implements OnInit {
         private reviewService: ReviewService,
         private highlightService: CampHighlightService,
         private virtualTourService: VirtualTourService,
+        private routeGuideService: RouteGuideService,
         private certificationService: CertificationService,
         private authService: AuthService,
         private sanitizer: DomSanitizer,
@@ -168,6 +211,7 @@ export class CampsiteDetailComponent implements OnInit {
             if (id) {
                 this.loadCampsite(id);
                 this.loadRelatedData(id);
+                this.loadAiData(id);
             }
         });
     }
@@ -181,6 +225,12 @@ export class CampsiteDetailComponent implements OnInit {
             next: (site) => {
                 this.campsite = site;
                 this.mapAmenities(site.amenities || []);
+                this.loadCampsiteReaction();
+                
+                if (site.latitude && site.longitude) {
+                    this.fetchWeather(Number(site.latitude), Number(site.longitude));
+                }
+                
                 this.isLoading = false;
                 this.cdr.detectChanges();
             },
@@ -191,6 +241,7 @@ export class CampsiteDetailComponent implements OnInit {
                         if (fallbackSite) {
                             this.campsite = fallbackSite;
                             this.mapAmenities(fallbackSite.amenities || []);
+                            this.loadCampsiteReaction();
                             this.errorMessage = '';
                         } else {
                             console.error('Error fetching campsite details', err);
@@ -208,6 +259,95 @@ export class CampsiteDetailComponent implements OnInit {
                 });
             }
         });
+    }
+
+    private fetchWeather(lat: number, lng: number): void {
+        this.isWeatherLoading = true;
+        
+        const weatherMap: Record<number, { icon: string, desc: string }> = {
+            0: { icon: '☀️', desc: 'Clear sky' },
+            1: { icon: '🌤️', desc: 'Mainly clear' },
+            2: { icon: '⛅', desc: 'Partly cloudy' },
+            3: { icon: '☁️', desc: 'Overcast' },
+            45: { icon: '🌫️', desc: 'Fog' },
+            48: { icon: '🌫️', desc: 'Rime fog' },
+            51: { icon: '🌧️', desc: 'Light drizzle' },
+            53: { icon: '🌧️', desc: 'Moderate drizzle' },
+            55: { icon: '🌧️', desc: 'Dense drizzle' },
+            61: { icon: '☔', desc: 'Slight rain' },
+            63: { icon: '☔', desc: 'Moderate rain' },
+            65: { icon: '☔', desc: 'Heavy rain' },
+            71: { icon: '❄️', desc: 'Slight snow' },
+            73: { icon: '❄️', desc: 'Moderate snow' },
+            75: { icon: '❄️', desc: 'Heavy snow' },
+            95: { icon: '⛈️', desc: 'Thunderstorm' },
+            96: { icon: '⛈️', desc: 'Storm + hail' },
+            99: { icon: '⛈️', desc: 'Heavy hail' },
+        };
+
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
+        
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.daily) {
+                    const days = data.daily.time;
+                    this.weatherForecast = days.map((dateStr: string, index: number) => {
+                        const code = data.daily.weathercode[index];
+                        const wmo = weatherMap[code] || { icon: '🌡️', desc: 'Unknown' };
+                        const d = new Date(dateStr);
+                        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+                        
+                        return {
+                            day: index === 0 ? 'Today' : dayName,
+                            icon: wmo.icon,
+                            desc: wmo.desc,
+                            maxTemp: Math.round(data.daily.temperature_2m_max[index]),
+                            minTemp: Math.round(data.daily.temperature_2m_min[index])
+                        };
+                    });
+                }
+            })
+            .catch(err => console.error("Weather fetch failed", err))
+            .finally(() => {
+                this.isWeatherLoading = false;
+                this.cdr.detectChanges();
+            });
+    }
+
+    private getCampsiteReactionStorageKey(): string {
+        return `campsite_reaction_${this.campsite?.id || 0}`;
+    }
+
+    private loadCampsiteReaction(): void {
+        this.likes = 0;
+        this.dislikes = 0;
+        this.userReaction = null;
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = localStorage.getItem(this.getCampsiteReactionStorageKey());
+            const parsed = raw ? JSON.parse(raw) : null;
+            this.likes = Math.max(0, Number(parsed?.likes || 0));
+            this.dislikes = Math.max(0, Number(parsed?.dislikes || 0));
+            this.userReaction = parsed?.userReaction === 'LIKE' || parsed?.userReaction === 'DISLIKE'
+                ? parsed.userReaction
+                : null;
+        } catch {
+            this.likes = 0;
+            this.dislikes = 0;
+            this.userReaction = null;
+        }
+    }
+
+    private persistCampsiteReaction(): void {
+        if (typeof window === 'undefined') return;
+        try {
+            localStorage.setItem(this.getCampsiteReactionStorageKey(), JSON.stringify({
+                likes: this.likes,
+                dislikes: this.dislikes,
+                userReaction: this.userReaction
+            }));
+        } catch { }
     }
 
     private getReviewReactionsStorageKey(): string {
@@ -292,6 +432,89 @@ export class CampsiteDetailComponent implements OnInit {
                 this.cdr.detectChanges();
             }
         });
+
+        this.routeGuideService.getRoutesBySite(siteId).subscribe({
+            next: (routes) => {
+                this.routeGuides = routes.filter((route) => route.isActive !== false);
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.routeGuides = [];
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    private loadAiData(siteId: number): void {
+        this.siteService.getAiInsights(siteId).subscribe({
+            next: (insights) => {
+                this.aiInsights = insights;
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.aiInsights = {
+                    priceBadge: 'Fair Price',
+                    badgeColor: 'yellow',
+                    availabilityStatus: 'Available',
+                    availabilityMessage: 'Usually available.',
+                    reviewSummary: 'Review analysis unavailable.',
+                    satisfactionPercentage: 0,
+                    trustScore: 0,
+                    trustLabel: 'Unknown'
+                };
+                this.cdr.detectChanges();
+            }
+        });
+
+        this.siteService.getSimilarSites(siteId).subscribe({
+            next: (sites) => {
+                this.similarSites = sites.slice(0, 3);
+                this.cdr.detectChanges();
+            },
+            error: () => {
+                this.similarSites = [];
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
+    get priceBadgeClasses(): string {
+        const color = (this.aiInsights?.badgeColor || 'yellow').toLowerCase();
+        if (color === 'green') {
+            return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        }
+        if (color === 'red') {
+            return 'bg-red-100 text-red-800 border-red-200';
+        }
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    }
+
+    get availabilityAlertClasses(): string {
+        const status = (this.aiInsights?.availabilityStatus || '').toLowerCase();
+        return status === 'busy'
+            ? 'bg-red-50 border-red-100 text-red-800'
+            : 'bg-emerald-50 border-emerald-100 text-emerald-800';
+    }
+
+    get trustLabelClasses(): string {
+        const trustScore = Number(this.aiInsights?.trustScore ?? 0);
+        if (trustScore >= 80) {
+            return 'bg-emerald-100 text-emerald-800';
+        }
+        if (trustScore >= 50) {
+            return 'bg-yellow-100 text-yellow-800';
+        }
+        return 'bg-gray-100 text-gray-700';
+    }
+
+    get trustProgressWidth(): string {
+        const value = Math.max(0, Math.min(100, Number(this.aiInsights?.satisfactionPercentage ?? 0)));
+        return `${value}%`;
+    }
+
+    openSimilarSite(siteId: number): void {
+        if (!siteId) return;
+        this.router.navigate(['/campsites', siteId]);
     }
 
     private mapAmenities(amenities: string[]) {
@@ -314,7 +537,13 @@ export class CampsiteDetailComponent implements OnInit {
 
     reserveNow(): void {
         if (!this.campsite?.id) return;
-        this.router.navigate(['/campsites', this.campsite.id, 'reserve']);
+        this.router.navigate(['/campsites', this.campsite.id, 'reserve'], {
+            queryParams: {
+                checkIn: this.checkInDate || undefined,
+                checkOut: this.checkOutDate || undefined,
+                guests: this.guests
+            }
+        });
     }
 
     openFirstVirtualTour(): void {
@@ -433,17 +662,35 @@ export class CampsiteDetailComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    get directionsUrl(): string {
-        if (!this.campsite?.location) return 'https://www.google.com/maps';
-        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(this.campsite.location)}`;
+    getDirections(): void {
+        const query = this.getCampsiteLocationQuery();
+        const url = query
+            ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+            : 'https://www.google.com/maps';
+        window.open(url, '_blank', 'noopener');
     }
 
     get mapEmbedUrl(): SafeResourceUrl {
-        const query = this.campsite?.location || this.campsite?.city || this.campsite?.name || 'campsite';
+        const query = this.getCampsiteLocationQuery() || 'campsite';
         return this.sanitizer.bypassSecurityTrustResourceUrl(
             `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=12&output=embed`
         );
     }
+
+    private getCampsiteLocationQuery(): string {
+        const parts = [
+            this.campsite?.address,
+            this.campsite?.location,
+            this.campsite?.city,
+            this.campsite?.country,
+            this.campsite?.name
+        ]
+            .map((part) => String(part || '').trim())
+            .filter(Boolean);
+
+        return parts.join(', ');
+    }
+
 
     get isAuthenticated(): boolean {
         return this.authService.isAuthenticated();
@@ -451,6 +698,89 @@ export class CampsiteDetailComponent implements OnInit {
 
     get isReviewAllowed(): boolean {
         return this.authService.isAuthenticated() && !this.authService.isAdmin();
+    }
+
+    get preferenceTags(): string[] {
+        const explicitTags = normalizeSiteTags(this.campsite?.tags);
+        if (explicitTags.length) {
+            return explicitTags;
+        }
+
+        const fallbackTags = normalizeSiteTags([
+            this.campsite?.type ?? '',
+            ...(this.campsite?.amenities ?? [])
+        ]);
+
+        return fallbackTags.length ? fallbackTags : ['Camping'];
+    }
+
+    /** Text bodies for `/api/ml/user/review-summary` */
+    get reviewTextsForMl(): string[] {
+        return this.reviews
+            .map((r) => (r.comment || '').trim())
+            .filter((c) => c.length > 2);
+    }
+
+    get campsitePriceForMl(): number {
+        return Number(this.campsite?.price ?? this.campsite?.pricePerNight ?? 0);
+    }
+
+    get bookingDesiredMonthForMl(): number {
+        if (this.checkInDate) {
+            const d = new Date(this.checkInDate);
+            if (!Number.isNaN(d.getTime())) {
+                return d.getMonth() + 1;
+            }
+        }
+        return new Date().getMonth() + 1;
+    }
+
+    get mlSiteFeaturesPayload(): Record<string, unknown> {
+        return {
+            amenities: this.campsite?.amenities ?? [],
+            tags: this.preferenceTags,
+            price_per_night: this.campsitePriceForMl,
+            rating: Number(this.campsite?.averageRating ?? 0),
+            location_type: (this.campsite?.type ?? 'FOREST').toString().toLowerCase()
+        };
+    }
+
+    get mlUserPreferenceAmenities(): string[] {
+        const tags = this.preferenceTags.map((t) => String(t).toLowerCase());
+        const am = (this.campsite?.amenities ?? []).map((a) => String(a).toLowerCase());
+        return [...new Set([...tags, ...am])].slice(0, 12);
+    }
+
+    get mlBudgetMin(): number {
+        const p = this.campsitePriceForMl;
+        return Math.max(0, Math.round((p || 50) * 0.65));
+    }
+
+    get mlBudgetMax(): number {
+        const p = this.campsitePriceForMl;
+        return Math.round((p || 50) * 1.45) || 200;
+    }
+
+    get mlPreferredLocationsHint(): string[] {
+        const raw = `${this.campsite?.location || ''} ${this.campsite?.city || ''}`.toLowerCase();
+        const parts = raw.split(/[,/\s]+/).filter((x) => x.length > 2);
+        return [...new Set(parts)].slice(0, 6);
+    }
+
+    get capacityDescription(): string {
+        const capacity = Number(this.campsite?.capacity || 0);
+        if (capacity > 0) {
+            return `Up to ${capacity} guests max`;
+        }
+        return 'Capacity details are provided by campsite host';
+    }
+
+    get accommodationDescription(): string {
+        const amenityText = (this.campsite?.amenities || []).join(' ').toLowerCase();
+        if (amenityText.includes('rv')) {
+            return 'Tents & RVs permitted';
+        }
+        return 'Tents permitted';
     }
 
     get shouldShowReviewLoginHint(): boolean {

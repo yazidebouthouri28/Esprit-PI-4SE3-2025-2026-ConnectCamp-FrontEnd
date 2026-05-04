@@ -1,0 +1,158 @@
+<section class="min-h-screen bg-[#F5F2E8] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Back Button -->
+    <a routerLink="/campsites"
+      class="inline-flex items-center gap-2 text-[#2C4A3C] hover:text-[#1a2e1a] transition-all mb-6 font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-[#2C4A3C]/20 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md cursor-pointer">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Campsites
+    </a>
+
+    <!-- Header -->
+    <div class="mb-10">
+      <h1 class="text-4xl font-black text-[#1a2e1a] mb-3 font-serif">Compare Campsites</h1>
+      <p class="text-gray-600 text-lg">Select 2 to 4 campsites to compare side-by-side and find your perfect match.</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-red-700 font-bold">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Selection Panel -->
+    <div class="bg-white rounded-2xl border border-gray-200 p-6 mb-8 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-[#1a2e1a]">
+          Select Campsites 
+          <span class="text-sm font-normal text-gray-500">({{ selectedSiteIds.length }}/{{ maxSelection }})</span>
+        </h2>
+        <div class="flex gap-3">
+          <button *ngIf="selectedSiteIds.length > 0" (click)="clearSelection()"
+            class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-bold hover:bg-gray-50 transition-colors">
+            Clear
+          </button>
+          <button (click)="loadComparison()" [disabled]="selectedSiteIds.length < 2 || isLoading"
+            class="px-6 py-2 rounded-lg bg-[#2C4A3C] text-white font-bold hover:bg-[#1a2e1a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ isLoading ? 'Comparing...' : 'Compare Now' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Campsite Grid Selection -->
+      <div *ngIf="!isLoading || allCampsites.length > 0" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div *ngFor="let item of allCampsites" 
+          (click)="toggleSelection(item.site.id)"
+          class="relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all"
+          [class.border-emerald-500]="item.selected"
+          [class.border-gray-200]="!item.selected"
+          [class.ring-2]="item.selected"
+          [class.ring-emerald-200]="item.selected">
+          <img [src]="item.site.image || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400'" 
+            [alt]="item.site.name"
+            class="w-full h-28 object-cover">
+          <div class="p-3 bg-white">
+            <h3 class="font-bold text-sm text-[#1a2e1a] truncate">{{ item.site.name }}</h3>
+            <p class="text-xs text-gray-500">{{ item.site.city || 'Tunisia' }}</p>
+          </div>
+          <div *ngIf="item.selected" class="absolute top-2 right-2 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+            ✓
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isLoading && allCampsites.length === 0" class="text-center py-12">
+        <p class="text-gray-500 font-bold">Loading campsites...</p>
+      </div>
+    </div>
+
+    <!-- Comparison Results -->
+    <div *ngIf="comparisonResult" class="space-y-8">
+      <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 p-6">
+        <h2 class="text-xl font-bold text-emerald-900 mb-2">Comparison Summary</h2>
+        <p class="text-emerald-800">{{ comparisonResult.summary }}</p>
+      </div>
+
+      <!-- Comparison Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div *ngFor="let site of comparisonResult.sites" 
+          [class]="getWinnerClass(site.siteId)"
+          class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+          
+          <!-- Winner Badges -->
+          <div *ngIf="getWinnerBadges(site.siteId).length > 0" class="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-2">
+            <div class="flex flex-wrap gap-1">
+              <span *ngFor="let badge of getWinnerBadges(site.siteId)" 
+                class="text-xs font-bold text-white bg-white/20 px-2 py-0.5 rounded-full">
+                {{ badge }}
+              </span>
+            </div>
+          </div>
+
+          <img [src]="site.thumbnail || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400'" 
+            [alt]="site.name"
+            class="w-full h-40 object-cover">
+          
+          <div class="p-5 space-y-4">
+            <div>
+              <h3 class="font-bold text-lg text-[#1a2e1a]">{{ site.name }}</h3>
+              <p class="text-sm text-gray-500">{{ site.city }} • {{ site.type }}</p>
+            </div>
+
+            <!-- Price -->
+            <div class="flex items-center justify-between py-2 border-b border-gray-100"
+              [class.text-emerald-600]="site.siteId === comparisonResult.bestPriceSiteId"
+              [class.font-bold]="site.siteId === comparisonResult.bestPriceSiteId">
+              <span class="text-gray-600">Price/night</span>
+              <span>{{ site.pricePerNight ?? 0 }} DT</span>
+            </div>
+
+            <!-- Rating -->
+            <div class="flex items-center justify-between py-2 border-b border-gray-100"
+              [class.text-emerald-600]="site.siteId === comparisonResult.highestRatedSiteId"
+              [class.font-bold]="site.siteId === comparisonResult.highestRatedSiteId">
+              <span class="text-gray-600">Rating</span>
+              <span class="flex items-center gap-1">
+                <span class="text-amber-500">★</span> {{ site.rating ?? 0 }}
+              </span>
+            </div>
+
+            <!-- Capacity -->
+            <div class="flex items-center justify-between py-2 border-b border-gray-100"
+              [class.text-emerald-600]="site.siteId === comparisonResult.largestCapacitySiteId"
+              [class.font-bold]="site.siteId === comparisonResult.largestCapacitySiteId">
+              <span class="text-gray-600">Capacity</span>
+              <span>{{ site.capacity ?? 0 }} guests</span>
+            </div>
+
+            <!-- Amenities -->
+            <div class="flex items-center justify-between py-2"
+              [class.text-emerald-600]="site.siteId === comparisonResult.mostEquippedSiteId"
+              [class.font-bold]="site.siteId === comparisonResult.mostEquippedSiteId">
+              <span class="text-gray-600">Amenities</span>
+              <span>{{ site.amenityCount ?? 0 }}</span>
+            </div>
+
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-1 pt-2">
+              <span *ngFor="let tag of ['familyFriendly', 'valueScore']" 
+                class="text-xs px-2 py-1 rounded-full"
+                [class.bg-emerald-100]="site.familyFriendly"
+                [class.text-emerald-700]="site.familyFriendly"
+                [class.bg-gray-100]="!site.familyFriendly"
+                [class.text-gray-600]="!site.familyFriendly">
+                {{ site.familyFriendly ? 'Family Friendly' : 'Standard' }}
+              </span>
+            </div>
+
+            <!-- View Button -->
+            <a [routerLink]="['/campsites', site.siteId]" 
+              class="block w-full text-center py-2 rounded-lg bg-[#2C4A3C] text-white font-bold hover:bg-[#1a2e1a] transition-colors">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -55,7 +55,7 @@
     <main class="flex-1 overflow-y-auto">
       @switch (activeSection()) {
       @case ('dashboard') {
-      <app-admin-dashboard />
+      <app-admin-dashboard (sectionSelected)="setSection($event)" />
       }
       @case ('users') {
       <app-users-management />
@@ -97,7 +97,7 @@
       <app-gamification-management />
       }
       @default {
-      <app-admin-dashboard />
+      <app-admin-dashboard (sectionSelected)="setSection($event)" />
       }
       }
     </main>

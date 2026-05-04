@@ -66,6 +66,16 @@
         </div>
       </div>
 
+      <div *ngIf="displayTags.length" class="mb-5 flex flex-wrap items-center gap-2">
+        <span class="text-[10px] font-black uppercase tracking-[0.22em] text-[#617152] mr-1">Tags</span>
+        <span
+          *ngFor="let tag of displayTags"
+          class="inline-flex items-center rounded-full border border-[#2C4A3C]/15 bg-white/85 px-3 py-1.5 text-xs font-black text-[#2C4A3C] shadow-sm"
+        >
+          #{{ tag }}
+        </span>
+      </div>
+
       <div
         class="mb-10 w-full rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-sm hover:brightness-95 transition-all outline-none relative block h-[400px] md:h-[500px]"
       >

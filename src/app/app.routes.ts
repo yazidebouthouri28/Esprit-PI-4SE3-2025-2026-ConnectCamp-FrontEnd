@@ -13,18 +13,27 @@ export const routes: Routes = [
     path: 'campsites',
     loadComponent: () => import('./components/campsites/campsite-listings.component').then(m => m.CampsiteListingsComponent)
   },
+  // Specific routes MUST come before /campsites/:id
+  {
+    path: 'campsites/compare',
+    loadComponent: () => import('./components/campsite-compare/campsite-compare.component').then(m => m.CampsiteCompareComponent)
+  },
+  {
+    path: 'campsites/find',
+    loadComponent: () => import('./components/campsite-compatibility/campsite-compatibility.component').then(m => m.CampsiteCompatibilityComponent)
+  },
   {
     path: 'campsites/:siteId/highlights/:highlightId',
     loadComponent: () => import('./components/camp-highlight-detail/camp-highlight-detail.component').then(m => m.CampHighlightDetailComponent)
   },
   {
-    path: 'campsites/:id',
-    loadComponent: () => import('./components/campsite-detail/campsite-detail.component').then(m => m.CampsiteDetailComponent)
-  },
-  {
     path: 'campsites/:id/reserve',
     loadComponent: () => import('./components/campsite-reservation/campsite-reservation.component').then(m => m.CampsiteReservationComponent),
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'campsites/:id',
+    loadComponent: () => import('./components/campsite-detail/campsite-detail.component').then(m => m.CampsiteDetailComponent)
   },
 
   // --- Events: public listing ---

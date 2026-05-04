@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -9,14 +9,24 @@ import { AuthService } from '../../services/auth.service';
 import { AccountProfileService } from '../../services/account-profile.service';
 import { NotificationService } from '../../services/notification.service';
 import { ApiService } from '../../services/api.service';
-import { CartItem, Wallet, WalletTransaction, Order, CreateOrderDto } from '../../models/api.models';
+import {
+  ReservationRecord,
+  ReservationService,
+} from '../../services/reservation.service';
+import {
+  CartItem,
+  Wallet,
+  WalletTransaction,
+  Order,
+  CreateOrderDto,
+} from '../../models/api.models';
 
 @Component({
   selector: 'app-client',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './client.component.html',
-  styleUrls: ['./client.component.css']
+  styleUrls: ['./client.component.css'],
 })
 export class ClientComponent implements OnInit {
   Math = Math;
@@ -28,8 +38,9 @@ export class ClientComponent implements OnInit {
   menuItems = [
     { id: 'wallet', label: 'My Wallet', icon: '💰', badge: '' },
     { id: 'orders', label: 'My Orders', icon: '📦', badge: '' },
+    { id: 'reservations', label: 'My Reservations', icon: '🏕️', badge: '' },
     { id: 'cart', label: 'Shopping Cart', icon: '🛒', badge: '0' },
-    { id: 'profile', label: 'Profile', icon: '⚙️', badge: '' }
+    { id: 'profile', label: 'Profile', icon: '⚙️', badge: '' },
   ];
 
   // Customer Info
@@ -49,10 +60,15 @@ export class ClientComponent implements OnInit {
   orderStatuses = ['All', 'PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED'];
   selectedOrderStatus = 'All';
 
+  // Reservations
+  reservations: ReservationRecord[] = [];
+  reservationsLoading = false;
+  reservationActionMessage = '';
+
   // Cart
   cartItems: CartItem[] = [];
   selectedPaymentMethod: 'wallet' | 'card' = 'wallet';
-  shippingCost = 15.00;
+  shippingCost = 15.0;
   shippingAddress = '';
 
   // Modals
@@ -60,6 +76,8 @@ export class ClientComponent implements OnInit {
   showWithdrawModal = false;
   showTransferModal = false;
   showCheckoutSuccess = false;
+  showReservationDetailsModal = false;
+  selectedReservation: ReservationRecord | null = null;
   addFundsAmount = 100;
   fundingSource: 'CARD' | 'BANK_TRANSFER' = 'CARD';
   latestOrderId = '';
@@ -74,7 +92,9 @@ export class ClientComponent implements OnInit {
     private authService: AuthService,
     private accountProfile: AccountProfileService,
     private notificationService: NotificationService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private reservationService: ReservationService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -95,12 +115,12 @@ export class ClientComponent implements OnInit {
     }
 
     // Handle query params for tab
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['tab']) this.activeTab = params['tab'];
     });
 
     // Subscribe to cart updates
-    this.cartService.cart$.subscribe(items => {
+    this.cartService.cart$.subscribe((items) => {
       this.cartItems = items;
       this.updateCartBadge();
     });
@@ -108,48 +128,98 @@ export class ClientComponent implements OnInit {
     // Load data
     this.loadWallet();
     this.loadOrders();
+    this.loadReservations();
+  }
+
+  selectTab(tabId: string, event?: MouseEvent): void {
+    console.log('User clicked tab:', tabId);
+    if (tabId === 'profile') {
+      this.goToProfile();
+      return;
+    }
+    
+    // Explicitly update and force change detection
+    this.activeTab = tabId;
+    this.cdr.detectChanges();
+    console.log('activeTab is now:', this.activeTab);
+    
+    // Reload data when switching tabs
+    if (tabId === 'reservations') {
+      this.loadReservations();
+    } else if (tabId === 'orders') {
+      this.loadOrders();
+    } else if (tabId === 'wallet') {
+      this.loadWallet();
+    }
   }
 
   loadWallet() {
-    this.walletService.getMyWallet().subscribe({
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id && /^\d+$/.test(String(user.id)) ? Number(user.id) : null;
+    if (!userId) return;
+
+    this.walletService.getWalletByUserId(userId).subscribe({
       next: (wallet) => {
-        this.walletBalance = wallet.balance;
-        this.loyaltyPoints = wallet.loyaltyPoints;
+        this.walletBalance = wallet?.balance ?? 0;
+        this.loyaltyPoints = (wallet as any)?.loyaltyPoints ?? 0;
       },
       error: () => {
-        this.walletService.getBalance().subscribe({
-          next: (data) => {
-            this.walletBalance = data.balance;
-            this.loyaltyPoints = data.loyaltyPoints;
-          },
-          error: () => {
-            this.walletBalance = 0;
-            this.loyaltyPoints = 0;
-          }
-        });
-      }
+        this.walletBalance = 0;
+        this.loyaltyPoints = 0;
+      },
     });
 
-    this.walletService.getTransactions().subscribe({
-      next: (transactions) => this.walletTransactions = transactions,
-      error: () => this.walletTransactions = []
+    this.walletService.getTransactions(userId).subscribe({
+      next: (transactions) => (this.walletTransactions = transactions || []),
+      error: () => (this.walletTransactions = []),
     });
   }
 
   loadOrders() {
     this.orderService.getMyOrders().subscribe({
-      next: (orders) => this.customerOrders = orders,
+      next: (orders) => (this.customerOrders = orders),
       error: () => {
         this.orderService.getAll().subscribe({
-          next: (orders) => this.customerOrders = orders,
-          error: () => this.customerOrders = []
+          next: (orders) => (this.customerOrders = orders),
+          error: () => (this.customerOrders = []),
         });
+      },
+    });
+  }
+
+  loadReservations() {
+    console.log('loadReservations() triggered');
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id && /^\d+$/.test(String(user.id)) ? Number(user.id) : null;
+    
+    if (!userId) {
+      console.warn('loadReservations: Invalid or missing userId, returning empty array.', user);
+      this.reservations = [];
+      return;
+    }
+
+    this.reservationsLoading = true;
+    console.log('Fetching reservations for userId:', userId);
+    
+    this.reservationService.getReservationsByUser(userId).subscribe({
+      next: (rows) => {
+        console.log('Reservations loaded successfully. Count:', rows?.length);
+        this.reservations = rows;
+        this.reservationsLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load reservations:', err);
+        this.reservations = [];
+        this.reservationsLoading = false;
       }
     });
   }
 
   get cartSubtotal(): number {
-    return this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return this.cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
   }
 
   get cartTax(): number {
@@ -162,26 +232,98 @@ export class ClientComponent implements OnInit {
 
   get filteredOrders(): Order[] {
     if (this.selectedOrderStatus === 'All') return this.customerOrders;
-    return this.customerOrders.filter(o => o.status === this.selectedOrderStatus);
+    return this.customerOrders.filter(
+      (o) => o.status === this.selectedOrderStatus,
+    );
+  }
+
+  canCancelReservation(row: ReservationRecord): boolean {
+    if (!row || String(row.status || '').toUpperCase() === 'CANCELLED')
+      return false;
+    if (!row.createdAt) return false;
+    const createdAt = new Date(row.createdAt);
+    if (Number.isNaN(createdAt.getTime())) return false;
+    return Date.now() - createdAt.getTime() <= 5 * 60 * 60 * 1000;
+  }
+
+  cancelReservation(row: ReservationRecord) {
+    const user = this.authService.getCurrentUser();
+    const userId =
+      user?.id && /^\d+$/.test(String(user.id)) ? Number(user.id) : null;
+    if (!userId || !row?.id) return;
+    this.reservationService
+      .cancelReservationByUser(
+        Number(row.id),
+        userId,
+        'Cancelled by customer from dashboard',
+      )
+      .subscribe({
+        next: () => {
+          this.reservationActionMessage = 'Reservation cancelled successfully.';
+          this.loadReservations();
+        },
+        error: (err) => {
+          this.reservationActionMessage =
+            err?.error?.message ||
+            'Cancellation is only allowed within 5 hours.';
+        },
+      });
+  }
+
+  payNowReservation(row: ReservationRecord) {
+    const user = this.authService.getCurrentUser();
+    const userId = user?.id && /^\d+$/.test(String(user.id)) ? Number(user.id) : null;
+    if (!userId || !row?.id) return;
+    this.reservationService.payNowHardcoded(Number(row.id), userId).subscribe({
+      next: () => {
+        this.reservationActionMessage = 'Payment completed (hardcoded).';
+        this.loadReservations();
+      },
+      error: (err) => {
+        this.reservationActionMessage = err?.error?.message || 'Unable to process payment.';
+      }
+    });
+  }
+
+  viewReservationDetails(row: ReservationRecord) {
+    this.selectedReservation = row;
+    this.showReservationDetailsModal = true;
+  }
+
+  closeReservationDetailsModal() {
+    this.showReservationDetailsModal = false;
+    this.selectedReservation = null;
   }
 
   updateCartBadge() {
-    const cartMenuItem = this.menuItems.find(m => m.id === 'cart');
+    const cartMenuItem = this.menuItems.find((m) => m.id === 'cart');
     if (cartMenuItem) {
-      cartMenuItem.badge = this.cartItems.length > 0 ? this.cartItems.length.toString() : '';
+      cartMenuItem.badge =
+        this.cartItems.length > 0 ? this.cartItems.length.toString() : '';
     }
   }
 
   get customerAvatar(): string {
-    return this.accountProfile.resolveStoredImageUrl(this.authService.getCurrentUser()?.avatar) || '';
+    return (
+      this.accountProfile.resolveStoredImageUrl(
+        this.authService.getCurrentUser()?.avatar,
+      ) || ''
+    );
   }
 
   get customerInitials(): string {
-    return this.accountProfile.initialsFromName(this.customerName || this.customerEmail || 'Client', 'CC');
+    return this.accountProfile.initialsFromName(
+      this.customerName || this.customerEmail || 'Client',
+      'CC',
+    );
   }
 
   goToAccountSettings() {
     this.router.navigate(['/settings']);
+  }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
   }
 
   updateQuantity(index: number, change: number) {
@@ -212,23 +354,27 @@ export class ClientComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.walletService.addFunds({
-      amount: this.addFundsAmount,
-      source: this.fundingSource
-    }).subscribe({
-      next: (wallet) => {
-        this.walletBalance = wallet.balance;
-        this.loyaltyPoints = wallet.loyaltyPoints;
-        alert(`✅ Successfully added $${this.addFundsAmount} to your wallet!`);
-        this.showAddFundsModal = false;
-        this.isLoading = false;
-        this.loadWallet();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        alert('❌ Failed to add funds: ' + (err.message || 'Unknown error'));
-      }
-    });
+    this.walletService
+      .addFunds({
+        amount: this.addFundsAmount,
+        source: this.fundingSource,
+      })
+      .subscribe({
+        next: (wallet) => {
+          this.walletBalance = wallet.balance;
+          this.loyaltyPoints = wallet.loyaltyPoints;
+          alert(
+            `✅ Successfully added $${this.addFundsAmount} to your wallet!`,
+          );
+          this.showAddFundsModal = false;
+          this.isLoading = false;
+          this.loadWallet();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          alert('❌ Failed to add funds: ' + (err.message || 'Unknown error'));
+        },
+      });
   }
 
   checkout() {
@@ -242,20 +388,26 @@ export class ClientComponent implements OnInit {
       return;
     }
 
-    if (this.selectedPaymentMethod === 'wallet' && this.walletBalance < this.cartTotal) {
-      alert('⚠️ Insufficient wallet balance. Please add funds or choose card payment.');
+    if (
+      this.selectedPaymentMethod === 'wallet' &&
+      this.walletBalance < this.cartTotal
+    ) {
+      alert(
+        '⚠️ Insufficient wallet balance. Please add funds or choose card payment.',
+      );
       return;
     }
 
     const orderData: CreateOrderDto = {
-      items: this.cartItems.map(item => ({
+      items: this.cartItems.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
         type: item.type,
-        rentalDays: item.rentalDays
+        rentalDays: item.rentalDays,
       })),
       shippingAddress: this.shippingAddress,
-      paymentMethod: this.selectedPaymentMethod === 'wallet' ? 'WALLET' : 'CARD'
+      paymentMethod:
+        this.selectedPaymentMethod === 'wallet' ? 'WALLET' : 'CARD',
     };
 
     this.isLoading = true;
@@ -272,7 +424,7 @@ export class ClientComponent implements OnInit {
       error: (err: any) => {
         this.isLoading = false;
         alert('❌ Checkout failed: ' + (err.message || 'Unknown error'));
-      }
+      },
     });
   }
 
@@ -282,12 +434,16 @@ export class ClientComponent implements OnInit {
   }
 
   viewOrderDetails(order: Order) {
-    alert(`Order #${order.id}\nStatus: ${order.status}\nTotal: $${order.totalAmount.toFixed(2)}\nItems: ${order.items.length}`);
+    alert(
+      `Order #${order.id}\nStatus: ${order.status}\nTotal: $${order.totalAmount.toFixed(2)}\nItems: ${order.items.length}`,
+    );
   }
 
   trackOrder(order: Order) {
     if (order.trackingNumber) {
-      alert(`📍 Tracking Order #${order.id}\nTracking Number: ${order.trackingNumber}`);
+      alert(
+        `📍 Tracking Order #${order.id}\nTracking Number: ${order.trackingNumber}`,
+      );
     } else {
       alert('Tracking information not yet available.');
     }
@@ -300,22 +456,27 @@ export class ClientComponent implements OnInit {
           alert(`✅ Order #${order.id} has been cancelled.`);
           this.loadOrders();
         },
-        error: (err) => alert('❌ Failed to cancel order: ' + (err.message || 'Unknown error'))
+        error: (err) =>
+          alert(
+            '❌ Failed to cancel order: ' + (err.message || 'Unknown error'),
+          ),
       });
     }
   }
 
   downloadInvoice(order: Order) {
-    alert(`📄 Invoice for Order #${order.id} would be downloaded.\n(Feature coming soon)`);
+    alert(
+      `📄 Invoice for Order #${order.id} would be downloaded.\n(Feature coming soon)`,
+    );
   }
 
   getOrderStatusBadge(status: string): string {
     const badges: { [key: string]: string } = {
-      'PENDING': 'bg-yellow-100 text-yellow-800',
-      'PROCESSING': 'bg-blue-100 text-blue-800',
-      'SHIPPED': 'bg-purple-100 text-purple-800',
-      'DELIVERED': 'bg-green-100 text-green-800',
-      'CANCELLED': 'bg-red-100 text-red-800'
+      PENDING: 'bg-yellow-100 text-yellow-800',
+      PROCESSING: 'bg-blue-100 text-blue-800',
+      SHIPPED: 'bg-purple-100 text-purple-800',
+      DELIVERED: 'bg-green-100 text-green-800',
+      CANCELLED: 'bg-red-100 text-red-800',
     };
     return badges[status] || 'bg-gray-100 text-gray-800';
   }
@@ -330,9 +491,9 @@ export class ClientComponent implements OnInit {
 
   getStatusBadge(status: string): string {
     const badges: { [key: string]: string } = {
-      'COMPLETED': 'bg-green-100 text-green-800',
-      'PENDING': 'bg-yellow-100 text-yellow-800',
-      'FAILED': 'bg-red-100 text-red-800'
+      COMPLETED: 'bg-green-100 text-green-800',
+      PENDING: 'bg-yellow-100 text-yellow-800',
+      FAILED: 'bg-red-100 text-red-800',
     };
     return badges[status] || 'bg-gray-100 text-gray-800';
   }
@@ -368,7 +529,7 @@ export class ClientComponent implements OnInit {
       email: this.customerEmail,
       phone: this.customerPhone,
       country: this.customerCountry,
-      address: this.customerAddress
+      address: this.customerAddress,
     };
 
     this.apiService.update('users', Number(user.id), updatedUser).subscribe({
@@ -382,8 +543,10 @@ export class ClientComponent implements OnInit {
       },
       error: (err: any) => {
         this.isLoading = false;
-        alert('❌ Failed to update profile: ' + (err.message || 'Unknown error'));
-      }
+        alert(
+          '❌ Failed to update profile: ' + (err.message || 'Unknown error'),
+        );
+      },
     });
   }
 }

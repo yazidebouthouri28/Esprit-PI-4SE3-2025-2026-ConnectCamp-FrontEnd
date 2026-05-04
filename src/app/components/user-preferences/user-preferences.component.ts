@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ProfilePersonalizationService } from '../../services/profile-personalization.service';
+import { SmartRecommendationsComponent } from '../ml/smart-recommendations/smart-recommendations.component';
 
 interface Option {
     id: string;
@@ -20,7 +21,7 @@ interface Question {
 @Component({
     selector: 'app-user-preferences',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SmartRecommendationsComponent],
     templateUrl: './user-preferences.component.html',
     styleUrls: ['./user-preferences.component.css']
 })
@@ -253,6 +254,13 @@ export class UserPreferencesComponent implements OnInit {
 
     get progress(): number {
         return ((this.currentIndex + 1) / this.questions.length) * 100;
+    }
+
+    get prefMlUserId(): number | null {
+        const user = this.authService.getCurrentUser();
+        if (!user?.id) return null;
+        const n = Number(user.id);
+        return Number.isFinite(n) && n > 0 ? n : null;
     }
 
     isOptionSelected(optionId: string, customQ?: Question): boolean {

@@ -38,7 +38,7 @@ export class CampHighlightDetailComponent implements OnInit {
   ratingStars = [1, 2, 3, 4, 5];
   feedbacks: HighlightFeedback[] = [];
 
-  likes = 1;
+  likes = 0;
   dislikes = 0;
 
   private readonly feedbackStoragePrefix = 'camp_highlight_feedback_';
@@ -52,10 +52,10 @@ export class CampHighlightDetailComponent implements OnInit {
   toggleLike(): void {
     if (this.userReaction === 'LIKE') {
       this.userReaction = null;
-      this.likes--;
+      this.likes = Math.max(0, this.likes - 1);
     } else {
       if (this.userReaction === 'DISLIKE') {
-        this.dislikes--;
+        this.dislikes = Math.max(0, this.dislikes - 1);
       }
       this.userReaction = 'LIKE';
       this.likes++;
@@ -65,10 +65,10 @@ export class CampHighlightDetailComponent implements OnInit {
   toggleDislike(): void {
     if (this.userReaction === 'DISLIKE') {
       this.userReaction = null;
-      this.dislikes--;
+      this.dislikes = Math.max(0, this.dislikes - 1);
     } else {
       if (this.userReaction === 'LIKE') {
-        this.likes--;
+        this.likes = Math.max(0, this.likes - 1);
       }
       this.userReaction = 'DISLIKE';
       this.dislikes++;
@@ -150,6 +150,7 @@ export class CampHighlightDetailComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     this.highlight = null;
+    this.resetHighlightReactions();
 
     this.highlightService.getHighlightById(highlightId).subscribe({
       next: (highlight) => {
@@ -184,6 +185,15 @@ export class CampHighlightDetailComponent implements OnInit {
     }
     const normalized = mediaUrl.split('?')[0].toLowerCase();
     return /\.(mp4|webm|ogg|mov|m4v)$/.test(normalized);
+  }
+
+  get displayTags(): string[] {
+    const explicitTags = this.normalizeTags(this.highlight?.tags);
+    if (explicitTags.length) {
+      return explicitTags;
+    }
+
+    return this.buildFallbackTags();
   }
 
   setDraftRating(star: number): void {
@@ -314,5 +324,40 @@ export class CampHighlightDetailComponent implements OnInit {
     } catch {
       // Best effort persistence only.
     }
+  }
+
+  private resetHighlightReactions(): void {
+    this.likes = 0;
+    this.dislikes = 0;
+    this.userReaction = null;
+  }
+
+  private normalizeTags(tags?: string[] | null): string[] {
+    const normalized: string[] = [];
+    for (const raw of tags ?? []) {
+      const tag = String(raw || '').trim().replace(/^#/, '');
+      if (tag && !normalized.some((current) => current.toLowerCase() === tag.toLowerCase())) {
+        normalized.push(tag);
+      }
+    }
+    return normalized.slice(0, 8);
+  }
+
+  private buildFallbackTags(): string[] {
+    if (!this.highlight) return [];
+    const text = `${this.highlight.title} ${this.highlight.content}`.toLowerCase();
+    const categoryTags: Record<string, string[]> = {
+      FLORA: ['plants', 'native flora', 'greenery'],
+      FAUNA: ['wildlife', 'animal habitat', 'nature watching'],
+      CLIMATE: ['weather', 'seasonal conditions'],
+      GEOLOGY: ['terrain', 'landscape', 'rocks'],
+      HISTORY: ['heritage', 'culture', 'history']
+    };
+
+    const tags = [...(categoryTags[this.highlight.category] ?? [])];
+    if (/fennec|fox|vulpes/.test(text)) tags.unshift('fennec fox');
+    if (/desert/.test(text)) tags.push('desert species');
+    if (/forest/.test(text)) tags.push('forest');
+    return this.normalizeTags(tags);
   }
 }

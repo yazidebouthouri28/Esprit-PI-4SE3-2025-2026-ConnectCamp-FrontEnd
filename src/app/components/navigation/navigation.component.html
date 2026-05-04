@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-50 w-full border-b border-olive/20 bg-forest shadow-sm">
+<header class="sticky top-0 z-[10000] w-full border-b border-olive/20 bg-forest shadow-sm">
   <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
       <a routerLink="/" class="flex items-center gap-3 group">
@@ -56,10 +56,13 @@
         </button>
 
         @if (isLoggedIn) {
-        <div class="relative profile-dropdown-container">
-          <button (click)="toggleProfileDropdown()"
+        <div class="relative profile-dropdown-container" (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            (pointerdown)="toggleProfileDropdown($event)"
             class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/10 text-cream transition-colors hover:border-white/30 hover:text-sage"
-            aria-label="Profile menu">
+            aria-label="Profile menu"
+            [attr.aria-expanded]="profileDropdownOpen">
             @if (userAvatar) {
             <img [src]="userAvatar" [alt]="userName || 'Profile'" class="h-full w-full object-cover" />
             } @else {
@@ -67,7 +70,7 @@
             }
           </button>
           @if (profileDropdownOpen) {
-          <div class="profile-dropdown">
+          <div class="profile-dropdown" (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
             <div class="profile-dropdown-header">
               <div class="flex items-center gap-3">
                 @if (userAvatar) {

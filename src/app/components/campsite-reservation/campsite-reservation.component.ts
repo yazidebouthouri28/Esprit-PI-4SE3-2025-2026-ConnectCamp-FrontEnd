@@ -6,11 +6,12 @@ import { Site } from '../../models/camping.models';
 import { AuthService } from '../../services/auth.service';
 import { ReservationService } from '../../services/reservation.service';
 import { SiteService } from '../../services/site.service';
+import { BestTimeToBookComponent } from '../ml/best-time-to-book/best-time-to-book.component';
 
 @Component({
   selector: 'app-campsite-reservation',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BestTimeToBookComponent],
   templateUrl: './campsite-reservation.component.html',
   styleUrls: ['./campsite-reservation.component.css']
 })
@@ -80,15 +81,30 @@ export class CampsiteReservationComponent implements OnInit {
   }
 
   get subtotal(): number {
-    return (this.campsite?.price || 0) * this.nights;
+    const guests = Math.max(1, Number(this.form.guests || 1));
+    return (this.campsite?.price || 0) * this.nights * guests;
   }
 
   get serviceFee(): number {
-    return this.subtotal > 0 ? Number((this.subtotal * 0.08).toFixed(2)) : 0;
+    return 0;
   }
 
   get total(): number {
     return Number((this.subtotal + this.serviceFee).toFixed(2));
+  }
+
+  get reservationMlPrice(): number {
+    return Number(this.campsite?.price ?? this.campsite?.pricePerNight ?? 0);
+  }
+
+  get reservationMlMonth(): number {
+    if (this.form.checkInDate) {
+      const d = new Date(this.form.checkInDate);
+      if (!Number.isNaN(d.getTime())) {
+        return d.getMonth() + 1;
+      }
+    }
+    return new Date().getMonth() + 1;
   }
 
   goBack(): void {
@@ -119,8 +135,8 @@ export class CampsiteReservationComponent implements OnInit {
       return;
     }
 
-    const checkInIso = new Date(`${this.form.checkInDate}T14:00:00`).toISOString();
-    const checkOutIso = new Date(`${this.form.checkOutDate}T11:00:00`).toISOString();
+    const checkInIso = this.formatLocalDateTime(this.form.checkInDate, '14:00:00');
+    const checkOutIso = this.formatLocalDateTime(this.form.checkOutDate, '11:00:00');
 
     this.isSubmitting = true;
     this.reservationService.createSiteReservation({
@@ -143,6 +159,10 @@ export class CampsiteReservationComponent implements OnInit {
         this.isSubmitting = false;
       }
     });
+  }
+
+  private formatLocalDateTime(datePart: string, timePart: string): string {
+    return `${datePart}T${timePart}`;
   }
 }
 

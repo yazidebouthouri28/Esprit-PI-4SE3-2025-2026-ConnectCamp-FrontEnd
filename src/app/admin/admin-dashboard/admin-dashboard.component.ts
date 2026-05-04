@@ -1,14 +1,15 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css'],
 })
 export class AdminDashboardComponent {
+  @Output() sectionSelected = new EventEmitter<string>();
+
   stats = [
     { title: 'Global Volume', value: '2,450', change: '+2.4%', trend: 'up', subtitle: 'TOTAL SKU REGISTRY', icon: '📊' },
     { title: 'Market Value', value: '12.5k DT', change: '+5.7%', trend: 'up', subtitle: 'LIQUID ASSET APPRAISAL', icon: '💰' },
@@ -23,4 +24,8 @@ export class AdminDashboardComponent {
     { user: 'Pierre Rousseau', action: 'posted in the forum', time: "1h ago" },
     { user: 'Julie Bernard', action: 'created an account', time: '2h ago' },
   ];
+
+  openSection(section: string): void {
+    this.sectionSelected.emit(section);
+  }
 }

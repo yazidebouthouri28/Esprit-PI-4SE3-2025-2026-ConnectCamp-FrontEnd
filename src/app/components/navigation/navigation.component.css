@@ -2,14 +2,14 @@
 .profile-dropdown {
     position: absolute;
     right: 0;
-    top: calc(100% + 0.5rem);
+    top: calc(100% + 0.75rem);
     width: 220px;
     background: white;
     border-radius: 0.75rem;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.08);
     overflow: hidden;
-    z-index: 100;
+    z-index: 10002;
     animation: dropdownFadeIn 0.15s ease-out;
 }
 

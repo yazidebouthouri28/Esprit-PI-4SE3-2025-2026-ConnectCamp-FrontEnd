@@ -1,15 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ReservationRecord, ReservationService } from '../../services/reservation.service';
+import { CancellationRiskBadgeComponent } from '../../components/ml/cancellation-risk-badge/cancellation-risk-badge.component';
+import { RevenuePredictionComponent } from '../../components/ml/revenue-prediction/revenue-prediction.component';
 
 interface ReservationCard {
     id: number;
     reservationNumber: string;
     customer: string;
+    customerEmail: string;
     type: 'Campsite';
     date: string;
     status: string;
+    paymentStatus: string;
     amount: number;
+    siteName: string;
     checkIn: string;
     checkOut: string;
     guests: number;
@@ -18,7 +24,7 @@ interface ReservationCard {
 @Component({
     selector: 'app-reservations-management',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, FormsModule, CancellationRiskBadgeComponent, RevenuePredictionComponent],
     templateUrl: './reservations-management.component.html',
     styleUrls: ['./reservations-management.component.css']
 })
@@ -26,6 +32,9 @@ export class ReservationsManagementComponent implements OnInit {
     reservations: ReservationCard[] = [];
     isLoading = false;
     message = '';
+    searchText = '';
+    statusFilter = 'All Status';
+    selectedReservation: ReservationCard | null = null;
 
     constructor(private reservationService: ReservationService) {}
 
@@ -63,6 +72,26 @@ export class ReservationsManagementComponent implements OnInit {
         });
     }
 
+    openReservationDetails(reservation: ReservationCard): void {
+        this.selectedReservation = reservation;
+    }
+
+    closeReservationDetails(): void {
+        this.selectedReservation = null;
+    }
+
+    get filteredReservations(): ReservationCard[] {
+        const needle = this.searchText.trim().toLowerCase();
+        return this.reservations.filter((r) => {
+            const statusMatches = this.statusFilter === 'All Status' || r.status === this.statusFilter;
+            const searchMatches = !needle
+                || r.customer.toLowerCase().includes(needle)
+                || r.reservationNumber.toLowerCase().includes(needle)
+                || r.siteName.toLowerCase().includes(needle);
+            return statusMatches && searchMatches;
+        });
+    }
+
     private toCard(r: ReservationRecord): ReservationCard {
         const checkInDate = r.checkInDate ? new Date(r.checkInDate) : null;
         const checkOutDate = r.checkOutDate ? new Date(r.checkOutDate) : null;
@@ -70,10 +99,13 @@ export class ReservationsManagementComponent implements OnInit {
             id: Number(r.id),
             reservationNumber: r.reservationNumber || `RES-${r.id}`,
             customer: r.userName || 'Guest',
+            customerEmail: r.contactEmail || '-',
             type: 'Campsite',
             date: r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '',
             status: this.normalizeStatus(r.status),
+            paymentStatus: this.normalizeStatus(r.paymentStatus),
             amount: Number(r.totalPrice || 0),
+            siteName: r.siteName || '-',
             checkIn: checkInDate ? checkInDate.toLocaleDateString() : '-',
             checkOut: checkOutDate ? checkOutDate.toLocaleDateString() : '-',
             guests: Number(r.numberOfGuests || 1)

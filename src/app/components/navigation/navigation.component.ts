@@ -81,8 +81,16 @@ export class NavigationComponent implements OnInit, OnDestroy {
     return this.accountProfile.initialsFromName(this.userName || 'User', 'CC');
   }
 
-  toggleProfileDropdown(): void {
+  toggleProfileDropdown(event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
     this.profileDropdownOpen = !this.profileDropdownOpen;
+  }
+
+  goToProfile(): void {
+    this.router.navigate(['/profile']);
+    this.profileDropdownOpen = false;
+    this.mobileMenuOpen = false;
   }
 
   toggleMobileMenu(): void {
@@ -96,11 +104,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     this.mobileMenuOpen = false;
   }
 
-  @HostListener('document:click', ['$event'])
+  @HostListener('document:pointerdown', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    // Close dropdown if clicked outside
-    const target = event.target as HTMLElement;
-    if (!target.closest('.profile-dropdown-container')) {
+    // Close dropdown if clicked outside (guard non-Element targets)
+    const target = event.target;
+    if (!(target instanceof Element) || !target.closest('.profile-dropdown-container')) {
       this.profileDropdownOpen = false;
     }
   }

@@ -199,8 +199,8 @@ export interface Site {
   id: number;
   name: string;
   location: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   averageRating: number;
   image: string;
   /** Platform verification (certification approved). */
@@ -214,6 +214,7 @@ export interface Site {
   city?: string;
   country?: string;
   images?: string[];
+  tags?: string[];
   amenities?: string[];
   contactPhone?: string;
   contactEmail?: string;
@@ -327,6 +328,7 @@ export interface CampHighlight {
   category: 'FLORA' | 'FAUNA' | 'CLIMATE' | 'GEOLOGY' | 'HISTORY';
   imageUrl: string;
   isPublished?: boolean;
+  tags?: string[];
   siteId?: number;
   createdAt: Date | string;
   updatedAt?: Date | string;

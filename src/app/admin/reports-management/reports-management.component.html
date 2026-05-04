@@ -41,6 +41,15 @@
         }
     </div>
 
+    <!-- Live ML ops (same data as backend /api/ml/dashboard/stats) -->
+    <section class="space-y-3 rounded-3xl border border-gray-100 bg-[#faf9f6] p-6 shadow-inner">
+        <h2 class="text-lg font-black text-[#1a2e1a] italic tracking-tight">AI &amp; machine learning telemetry</h2>
+        <p class="text-xs text-[#617152] font-semibold">
+            Operational prediction counters and model health. Requires the Spring backend; full ML inference when the Python service is up.
+        </p>
+        <app-ml-dashboard />
+    </section>
+
     <!-- Mixed Visualizations -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Revenue Chart Area -->

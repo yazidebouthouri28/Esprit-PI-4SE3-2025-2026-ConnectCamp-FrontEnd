@@ -10,6 +10,10 @@ interface ApiEnvelope<T> {
   success?: boolean;
 }
 
+interface PagePayload<T> {
+  content?: T[];
+}
+
 export interface SiteReservationPayload {
   userId: number;
   siteId: number;
@@ -25,7 +29,9 @@ export interface SiteReservationPayload {
 export interface ReservationRecord {
   id: number;
   reservationNumber?: string;
+  userId?: number;
   userName?: string;
+  siteId?: number;
   siteName?: string;
   checkInDate?: string;
   checkOutDate?: string;
@@ -76,12 +82,35 @@ export class ReservationService {
     );
   }
 
+  getReservationsByUser(userId: number): Observable<ReservationRecord[]> {
+    return this.http.get<ApiEnvelope<PagePayload<ReservationRecord>>>(`${this.apiUrl}/user/${userId}`).pipe(
+      map((res) => res?.data?.content ?? [])
+    );
+  }
+
   cancelReservation(id: number, reason?: string): Observable<ReservationRecord> {
     let params = new HttpParams();
     if (reason?.trim()) {
       params = params.set('reason', reason.trim());
     }
     return this.http.patch<ApiEnvelope<ReservationRecord>>(`${this.apiUrl}/${id}/cancel`, null, { params }).pipe(
+      map((res) => res?.data as ReservationRecord)
+    );
+  }
+
+  cancelReservationByUser(id: number, userId: number, reason?: string): Observable<ReservationRecord> {
+    let params = new HttpParams().set('userId', userId);
+    if (reason?.trim()) {
+      params = params.set('reason', reason.trim());
+    }
+    return this.http.patch<ApiEnvelope<ReservationRecord>>(`${this.apiUrl}/${id}/cancel-by-user`, null, { params }).pipe(
+      map((res) => res?.data as ReservationRecord)
+    );
+  }
+
+  payNowHardcoded(id: number, userId: number): Observable<ReservationRecord> {
+    const params = new HttpParams().set('userId', userId);
+    return this.http.patch<ApiEnvelope<ReservationRecord>>(`${this.apiUrl}/${id}/pay-now`, null, { params }).pipe(
       map((res) => res?.data as ReservationRecord)
     );
   }

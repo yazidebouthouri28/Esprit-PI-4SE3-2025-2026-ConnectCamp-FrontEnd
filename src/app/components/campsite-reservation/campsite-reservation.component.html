@@ -78,10 +78,19 @@
           <p class="font-bold text-[#1a2e1a]">{{ campsite?.name || 'Selected campsite' }}</p>
           <p class="text-xs text-gray-500 mb-3">{{ campsite?.location || 'Location unavailable' }}</p>
           <div class="text-sm space-y-2">
-            <div class="flex justify-between"><span>{{ campsite?.price || 0 }} DT x {{ nights }} nights</span><span>{{ subtotal }} DT</span></div>
+            <div class="flex justify-between"><span>{{ campsite?.price || 0 }} DT x {{ nights }} nights x {{ form.guests || 1 }} guests</span><span>{{ subtotal }} DT</span></div>
             <div class="flex justify-between"><span>Service fee</span><span>{{ serviceFee }} DT</span></div>
             <div class="flex justify-between font-black text-[#1a2e1a] border-t border-[#e8e3d9] pt-2"><span>Total</span><span>{{ total }} DT</span></div>
           </div>
+          @if (campsite) {
+          <div class="mt-4 rounded-xl border border-[#e8e3d9] bg-white overflow-hidden">
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 px-3 pt-2">AI timing hint</p>
+            <app-best-time-to-book
+              [siteId]="campsite.id"
+              [currentPrice]="reservationMlPrice"
+              [desiredMonth]="reservationMlMonth" />
+          </div>
+          }
         </aside>
       </div>
     </div>

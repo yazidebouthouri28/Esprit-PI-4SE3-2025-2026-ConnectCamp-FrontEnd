@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
+import { MlDashboardComponent } from '../../components/ml/ml-dashboard/ml-dashboard.component';
 
 interface StatCard {
     label: string;
@@ -13,7 +14,7 @@ interface StatCard {
 @Component({
     selector: 'app-reports-management',
     standalone: true,
-    imports: [CommonModule, NgClass],
+    imports: [CommonModule, NgClass, MlDashboardComponent],
     templateUrl: './reports-management.component.html',
     styleUrl: './reports-management.component.css'
 })

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule, NgClass } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { ReservationRecord, ReservationService } from '../../services/reservation.service';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -10,6 +12,22 @@ import { CommonModule, NgClass } from '@angular/common';
 })
 export class UserDashboardComponent {
   activeTab = 'bookings';
+  bookingsLoading = false;
+  bookingsError = '';
+  bookingActionMessage = '';
+  bookingsData: Array<{
+    id: number;
+    reservationNumber: string;
+    name: string;
+    location: string;
+    checkIn: string;
+    checkOut: string;
+    status: string;
+    nights: number;
+    total: number;
+    paymentStatus: string;
+    canCancel: boolean;
+  }> = [];
 
   tabs = [
     { id: 'bookings', label: 'My Bookings' },
@@ -18,11 +36,6 @@ export class UserDashboardComponent {
     { id: 'events', label: 'My Events' },
     { id: 'saved', label: 'Saved Locations' },
     { id: 'forum', label: 'Forum Activity' },
-  ];
-
-  bookingsData = [
-    { id: 1, name: 'Pine Valley Campground', location: 'Yosemite National Park, CA', checkIn: 'Mar 15, 2026', checkOut: 'Mar 18, 2026', status: 'Confirmed', nights: 3, total: 135 },
-    { id: 2, name: 'Crystal Lake Retreat', location: 'Tahoe National Forest, CA', checkIn: 'Apr 22, 2026', checkOut: 'Apr 25, 2026', status: 'Confirmed', nights: 3, total: 165 },
   ];
 
   ordersData = [
@@ -75,5 +88,117 @@ export class UserDashboardComponent {
   get activeTabLabel(): string {
     const tab = this.tabs.find((t) => t.id === this.activeTab);
     return tab?.label ?? this.activeTab;
+  }
+
+  constructor(
+    private authService: AuthService,
+    private reservationService: ReservationService
+  ) {
+    this.loadBookings();
+  }
+
+  loadBookings(): void {
+    this.bookingsLoading = true;
+    this.bookingsError = '';
+    this.bookingActionMessage = '';
+    const currentUser = this.authService.getCurrentUser();
+    const userId = currentUser?.id && /^\d+$/.test(String(currentUser.id))
+      ? Number(currentUser.id)
+      : null;
+
+    if (!userId) {
+      this.bookingsData = [];
+      this.bookingsError = 'Please log in to view your reservations.';
+      this.bookingsLoading = false;
+      return;
+    }
+
+    this.reservationService.getReservationsByUser(userId).subscribe({
+      next: (rows) => {
+        this.bookingsData = rows.map((row) => this.toBookingCard(row));
+        this.bookingsLoading = false;
+      },
+      error: () => {
+        this.bookingsData = [];
+        this.bookingsError = 'Unable to load your reservations right now.';
+        this.bookingsLoading = false;
+      }
+    });
+  }
+
+  cancelBooking(bookingId: number): void {
+    const currentUser = this.authService.getCurrentUser();
+    const userId = currentUser?.id && /^\d+$/.test(String(currentUser.id))
+      ? Number(currentUser.id)
+      : null;
+    if (!userId) return;
+
+    this.reservationService.cancelReservationByUser(bookingId, userId, 'Cancelled by customer from dashboard').subscribe({
+      next: () => {
+        this.bookingActionMessage = 'Reservation cancelled successfully.';
+        this.loadBookings();
+      },
+      error: (err) => {
+        this.bookingActionMessage = err?.error?.message || 'Cancellation is allowed only within 5 hours after reservation.';
+      }
+    });
+  }
+
+  payNow(bookingId: number): void {
+    const currentUser = this.authService.getCurrentUser();
+    const userId = currentUser?.id && /^\d+$/.test(String(currentUser.id))
+      ? Number(currentUser.id)
+      : null;
+    if (!userId) return;
+
+    this.reservationService.payNowHardcoded(bookingId, userId).subscribe({
+      next: () => {
+        this.bookingActionMessage = 'Payment completed (hardcoded demo flow).';
+        this.loadBookings();
+      },
+      error: (err) => {
+        this.bookingActionMessage = err?.error?.message || 'Unable to process payment.';
+      }
+    });
+  }
+
+  private toBookingCard(row: ReservationRecord): {
+    id: number;
+    reservationNumber: string;
+    name: string;
+    location: string;
+    checkIn: string;
+    checkOut: string;
+    status: string;
+    nights: number;
+    total: number;
+    paymentStatus: string;
+    canCancel: boolean;
+  } {
+    const createdAt = row.createdAt ? new Date(row.createdAt) : null;
+    const now = new Date();
+    const canCancel = !!createdAt
+      && row.status?.toUpperCase() !== 'CANCELLED'
+      && (now.getTime() - createdAt.getTime()) <= 5 * 60 * 60 * 1000;
+
+    const checkIn = row.checkInDate ? new Date(row.checkInDate) : null;
+    const checkOut = row.checkOutDate ? new Date(row.checkOutDate) : null;
+    const nights = checkIn && checkOut
+      ? Math.max(0, Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)))
+      : 0;
+
+    return {
+      id: Number(row.id),
+      reservationNumber: row.reservationNumber || `RES-${row.id}`,
+      name: row.siteName || 'Campsite reservation',
+      location: '-',
+      checkIn: checkIn ? checkIn.toLocaleDateString() : '-',
+      checkOut: checkOut ? checkOut.toLocaleDateString() : '-',
+      status: row.status || 'PENDING',
+      nights,
+      total: Number(row.totalPrice || 0),
+      paymentStatus: row.paymentStatus || 'PENDING',
+      canCancel
+    };
   }
 }

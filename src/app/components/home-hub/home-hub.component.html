@@ -84,6 +84,15 @@
         </div>
     </div>
 
+    @if (smartRecUserId !== null) {
+    <section class="max-w-7xl mx-auto px-6 pt-8 pb-2">
+        <p class="text-[10px] font-black text-sage uppercase tracking-[0.35em] mb-3 block">Personalized discovery</p>
+        <div class="rounded-[2rem] overflow-hidden shadow-xl border border-sage/10">
+            <app-smart-recommendations [userId]="smartRecUserId" />
+        </div>
+    </section>
+    }
+
     <!-- FEATURED CAMPSITES (HORIZONTAL) -->
     <section class="py-24 max-w-7xl mx-auto px-6">
         <div class="flex items-end justify-between mb-12">

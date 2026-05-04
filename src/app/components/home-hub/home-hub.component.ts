@@ -2,16 +2,24 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { SmartRecommendationsComponent } from '../ml/smart-recommendations/smart-recommendations.component';
 
 @Component({
-    selector: 'app-home-hub',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    templateUrl: './home-hub.component.html',
-    styleUrls: ['./home-hub.component.css']
+  selector: 'app-home-hub',
+  standalone: true,
+  imports: [CommonModule, RouterLink, SmartRecommendationsComponent],
+  templateUrl: './home-hub.component.html',
+  styleUrls: ['./home-hub.component.css']
 })
 export class HomeHubComponent {
     private authService = inject(AuthService);
+
+    get smartRecUserId(): number | null {
+      const user = this.authService.getCurrentUser();
+      if (!user?.id) return null;
+      const n = Number(user.id);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    }
 
     get isOrganizer(): boolean {
         const user = this.authService.getCurrentUser();

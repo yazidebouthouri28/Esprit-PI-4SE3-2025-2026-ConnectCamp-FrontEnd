@@ -1,22 +1,29 @@
 <div class="py-16 px-4 sm:px-6 lg:px-8 bg-sage-green/10 min-h-screen">
   <div class="mx-auto max-w-7xl">
-
     <!-- Profile Header -->
-    <div class="bg-gradient-to-r from-forest-green to-olive-green rounded-xl p-6 mb-8 text-cream-beige">
+    <div
+      class="bg-gradient-to-r from-forest-green to-olive-green rounded-xl p-6 mb-8 text-cream-beige"
+    >
       <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
-        <div class="w-24 h-24 rounded-full bg-cream-beige flex items-center justify-center text-forest-green text-3xl font-bold">
+        <div
+          class="w-24 h-24 rounded-full bg-cream-beige flex items-center justify-center text-forest-green text-3xl font-bold"
+        >
           👤
         </div>
         <div class="flex-1 text-center md:text-left">
           <h3 class="text-2xl font-bold mb-2">{{ customerName }}</h3>
           <p class="text-sage-green mb-4">{{ customerEmail }}</p>
           <div class="flex flex-wrap gap-4 justify-center md:justify-start">
-            <span class="font-semibold">💎 {{ loyaltyPoints }} Points</span>
-            <span class="font-semibold">💰 ${{ walletBalance.toFixed(2) }} Balance</span>
+            <span class="font-semibold">💎 {{ loyaltyPoints || 0 }} Points</span>
+            <span class="font-semibold"
+              >💰 ${{ (walletBalance || 0).toFixed(2) }} Balance</span
+            >
           </div>
         </div>
-        <button (click)="goToAccountSettings()"
-          class="bg-cream-beige text-forest-green px-6 py-2 rounded-lg font-semibold hover:bg-white transition-colors min-h-[44px]">
+        <button
+          (click)="goToAccountSettings()"
+          class="bg-cream-beige text-forest-green px-6 py-2 rounded-lg font-semibold hover:bg-white transition-colors min-h-[44px]"
+        >
           Edit Profile
         </button>
       </div>
@@ -24,67 +31,113 @@
 
     <!-- Tab Navigation -->
     <div class="mb-6 flex flex-wrap gap-2">
-      <button *ngFor="let item of menuItems"
-        (click)="item.id === 'profile' ? goToAccountSettings() : activeTab = item.id"
+      <button
+        *ngFor="let item of menuItems"
+        type="button"
+        (click)="selectTab(item.id, $event)"
         class="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors min-h-[44px]"
-        [ngClass]="activeTab === item.id ? 'bg-olive-green text-cream-beige' : 'bg-white text-forest-green hover:bg-sage-green/20'">
+        style="
+          pointer-events: auto;
+          cursor: pointer;
+          position: relative;
+          z-index: 20;
+        "
+        [ngClass]="
+          activeTab === item.id
+            ? 'bg-olive-green text-cream-beige'
+            : 'bg-white text-forest-green hover:bg-sage-green/20'
+        "
+      >
         <span>{{ item.icon }}</span>
         <span>{{ item.label }}</span>
-        <span *ngIf="item.badge" class="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ item.badge }}</span>
+        <span
+          *ngIf="item.badge"
+          class="ml-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"
+          >{{ item.badge }}</span
+        >
       </button>
     </div>
 
     <!-- Main Content Card -->
     <div class="bg-white rounded-xl p-6 shadow-md border border-sage-green/30">
-
       <!-- ==================== WALLET ==================== -->
       <div *ngIf="activeTab === 'wallet'">
-        <h3 class="text-xl font-semibold text-forest-green mb-6">💰 My Wallet</h3>
+        <h3 class="text-xl font-semibold text-forest-green mb-6">
+          💰 My Wallet
+        </h3>
 
-        <div class="bg-gradient-to-r from-forest-green to-olive-green rounded-xl p-8 text-cream-beige mb-8">
+        <div
+          class="bg-gradient-to-r from-forest-green to-olive-green rounded-xl p-8 text-cream-beige mb-8"
+        >
           <p class="text-sage-green mb-2">Available Balance</p>
           <p class="text-5xl font-bold mb-4">${{ walletBalance.toFixed(2) }}</p>
           <p class="text-sage-green">💎 {{ loyaltyPoints }} Loyalty Points</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <button (click)="showAddFundsModal = true"
-            class="flex items-center justify-center gap-2 px-4 py-3 bg-forest-green text-cream-beige rounded-lg hover:bg-olive-green transition-colors min-h-[44px]">
+          <button
+            (click)="showAddFundsModal = true"
+            class="flex items-center justify-center gap-2 px-4 py-3 bg-forest-green text-cream-beige rounded-lg hover:bg-olive-green transition-colors min-h-[44px]"
+          >
             <span>➕</span><span>Add Funds</span>
           </button>
-          <button (click)="showWithdrawModal = true"
-            class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-forest-green text-forest-green rounded-lg hover:bg-sage-green/20 transition-colors min-h-[44px]">
+          <button
+            (click)="showWithdrawModal = true"
+            class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-forest-green text-forest-green rounded-lg hover:bg-sage-green/20 transition-colors min-h-[44px]"
+          >
             <span>💸</span><span>Withdraw</span>
           </button>
-          <button (click)="showTransferModal = true"
-            class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-forest-green text-forest-green rounded-lg hover:bg-sage-green/20 transition-colors min-h-[44px]">
+          <button
+            (click)="showTransferModal = true"
+            class="flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-forest-green text-forest-green rounded-lg hover:bg-sage-green/20 transition-colors min-h-[44px]"
+          >
             <span>🔄</span><span>Transfer</span>
           </button>
         </div>
 
-        <h4 class="font-semibold text-forest-green mb-4">📜 Transaction History</h4>
+        <h4 class="font-semibold text-forest-green mb-4">
+          📜 Transaction History
+        </h4>
         <div class="space-y-3">
-          <div *ngFor="let tx of walletTransactions"
-            class="flex justify-between items-center p-4 border border-sage-green/20 rounded-lg hover:bg-sage-green/5 transition-colors">
+          <div
+            *ngFor="let tx of walletTransactions"
+            class="flex justify-between items-center p-4 border border-sage-green/20 rounded-lg hover:bg-sage-green/5 transition-colors"
+          >
             <div class="flex items-center gap-4">
-              <div [class]="isCredit(tx.type) ? 'bg-green-100' : 'bg-red-100'"
-                class="w-12 h-12 rounded-full flex items-center justify-center text-2xl">
-                {{ isCredit(tx.type) ? '➕' : '➖' }}
+              <div
+                [class]="isCredit(tx.type) ? 'bg-green-100' : 'bg-red-100'"
+                class="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+              >
+                {{ isCredit(tx.type) ? "➕" : "➖" }}
               </div>
               <div>
-                <p class="font-medium text-forest-green">{{ tx.description }}</p>
-                <p class="text-sm text-olive-green">{{ formatDate(tx.createdAt) }}</p>
+                <p class="font-medium text-forest-green">
+                  {{ tx.description }}
+                </p>
+                <p class="text-sm text-olive-green">
+                  {{ formatDate(tx.createdAt) }}
+                </p>
               </div>
             </div>
             <div class="text-right">
-              <p [class]="isCredit(tx.type) ? 'text-green-600' : 'text-red-600'" class="text-xl font-bold">
-                {{ isCredit(tx.type) ? '+' : '-' }}${{ tx.amount.toFixed(2) }}
+              <p
+                [class]="isCredit(tx.type) ? 'text-green-600' : 'text-red-600'"
+                class="text-xl font-bold"
+              >
+                {{ isCredit(tx.type) ? "+" : "-" }}${{ tx.amount.toFixed(2) }}
               </p>
-              <span [class]="getStatusBadge(tx.status)" class="text-xs px-2 py-1 rounded-full">{{ tx.status }}</span>
+              <span
+                [class]="getStatusBadge(tx.status)"
+                class="text-xs px-2 py-1 rounded-full"
+                >{{ tx.status }}</span
+              >
             </div>
           </div>
         </div>
-        <div *ngIf="walletTransactions.length === 0" class="text-center py-12 bg-sage-green/5 rounded-lg mt-4">
+        <div
+          *ngIf="walletTransactions.length === 0"
+          class="text-center py-12 bg-sage-green/5 rounded-lg mt-4"
+        >
           <p class="text-4xl mb-2">💳</p>
           <p class="text-olive-green">No transactions yet</p>
         </div>
@@ -92,35 +145,57 @@
 
       <!-- ==================== ORDERS ==================== -->
       <div *ngIf="activeTab === 'orders'">
-        <h3 class="text-xl font-semibold text-forest-green mb-4">📦 My Orders</h3>
+        <h3 class="text-xl font-semibold text-forest-green mb-4">
+          📦 My Orders
+        </h3>
 
         <!-- Order Filter Tabs -->
         <div class="flex flex-wrap gap-2 mb-6">
-          <button *ngFor="let status of orderStatuses"
+          <button
+            *ngFor="let status of orderStatuses"
             (click)="selectedOrderStatus = status"
             class="px-4 py-1 rounded-md text-sm border transition-colors"
-            [ngClass]="selectedOrderStatus === status
-              ? 'bg-forest-green text-cream-beige border-forest-green'
-              : 'bg-white text-olive-green border-sage-green/40 hover:border-sage-green'">
+            [ngClass]="
+              selectedOrderStatus === status
+                ? 'bg-forest-green text-cream-beige border-forest-green'
+                : 'bg-white text-olive-green border-sage-green/40 hover:border-sage-green'
+            "
+          >
             {{ status }}
           </button>
         </div>
 
         <div class="space-y-6">
-          <div *ngFor="let order of filteredOrders" class="bg-white border border-sage-green/20 rounded-lg p-6 shadow-sm">
+          <div
+            *ngFor="let order of filteredOrders"
+            class="bg-white border border-sage-green/20 rounded-lg p-6 shadow-sm"
+          >
             <!-- Order Header -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-sage-green/10">
+            <div
+              class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-sage-green/10"
+            >
               <div>
-                <h4 class="font-bold text-lg text-forest-green">Order #{{ order.id }}</h4>
-                <div class="text-sm text-olive-green">Placed on {{ formatDate(order.createdAt) }}</div>
-                <div *ngIf="order.trackingNumber" class="text-sm text-olive-green mt-1">
+                <h4 class="font-bold text-lg text-forest-green">
+                  Order #{{ order.id }}
+                </h4>
+                <div class="text-sm text-olive-green">
+                  Placed on {{ formatDate(order.createdAt) }}
+                </div>
+                <div
+                  *ngIf="order.trackingNumber"
+                  class="text-sm text-olive-green mt-1"
+                >
                   📍 Tracking: {{ order.trackingNumber }}
                 </div>
               </div>
               <div class="text-right mt-2 md:mt-0">
-                <div class="font-bold text-xl text-forest-green">${{ order.totalAmount.toFixed(2) }}</div>
-                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mt-1"
-                  [class]="getOrderStatusBadge(order.status)">
+                <div class="font-bold text-xl text-forest-green">
+                  ${{ order.totalAmount.toFixed(2) }}
+                </div>
+                <span
+                  class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mt-1"
+                  [class]="getOrderStatusBadge(order.status)"
+                >
                   {{ order.status }}
                 </span>
               </div>
@@ -128,35 +203,61 @@
 
             <!-- Order Items -->
             <div class="space-y-4 mb-6">
-              <div *ngFor="let item of order.items" class="flex items-center gap-4">
-                <div class="w-16 h-16 rounded-md bg-sage-green/20 flex items-center justify-center text-2xl shrink-0">📦</div>
+              <div
+                *ngFor="let item of order.items"
+                class="flex items-center gap-4"
+              >
+                <div
+                  class="w-16 h-16 rounded-md bg-sage-green/20 flex items-center justify-center text-2xl shrink-0"
+                >
+                  📦
+                </div>
                 <div class="flex-1">
-                  <h5 class="font-semibold text-forest-green">{{ item.productName }}</h5>
-                  <div class="text-sm text-olive-green">Qty: {{ item.quantity }}</div>
-                  <span *ngIf="item.type === 'RENTAL'" class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                  <h5 class="font-semibold text-forest-green">
+                    {{ item.productName }}
+                  </h5>
+                  <div class="text-sm text-olive-green">
+                    Qty: {{ item.quantity }}
+                  </div>
+                  <span
+                    *ngIf="item.type === 'RENTAL'"
+                    class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full"
+                  >
                     📅 {{ item.rentalDays }} days rental
                   </span>
                 </div>
-                <div class="font-bold text-forest-green">${{ item.price.toFixed(2) }}</div>
+                <div class="font-bold text-forest-green">
+                  ${{ item.price.toFixed(2) }}
+                </div>
               </div>
             </div>
 
             <!-- Actions -->
             <div class="flex flex-wrap gap-3">
-              <button *ngIf="order.status === 'SHIPPED'" (click)="trackOrder(order)"
-                class="flex items-center gap-2 px-4 py-2 bg-forest-green text-cream-beige rounded-md text-sm hover:bg-olive-green transition-colors">
+              <button
+                *ngIf="order.status === 'SHIPPED'"
+                (click)="trackOrder(order)"
+                class="flex items-center gap-2 px-4 py-2 bg-forest-green text-cream-beige rounded-md text-sm hover:bg-olive-green transition-colors"
+              >
                 📍 Track Package
               </button>
-              <button *ngIf="order.status === 'DELIVERED'"
-                class="flex items-center gap-2 px-4 py-2 bg-forest-green text-cream-beige rounded-md text-sm hover:bg-olive-green transition-colors">
+              <button
+                *ngIf="order.status === 'DELIVERED'"
+                class="flex items-center gap-2 px-4 py-2 bg-forest-green text-cream-beige rounded-md text-sm hover:bg-olive-green transition-colors"
+              >
                 ⭐ Leave Review
               </button>
-              <button *ngIf="order.status === 'PENDING'" (click)="cancelOrder(order)"
-                class="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors">
+              <button
+                *ngIf="order.status === 'PENDING'"
+                (click)="cancelOrder(order)"
+                class="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-md text-sm hover:bg-red-600 transition-colors"
+              >
                 ❌ Cancel Order
               </button>
-              <button (click)="downloadInvoice(order)"
-                class="flex items-center gap-2 px-4 py-2 border border-sage-green/40 text-olive-green rounded-md text-sm hover:bg-sage-green/10 transition-colors">
+              <button
+                (click)="downloadInvoice(order)"
+                class="flex items-center gap-2 px-4 py-2 border border-sage-green/40 text-olive-green rounded-md text-sm hover:bg-sage-green/10 transition-colors"
+              >
                 📄 Download Invoice
               </button>
             </div>
@@ -166,91 +267,253 @@
         <div *ngIf="filteredOrders.length === 0" class="text-center py-12">
           <p class="text-4xl mb-2">📦</p>
           <p class="text-olive-green mb-4">No orders found</p>
-          <a routerLink="/marketplace" class="inline-block bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">Start Shopping</a>
+          <a
+            routerLink="/marketplace"
+            class="inline-block bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green"
+            >Start Shopping</a
+          >
+        </div>
+      </div>
+
+      <!-- ==================== RESERVATIONS ==================== -->
+      <div *ngIf="activeTab === 'reservations'">
+        <h3 class="text-xl font-semibold text-forest-green mb-4">
+          🏕️ My Reservations
+        </h3>
+        <p *ngIf="reservationsLoading" class="text-sm text-olive-green mb-4">
+          Loading reservations...
+        </p>
+        <p
+          *ngIf="reservationActionMessage"
+          class="text-sm text-forest-green mb-4"
+        >
+          {{ reservationActionMessage }}
+        </p>
+
+        <div class="space-y-4" *ngIf="!reservationsLoading">
+          <div
+            *ngFor="let row of reservations"
+            class="bg-white border border-sage-green/20 rounded-lg p-5 shadow-sm"
+          >
+            <div
+              class="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            >
+              <div>
+                <h4 class="font-bold text-forest-green">
+                  {{ row.siteName || "Campsite reservation" }}
+                </h4>
+                <p class="text-sm text-olive-green">
+                  Ref: {{ row.reservationNumber || "RES-" + row.id }}
+                </p>
+                <p class="text-sm text-olive-green">
+                  Check-in: {{ row.checkInDate || "-" }} | Check-out:
+                  {{ row.checkOutDate || "-" }}
+                </p>
+                <p class="text-sm text-olive-green">
+                  Guests: {{ row.numberOfGuests || 1 }} | Total:
+                  {{ row.totalPrice || 0 }} DT
+                </p>
+                <p class="text-xs text-olive-green">
+                  Status: {{ row.status || "PENDING" }} | Payment:
+                  {{ row.paymentStatus || "PENDING" }}
+                </p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  (click)="viewReservationDetails(row)"
+                  class="px-4 py-2 bg-olive-green text-white rounded-md text-sm hover:bg-forest-green transition-colors"
+                >
+                  Details
+                </button>
+                <button
+                  (click)="payNowReservation(row)"
+                  [disabled]="
+                    row.paymentStatus === 'COMPLETED' ||
+                    row.status === 'CANCELLED'
+                  "
+                  class="px-4 py-2 bg-forest-green text-cream-beige rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hidden sm:block"
+                >
+                  Pay now
+                </button>
+                <button
+                  (click)="cancelReservation(row)"
+                  [disabled]="!canCancelReservation(row)"
+                  class="px-4 py-2 bg-red-500 text-white rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="reservations.length === 0"
+            class="text-center py-10 text-olive-green"
+          >
+            No reservations yet.
+          </div>
         </div>
       </div>
 
       <!-- ==================== CART ==================== -->
       <div *ngIf="activeTab === 'cart'">
-        <h3 class="text-xl font-semibold text-forest-green mb-6">🛒 Shopping Cart</h3>
+        <h3 class="text-xl font-semibold text-forest-green mb-6">
+          🛒 Shopping Cart
+        </h3>
 
         <div *ngIf="cartItems.length > 0">
           <div class="space-y-4 mb-8">
-            <div *ngFor="let item of cartItems; let i = index"
-              class="flex gap-4 p-4 border border-sage-green/20 rounded-lg">
-              <img [src]="item.image" [alt]="item.productName" class="w-24 h-24 object-cover rounded-lg">
+            <div
+              *ngFor="let item of cartItems; let i = index"
+              class="flex gap-4 p-4 border border-sage-green/20 rounded-lg"
+            >
+              <img
+                [src]="item.image"
+                [alt]="item.productName"
+                class="w-24 h-24 object-cover rounded-lg"
+              />
               <div class="flex-1">
-                <h4 class="font-bold text-forest-green">{{ item.productName }}</h4>
+                <h4 class="font-bold text-forest-green">
+                  {{ item.productName }}
+                </h4>
                 <p class="text-olive-green text-sm mb-2">
-                  {{ item.type === 'RENTAL' ? '📅 Rental: ' + item.rentalDays + ' days' : '🛍️ Purchase' }}
+                  {{
+                    item.type === "RENTAL"
+                      ? "📅 Rental: " + item.rentalDays + " days"
+                      : "🛍️ Purchase"
+                  }}
                 </p>
                 <div class="flex items-center gap-4">
                   <div class="flex items-center gap-2">
-                    <button (click)="updateQuantity(i, -1)" class="w-8 h-8 bg-sage-green/20 rounded-lg hover:bg-sage-green/40">-</button>
-                    <span class="font-bold text-forest-green w-8 text-center">{{ item.quantity }}</span>
-                    <button (click)="updateQuantity(i, 1)" class="w-8 h-8 bg-sage-green/20 rounded-lg hover:bg-sage-green/40">+</button>
+                    <button
+                      (click)="updateQuantity(i, -1)"
+                      class="w-8 h-8 bg-sage-green/20 rounded-lg hover:bg-sage-green/40"
+                    >
+                      -
+                    </button>
+                    <span class="font-bold text-forest-green w-8 text-center">{{
+                      item.quantity
+                    }}</span>
+                    <button
+                      (click)="updateQuantity(i, 1)"
+                      class="w-8 h-8 bg-sage-green/20 rounded-lg hover:bg-sage-green/40"
+                    >
+                      +
+                    </button>
                   </div>
-                  <p class="font-bold text-forest-green">${{ (item.price * item.quantity).toFixed(2) }}</p>
+                  <p class="font-bold text-forest-green">
+                    ${{ (item.price * item.quantity).toFixed(2) }}
+                  </p>
                 </div>
               </div>
-              <button (click)="removeFromCart(i)" class="text-red-500 hover:text-red-700">🗑️</button>
+              <button
+                (click)="removeFromCart(i)"
+                class="text-red-500 hover:text-red-700"
+              >
+                🗑️
+              </button>
             </div>
           </div>
 
           <!-- Cart Summary -->
           <div class="bg-sage-green/10 rounded-lg p-6 mb-6">
             <div class="space-y-3">
-              <div class="flex justify-between"><span class="text-olive-green">Subtotal:</span><span class="font-bold text-forest-green">${{ cartSubtotal.toFixed(2) }}</span></div>
-              <div class="flex justify-between"><span class="text-olive-green">Shipping:</span><span class="font-bold text-forest-green">${{ shippingCost.toFixed(2) }}</span></div>
-              <div class="flex justify-between"><span class="text-olive-green">Tax (10%):</span><span class="font-bold text-forest-green">${{ cartTax.toFixed(2) }}</span></div>
-              <div class="border-t border-sage-green/20 pt-3 flex justify-between items-center">
+              <div class="flex justify-between">
+                <span class="text-olive-green">Subtotal:</span
+                ><span class="font-bold text-forest-green"
+                  >${{ cartSubtotal.toFixed(2) }}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-olive-green">Shipping:</span
+                ><span class="font-bold text-forest-green"
+                  >${{ shippingCost.toFixed(2) }}</span
+                >
+              </div>
+              <div class="flex justify-between">
+                <span class="text-olive-green">Tax (10%):</span
+                ><span class="font-bold text-forest-green"
+                  >${{ cartTax.toFixed(2) }}</span
+                >
+              </div>
+              <div
+                class="border-t border-sage-green/20 pt-3 flex justify-between items-center"
+              >
                 <span class="text-xl font-bold text-forest-green">Total:</span>
-                <span class="text-3xl font-bold text-forest-green">${{ cartTotal.toFixed(2) }}</span>
+                <span class="text-3xl font-bold text-forest-green"
+                  >${{ cartTotal.toFixed(2) }}</span
+                >
               </div>
               <div class="flex justify-between items-center text-sm">
                 <span class="text-olive-green">💎 Points to earn:</span>
-                <span class="font-bold text-purple-600">{{ Math.floor(cartTotal) }} points</span>
+                <span class="font-bold text-purple-600"
+                  >{{ Math.floor(cartTotal) }} points</span
+                >
               </div>
             </div>
           </div>
 
           <!-- Shipping Address -->
           <div class="mb-6">
-            <h4 class="font-semibold text-forest-green mb-4">📍 Shipping Address</h4>
+            <h4 class="font-semibold text-forest-green mb-4">
+              📍 Shipping Address
+            </h4>
             <div class="bg-sage-green/10 rounded-lg p-4">
-              <label class="block text-sm font-medium text-forest-green mb-2">Delivery Address *</label>
+              <label class="block text-sm font-medium text-forest-green mb-2"
+                >Delivery Address *</label
+              >
               <textarea
                 [(ngModel)]="shippingAddress"
                 name="shippingAddress"
                 rows="3"
                 class="w-full px-4 py-3 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/50 resize-none"
-                placeholder="Enter your full shipping address (Street, City, State, ZIP Code, Country)"></textarea>
-              <p *ngIf="!shippingAddress" class="text-sm text-red-500 mt-1">⚠️ Shipping address is required for checkout</p>
+                placeholder="Enter your full shipping address (Street, City, State, ZIP Code, Country)"
+              ></textarea>
+              <p *ngIf="!shippingAddress" class="text-sm text-red-500 mt-1">
+                ⚠️ Shipping address is required for checkout
+              </p>
               <div class="mt-3 flex items-start gap-2">
-                <input type="checkbox" id="saveAddress" class="mt-1">
-                <label for="saveAddress" class="text-sm text-olive-green">Save this address for future orders</label>
+                <input type="checkbox" id="saveAddress" class="mt-1" />
+                <label for="saveAddress" class="text-sm text-olive-green"
+                  >Save this address for future orders</label
+                >
               </div>
             </div>
           </div>
 
           <!-- Payment Method -->
           <div class="mb-6">
-            <h4 class="font-semibold text-forest-green mb-4">💳 Payment Method</h4>
+            <h4 class="font-semibold text-forest-green mb-4">
+              💳 Payment Method
+            </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button (click)="selectedPaymentMethod = 'wallet'"
+              <button
+                (click)="selectedPaymentMethod = 'wallet'"
                 class="p-4 border-2 rounded-lg transition-colors"
-                [ngClass]="selectedPaymentMethod === 'wallet' ? 'border-forest-green bg-forest-green text-cream-beige' : 'border-sage-green/40 text-forest-green hover:border-forest-green'">
+                [ngClass]="
+                  selectedPaymentMethod === 'wallet'
+                    ? 'border-forest-green bg-forest-green text-cream-beige'
+                    : 'border-sage-green/40 text-forest-green hover:border-forest-green'
+                "
+              >
                 <div class="flex items-center gap-3">
                   <span class="text-2xl">💰</span>
                   <div class="text-left">
                     <p class="font-bold">CampConnect Wallet</p>
-                    <p class="text-sm">Balance: ${{ walletBalance.toFixed(2) }}</p>
+                    <p class="text-sm">
+                      Balance: ${{ walletBalance.toFixed(2) }}
+                    </p>
                   </div>
                 </div>
               </button>
-              <button (click)="selectedPaymentMethod = 'card'"
+              <button
+                (click)="selectedPaymentMethod = 'card'"
                 class="p-4 border-2 rounded-lg transition-colors"
-                [ngClass]="selectedPaymentMethod === 'card' ? 'border-forest-green bg-forest-green text-cream-beige' : 'border-sage-green/40 text-forest-green hover:border-forest-green'">
+                [ngClass]="
+                  selectedPaymentMethod === 'card'
+                    ? 'border-forest-green bg-forest-green text-cream-beige'
+                    : 'border-sage-green/40 text-forest-green hover:border-forest-green'
+                "
+              >
                 <div class="flex items-center gap-3">
                   <span class="text-2xl">💳</span>
                   <div class="text-left">
@@ -263,102 +526,344 @@
           </div>
 
           <div class="flex gap-4">
-            <button (click)="checkout()"
-              [disabled]="!shippingAddress || (selectedPaymentMethod === 'wallet' && walletBalance < cartTotal)"
-              class="flex-1 bg-forest-green text-cream-beige py-4 rounded-lg hover:bg-olive-green transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]">
+            <button
+              (click)="checkout()"
+              [disabled]="
+                !shippingAddress ||
+                (selectedPaymentMethod === 'wallet' &&
+                  walletBalance < cartTotal)
+              "
+              class="flex-1 bg-forest-green text-cream-beige py-4 rounded-lg hover:bg-olive-green transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+            >
               <span *ngIf="!shippingAddress">📍 Enter Shipping Address</span>
-              <span *ngIf="shippingAddress && selectedPaymentMethod === 'wallet' && walletBalance < cartTotal">⚠️ Insufficient Balance</span>
-              <span *ngIf="shippingAddress && !(selectedPaymentMethod === 'wallet' && walletBalance < cartTotal)">✅ Proceed to Checkout</span>
+              <span
+                *ngIf="
+                  shippingAddress &&
+                  selectedPaymentMethod === 'wallet' &&
+                  walletBalance < cartTotal
+                "
+                >⚠️ Insufficient Balance</span
+              >
+              <span
+                *ngIf="
+                  shippingAddress &&
+                  !(
+                    selectedPaymentMethod === 'wallet' &&
+                    walletBalance < cartTotal
+                  )
+                "
+                >✅ Proceed to Checkout</span
+              >
             </button>
-            <button (click)="clearCart()" class="px-6 bg-red-500 text-white py-4 rounded-lg hover:bg-red-600 transition-colors">🗑️ Clear</button>
+            <button
+              (click)="clearCart()"
+              class="px-6 bg-red-500 text-white py-4 rounded-lg hover:bg-red-600 transition-colors"
+            >
+              🗑️ Clear
+            </button>
           </div>
         </div>
 
         <div *ngIf="cartItems.length === 0" class="text-center py-12">
           <p class="text-4xl mb-2">🛒</p>
           <p class="text-olive-green mb-4">Your cart is empty</p>
-          <a routerLink="/marketplace" class="inline-block bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green">Continue Shopping</a>
+          <a
+            routerLink="/marketplace"
+            class="inline-block bg-forest-green text-cream-beige px-6 py-3 rounded-lg hover:bg-olive-green"
+            >Continue Shopping</a
+          >
         </div>
       </div>
 
       <!-- ==================== PROFILE ==================== -->
       <div *ngIf="activeTab === 'profile'">
-        <h3 class="text-xl font-semibold text-forest-green mb-6">⚙️ Profile Settings</h3>
+        <h3 class="text-xl font-semibold text-forest-green mb-6">
+          ⚙️ Profile Settings
+        </h3>
         <form class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-medium text-forest-green mb-2">Full Name</label>
-              <input type="text" [(ngModel)]="customerName" name="name" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40">
+              <label class="block text-sm font-medium text-forest-green mb-2"
+                >Full Name</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="customerName"
+                name="name"
+                class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40"
+              />
             </div>
             <div>
-              <label class="block text-sm font-medium text-forest-green mb-2">Email</label>
-              <input type="email" [(ngModel)]="customerEmail" name="email" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40">
+              <label class="block text-sm font-medium text-forest-green mb-2"
+                >Email</label
+              >
+              <input
+                type="email"
+                [(ngModel)]="customerEmail"
+                name="email"
+                class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40"
+              />
             </div>
             <div>
-              <label class="block text-sm font-medium text-forest-green mb-2">Phone</label>
-              <input type="tel" [(ngModel)]="customerPhone" name="phone" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40">
+              <label class="block text-sm font-medium text-forest-green mb-2"
+                >Phone</label
+              >
+              <input
+                type="tel"
+                [(ngModel)]="customerPhone"
+                name="phone"
+                class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40"
+              />
             </div>
             <div>
-              <label class="block text-sm font-medium text-forest-green mb-2">Country</label>
-              <input type="text" [(ngModel)]="customerCountry" name="country" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40">
+              <label class="block text-sm font-medium text-forest-green mb-2"
+                >Country</label
+              >
+              <input
+                type="text"
+                [(ngModel)]="customerCountry"
+                name="country"
+                class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40"
+              />
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium text-forest-green mb-2">Shipping Address</label>
-            <textarea [(ngModel)]="customerAddress" name="address" rows="3" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40"></textarea>
+            <label class="block text-sm font-medium text-forest-green mb-2"
+              >Shipping Address</label
+            >
+            <textarea
+              [(ngModel)]="customerAddress"
+              name="address"
+              rows="3"
+              class="w-full px-4 py-2 border border-sage-green/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-forest-green/40"
+            ></textarea>
           </div>
-          <button type="button" (click)="saveProfile()"
-            class="bg-olive-green text-cream-beige px-6 py-3 rounded-lg hover:bg-forest-green transition-colors min-h-[44px]">
+          <button
+            type="button"
+            (click)="saveProfile()"
+            class="bg-olive-green text-cream-beige px-6 py-3 rounded-lg hover:bg-forest-green transition-colors min-h-[44px]"
+          >
             💾 Save Changes
           </button>
         </form>
       </div>
-
     </div>
   </div>
 </div>
 
 <!-- ADD FUNDS MODAL -->
-<div *ngIf="showAddFundsModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="showAddFundsModal = false">
-  <div class="bg-white rounded-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
-    <h2 class="text-2xl font-bold text-forest-green mb-4">➕ Add Funds to Wallet</h2>
+<div
+  *ngIf="showAddFundsModal"
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="showAddFundsModal = false"
+>
+  <div
+    class="bg-white rounded-xl max-w-md w-full p-6"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 class="text-2xl font-bold text-forest-green mb-4">
+      ➕ Add Funds to Wallet
+    </h2>
     <div class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-forest-green mb-2">Amount</label>
-        <input type="number" [(ngModel)]="addFundsAmount" min="10" step="10" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg">
+        <label class="block text-sm font-medium text-forest-green mb-2"
+          >Amount</label
+        >
+        <input
+          type="number"
+          [(ngModel)]="addFundsAmount"
+          min="10"
+          step="10"
+          class="w-full px-4 py-2 border border-sage-green/40 rounded-lg"
+        />
       </div>
       <div class="grid grid-cols-3 gap-2">
-        <button *ngFor="let amount of [50, 100, 200]" (click)="addFundsAmount = amount"
-          class="bg-sage-green/20 text-forest-green py-2 rounded-lg hover:bg-sage-green/40">${{ amount }}</button>
+        <button
+          *ngFor="let amount of [50, 100, 200]"
+          (click)="addFundsAmount = amount"
+          class="bg-sage-green/20 text-forest-green py-2 rounded-lg hover:bg-sage-green/40"
+        >
+          ${{ amount }}
+        </button>
       </div>
       <div>
-        <label class="block text-sm font-medium text-forest-green mb-2">Payment Method</label>
-        <select [(ngModel)]="fundingSource" class="w-full px-4 py-2 border border-sage-green/40 rounded-lg">
+        <label class="block text-sm font-medium text-forest-green mb-2"
+          >Payment Method</label
+        >
+        <select
+          [(ngModel)]="fundingSource"
+          class="w-full px-4 py-2 border border-sage-green/40 rounded-lg"
+        >
           <option value="CARD">💳 Credit/Debit Card</option>
           <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
         </select>
       </div>
       <div class="flex gap-4">
-        <button (click)="confirmAddFunds()" class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green transition-colors">✅ Add Funds</button>
-        <button (click)="showAddFundsModal = false" class="px-6 bg-gray-100 text-forest-green py-3 rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+        <button
+          (click)="confirmAddFunds()"
+          class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green transition-colors"
+        >
+          ✅ Add Funds
+        </button>
+        <button
+          (click)="showAddFundsModal = false"
+          class="px-6 bg-gray-100 text-forest-green py-3 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <!-- CHECKOUT SUCCESS MODAL -->
-<div *ngIf="showCheckoutSuccess" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+<div
+  *ngIf="showCheckoutSuccess"
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+>
   <div class="bg-white rounded-xl max-w-md w-full p-8 text-center">
     <div class="text-6xl mb-4">✅</div>
-    <h2 class="text-2xl font-bold text-forest-green mb-4">Order Placed Successfully!</h2>
-    <p class="text-olive-green mb-6">Your order #{{ latestOrderId }} has been confirmed</p>
+    <h2 class="text-2xl font-bold text-forest-green mb-4">
+      Order Placed Successfully!
+    </h2>
+    <p class="text-olive-green mb-6">
+      Your order #{{ latestOrderId }} has been confirmed
+    </p>
     <div class="bg-sage-green/10 rounded-lg p-4 mb-6">
       <p class="text-sm text-olive-green mb-2">Earned Rewards:</p>
-      <p class="text-2xl font-bold text-purple-600">+{{ lastEarnedPoints }} Points</p>
+      <p class="text-2xl font-bold text-purple-600">
+        +{{ lastEarnedPoints }} Points
+      </p>
     </div>
     <div class="flex gap-4">
-      <button (click)="showCheckoutSuccess = false; activeTab = 'orders'" class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green transition-colors">View Orders</button>
-      <button (click)="showCheckoutSuccess = false" routerLink="/marketplace" class="flex-1 bg-white border border-forest-green text-forest-green py-3 rounded-lg hover:bg-sage-green/20 transition-colors">Continue Shopping</button>
+      <button
+        (click)="showCheckoutSuccess = false; activeTab = 'orders'"
+        class="flex-1 bg-forest-green text-cream-beige py-3 rounded-lg hover:bg-olive-green transition-colors"
+      >
+        View Orders
+      </button>
+      <button
+        (click)="showCheckoutSuccess = false"
+        routerLink="/marketplace"
+        class="flex-1 bg-white border border-forest-green text-forest-green py-3 rounded-lg hover:bg-sage-green/20 transition-colors"
+      >
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- RESERVATION DETAILS MODAL -->
+<div
+  *ngIf="showReservationDetailsModal && selectedReservation"
+  class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+  (click)="closeReservationDetailsModal()"
+>
+  <div
+    class="bg-white rounded-xl max-w-lg w-full p-8"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="flex justify-between items-start mb-6">
+      <h2 class="text-2xl font-bold text-forest-green">Reservation Details</h2>
+      <button
+        (click)="closeReservationDetailsModal()"
+        class="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+      >
+        &times;
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-sage-green/10 p-4 rounded-lg">
+        <h3 class="text-lg font-bold text-forest-green mb-1">
+          {{ selectedReservation.siteName || "Campsite reservation" }}
+        </h3>
+        <p class="text-sm text-olive-green">
+          Reference:
+          {{
+            selectedReservation.reservationNumber ||
+              "RES-" + selectedReservation.id
+          }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 border-b border-gray-100 pb-4">
+        <div>
+          <p class="text-xs text-gray-500">Check-in Date</p>
+          <p class="font-semibold text-forest-green">
+            {{ selectedReservation.checkInDate || "-" }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Check-out Date</p>
+          <p class="font-semibold text-forest-green">
+            {{ selectedReservation.checkOutDate || "-" }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 border-b border-gray-100 pb-4">
+        <div>
+          <p class="text-xs text-gray-500">Guests</p>
+          <p class="font-semibold text-forest-green">
+            {{ selectedReservation.numberOfGuests || 1 }}
+          </p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Contact</p>
+          <p class="font-semibold text-forest-green">
+            {{ selectedReservation.userName || "-" }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 pb-2">
+        <div>
+          <p class="text-xs text-gray-500">Status</p>
+          <span
+            class="inline-block mt-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold"
+            >{{ selectedReservation.status || "PENDING" }}</span
+          >
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Payment</p>
+          <span
+            class="inline-block mt-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold"
+            >{{ selectedReservation.paymentStatus || "PENDING" }}</span
+          >
+        </div>
+      </div>
+
+      <div
+        class="bg-forest-green text-cream-beige p-4 rounded-lg flex justify-between items-center mt-6"
+      >
+        <span class="font-bold">Total Price</span>
+        <span class="text-xl font-bold"
+          >{{ selectedReservation.totalPrice || 0 }} DT</span
+        >
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-3 flex-wrap">
+      <button
+        (click)="payNowReservation(selectedReservation)"
+        [disabled]="
+          selectedReservation.paymentStatus === 'COMPLETED' ||
+          selectedReservation.status === 'CANCELLED'
+        "
+        class="px-5 py-2 bg-forest-green text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Pay Now
+      </button>
+      <button
+        (click)="
+          cancelReservation(selectedReservation); closeReservationDetailsModal()
+        "
+        [disabled]="!canCancelReservation(selectedReservation)"
+        class="px-5 py-2 bg-red-500 text-white rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Cancel
+      </button>
     </div>
   </div>
 </div>

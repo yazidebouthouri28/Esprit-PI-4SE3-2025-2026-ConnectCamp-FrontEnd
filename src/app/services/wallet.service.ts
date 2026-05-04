@@ -27,6 +27,11 @@ export class WalletService {
       .pipe(map(res => this.extractData(res)));
   }
 
+  getWalletByUserId(userId: number): Observable<Wallet> {
+    return this.http.get<ApiResponse<Wallet>>(`${this.apiUrl}/user/${userId}`)
+      .pipe(map(res => this.extractData(res)));
+  }
+
   getBalance(): Observable<{ balance: number; loyaltyPoints: number }> {
     // Balance comes from the main wallet endpoint
     return this.http.get<ApiResponse<Wallet>>(this.apiUrl)
@@ -41,13 +46,15 @@ export class WalletService {
       .pipe(map(res => this.extractData(res)));
   }
 
-  getTransactions(): Observable<WalletTransaction[]> {
-    return this.http.get<ApiResponse<WalletTransaction[]>>(`${this.apiUrl}/transactions`)
-      .pipe(map(res => this.extractData(res) ?? []));
+  getTransactions(userId?: number): Observable<WalletTransaction[]> {
+    if (!userId) return new Observable<WalletTransaction[]>(subscriber => { subscriber.next([]); subscriber.complete(); });
+    // Use the actual transaction controller
+    return this.http.get<ApiResponse<any>>(`${environment.apiUrl}/api/transactions/user/${userId}`)
+      .pipe(map(res => res?.data?.content ?? []));
   }
 
   getTransactionById(id: string): Observable<WalletTransaction> {
-    return this.http.get<ApiResponse<WalletTransaction>>(`${this.apiUrl}/transactions/${id}`)
+    return this.http.get<ApiResponse<WalletTransaction>>(`${environment.apiUrl}/api/transactions/${id}`)
       .pipe(map(res => this.extractData(res)));
   }
 }

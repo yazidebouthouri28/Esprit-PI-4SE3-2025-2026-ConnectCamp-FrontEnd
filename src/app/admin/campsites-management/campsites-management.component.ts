@@ -10,6 +10,7 @@ import { SiteService } from '../../services/site.service';
 import { finalize, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
+import { MAX_SITE_TAGS, normalizeSiteTags, SITE_TAG_OPTIONS } from '../../models/site-tags';
 
 interface Campsite extends Site {
     status: 'Available' | 'Fully Booked' | 'Maintenance' | any;
@@ -33,6 +34,8 @@ export class CampsitesManagementComponent implements OnInit {
     private readonly maxImagesPerSite = 20;
     private readonly createWatchdogMs = 35000;
     private createWatchdogTimer: ReturnType<typeof setTimeout> | null = null;
+    readonly maxSiteTags = MAX_SITE_TAGS;
+    readonly siteTagOptions = SITE_TAG_OPTIONS;
 
     campsites: Campsite[] = [];
     isLoading = false;
@@ -198,6 +201,7 @@ export class CampsitesManagementComponent implements OnInit {
             averageRating: 0,
             image: '',
             images: [],
+            tags: normalizeSiteTags(this.newSiteForm.tags),
             amenities: this.newSiteForm.amenities ?? [],
             capacity: this.newSiteForm.capacity ?? 10,
             price: this.newSiteForm.price ?? this.newSiteForm.pricePerNight ?? 0,
@@ -339,6 +343,7 @@ export class CampsitesManagementComponent implements OnInit {
             capacity: 10,
             pricePerNight: 0,
             images: [],
+            tags: [],
             amenities: [],
             contactPhone: '',
             contactEmail: '',
@@ -347,6 +352,30 @@ export class CampsitesManagementComponent implements OnInit {
             checkOutTime: '11:00',
             houseRules: ''
         };
+    }
+
+    toggleNewSiteTag(tag: string): void {
+        const currentTags = normalizeSiteTags(this.newSiteForm.tags);
+        const selected = currentTags.includes(tag);
+
+        if (selected) {
+            this.newSiteForm.tags = currentTags.filter((currentTag) => currentTag !== tag);
+            return;
+        }
+
+        if (currentTags.length >= this.maxSiteTags) {
+            return;
+        }
+
+        this.newSiteForm.tags = normalizeSiteTags([...currentTags, tag]);
+    }
+
+    isNewSiteTagSelected(tag: string): boolean {
+        return normalizeSiteTags(this.newSiteForm.tags).includes(tag);
+    }
+
+    isNewSiteTagDisabled(tag: string): boolean {
+        return !this.isNewSiteTagSelected(tag) && normalizeSiteTags(this.newSiteForm.tags).length >= this.maxSiteTags;
     }
 
     private resolveCoordinates(city: string): { latitude: number; longitude: number } {

@@ -2,33 +2,52 @@
 
     <!-- Back Button & Header -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <a routerLink="/campsites"
-            class="inline-flex items-center gap-2 text-[#2C4A3C] hover:text-[#1a2e1a] transition-all mb-6 font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-[#2C4A3C]/20 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md cursor-pointer">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Campsites
-        </a>
+        <div class="flex items-center justify-between mb-6">
+            <a routerLink="/campsites"
+                class="inline-flex items-center gap-2 text-[#2C4A3C] hover:text-[#1a2e1a] transition-all font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-[#2C4A3C]/20 bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Campsites
+            </a>
+            <div class="flex gap-3">
+                <a [routerLink]="['/campsites/compare']" [queryParams]="{ids: campsite?.id}"
+                    class="inline-flex items-center gap-2 text-amber-700 hover:text-amber-800 transition-all font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-amber-200 bg-amber-50 backdrop-blur-sm shadow-sm hover:shadow-md cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Compare
+                </a>
+                <a routerLink="/campsites/find"
+                    class="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-800 transition-all font-bold text-sm tracking-wide px-4 py-2 rounded-full border border-emerald-200 bg-emerald-50 backdrop-blur-sm shadow-sm hover:shadow-md cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    Find Similar
+                </a>
+            </div>
+        </div>
     </div>
 
     @if (campsite) {
     <!-- Hero Header & Title Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6 mt-2">
-        <!-- Tags (Mocked up like screenshot) -->
+        <!-- Preference-aligned tags -->
         <div class="flex flex-wrap gap-2 mb-4">
-            <span
-                class="bg-[#e9e6df] text-[#2C4A3C] font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">Waterfront</span>
-            <span
-                class="bg-[#e9e6df] text-[#2C4A3C] font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">Kayaking</span>
-            <span
-                class="bg-[#e9e6df] text-[#2C4A3C] font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">No
-                Hookups</span>
+            <span *ngFor="let tag of preferenceTags"
+                class="bg-[#e9e6df] text-[#2C4A3C] font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">
+                {{ tag }}
+            </span>
         </div>
 
         <h1 class="text-4xl md:text-5xl font-black text-[#1a2e1a] tracking-tight mb-2 font-serif flex items-center gap-3 flex-wrap">{{ campsite.name }}
-          <span *ngIf="campsite.verified" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#1877F2] text-white shadow-md shrink-0" title="Verified campsite">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-          </span>
+          <div *ngIf="campsite.verified" class="group/shield relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-[#1877F2] to-[#0A58CA] text-white shadow-[0_0_15px_rgba(24,119,242,0.6)] border-2 border-white shrink-0 cursor-help z-10" title="ConnectCamp Verified">
+            <svg class="w-5 h-5 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            <div class="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 invisible group-hover/shield:opacity-100 group-hover/shield:visible transition-all duration-300 w-56 p-4 bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-gray-100 text-xs text-gray-700 pointer-events-none origin-bottom font-sans">
+              <div class="font-black text-[#1a2e1a] mb-1">ConnectCamp Verified</div>
+              <div class="font-medium whitespace-normal leading-tight font-sans">Certified safe & verified by official inspectors based on rigorous standards.</div>
+            </div>
+          </div>
         </h1>
 
         <div class="flex flex-wrap items-center justify-between text-[#1a2e1a] font-medium text-sm">
@@ -80,37 +99,52 @@
         </div>
     </div>
 
-    <!-- Hero Image Grid -->
+    <!-- Asymmetric Masonry Image Gallery -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-        <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-[10px] h-[400px] md:h-[480px]">
-            <!-- Main Image (Left) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-[10px] h-[400px] md:h-[500px]">
+            <!-- Main Hero Image (Spans 2 cols, 2 rows) -->
             <button type="button" (click)="openGallery(0)"
-                class="md:col-span-3 md:row-span-2 h-full rounded-2xl md:rounded-l-3xl md:rounded-r-none overflow-hidden hover:brightness-95 transition-all outline-none focus-visible:ring-4 focus-visible:ring-[#2C4A3C]/40 text-left relative group block w-full">
+                class="md:col-span-2 md:row-span-2 h-full rounded-2xl md:rounded-l-3xl md:rounded-r-none overflow-hidden hover:brightness-90 transition-all text-left relative group block w-full focus:outline-none focus:ring-4 focus:ring-[#2C4A3C]/40 cursor-zoom-in isolate">
                 <img [src]="campsite.images?.[0] || campsite.image || 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?q=80&w=1080'"
                     [alt]="campsite.name"
                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
-                <span
-                    class="absolute bottom-4 left-4 text-white text-xs font-black uppercase tracking-widest drop-shadow-md bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">Tap
-                    to enlarge</span>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <span class="absolute bottom-6 left-6 text-white text-xs font-black uppercase tracking-widest drop-shadow-md bg-black/40 px-4 py-2 rounded-full backdrop-blur-md pointer-events-none z-10 transition-transform group-hover:-translate-y-2">Expand Gallery</span>
+
+                <!-- 360 Overlay Prompt -->
+                <div *ngIf="virtualTours.length > 0" 
+                     (click)="openFirstVirtualTour(); $event.stopPropagation()"
+                     class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center z-20 cursor-pointer drop-shadow-2xl hover:scale-110 transition-transform">
+                     <div class="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm border-2 border-white flex items-center justify-center relative overflow-hidden mb-2">
+                        <div class="absolute inset-0 border-4 border-[#1877F2]/60 rounded-full animate-[spin_4s_linear_infinite] pointer-events-none"></div>
+                        <svg class="w-8 h-8 text-white drop-shadow-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                     </div>
+                     <span class="bg-[#1877F2] text-white text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg">Enter 360° Tour</span>
+                </div>
             </button>
-            <!-- Secondary Image (Top Right) -->
+            <!-- Secondary Image (Spans 2 cols, 1 row) -->
             <button type="button" (click)="openGallery(1)"
-                class="hidden md:block md:col-span-1 md:row-span-1 h-full rounded-tr-3xl overflow-hidden hover:brightness-95 transition-all outline-none focus-visible:ring-4 focus-visible:ring-[#2C4A3C]/40 relative group w-full text-left">
+                class="hidden md:block md:col-span-2 md:row-span-1 h-full rounded-tr-3xl overflow-hidden hover:brightness-95 transition-all text-left relative group w-full cursor-zoom-in">
                 <img [src]="campsite.images?.[1] || campsite.images?.[0] || campsite.image || 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?q=80&w=800'"
                     alt="Gallery 2"
                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
             </button>
-            <!-- Tertiary Image (Bottom Right) -->
+            <!-- Tertiary Image (Spans 1 col, 1 row) -->
             <button type="button" (click)="openGallery(2)"
-                class="hidden md:block md:col-span-1 md:row-span-1 h-full rounded-br-3xl overflow-hidden hover:brightness-95 transition-all outline-none focus-visible:ring-4 focus-visible:ring-[#2C4A3C]/40 relative group w-full text-left">
+                class="hidden md:block md:col-span-1 md:row-span-1 h-full overflow-hidden hover:brightness-95 transition-all outline-none relative group w-full text-left cursor-zoom-in">
                 <img [src]="campsite.images?.[2] || campsite.images?.[0] || campsite.image || 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?q=80&w=800'"
                     alt="Gallery 3"
                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
-                <div *ngIf="campsite.images && campsite.images.length > 3"
-                    class="absolute inset-0 bg-black/50 hover:bg-black/60 flex items-center justify-center transition-colors pointer-events-none">
-                    <span
-                        class="text-white font-bold text-[15px] border-2 border-white/90 px-5 py-2 rounded-xl backdrop-blur-sm shadow-md">+{{
-                        campsite.images.length - 3 }} more</span>
+            </button>
+            <!-- Quaternary Image (Spans 1 col, 1 row) -->
+            <button type="button" (click)="openGallery(3)"
+                class="hidden md:block md:col-span-1 md:row-span-1 h-full rounded-br-3xl overflow-hidden hover:brightness-95 transition-all outline-none relative group w-full text-left cursor-zoom-in">
+                <img [src]="campsite.images?.[3] || campsite.images?.[0] || campsite.image || 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?q=80&w=800'"
+                    alt="Gallery 4"
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
+                <div *ngIf="campsite.images && campsite.images.length > 4"
+                    class="absolute inset-0 bg-black/50 hover:bg-black/60 flex items-center justify-center transition-colors">
+                    <span class="text-white font-bold text-[15px] border-2 border-white/90 px-5 py-2 rounded-xl backdrop-blur-sm shadow-md">+{{ campsite.images.length - 4 }}</span>
                 </div>
             </button>
         </div>
@@ -144,21 +178,46 @@
                     </div>
                 </div>
                 <div class="border-b border-gray-200 py-10">
-                    <div class="bg-[#f7f5f0] border border-[#e9e6df] rounded-2xl p-5 sm:p-6">
+                    <div class="bg-[#f7f5f0] border border-[#e9e6df] rounded-2xl p-5 sm:p-6 mb-8">
                         <h3 class="text-xl font-black text-[#1a2e1a] mb-4">Location & Navigation</h3>
                         <div class="flex flex-wrap gap-3 mb-4">
-                            <a [href]="directionsUrl" target="_blank" rel="noopener"
-                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2346c7] text-white font-bold text-sm">
+                            <button type="button" (click)="getDirections()"
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#2346c7] text-white font-bold text-sm hover:bg-blue-800 transition-colors">
                                 Get Directions
-                            </a>
+                            </button>
                             <button type="button" *ngIf="virtualTours.length" (click)="openFirstVirtualTour()"
-                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0f7f69] text-white font-bold text-sm">
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0f7f69] text-white font-bold text-sm hover:bg-[#0c6b57] transition-colors">
                                 Virtual Tour
                             </button>
                         </div>
-                        <div class="rounded-xl overflow-hidden border border-[#e9e6df] h-[260px]">
-                            <iframe [src]="mapEmbedUrl" width="100%" height="100%" style="border:0;" loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="rounded-xl overflow-hidden border border-[#d7d2c8] h-[320px] bg-white">
+                            <iframe
+                                class="h-full w-full"
+                                [src]="mapEmbedUrl"
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <!-- Weather Widget -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-blue-100 rounded-2xl p-6 sm:p-8 shadow-sm">
+                        <h3 class="text-xl font-black text-indigo-900 mb-6 flex items-center gap-2">
+                           <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                           Live Weather Forecast
+                        </h3>
+                        <div *ngIf="isWeatherLoading" class="text-center font-bold text-gray-400 py-4 animate-pulse uppercase tracking-widest text-sm">Gathering atmospheric data...</div>
+                        <div *ngIf="!isWeatherLoading && weatherForecast.length === 0" class="text-gray-500 italic">Weather data currently unavailable.</div>
+                        <div *ngIf="weatherForecast.length > 0" class="grid grid-cols-3 gap-4">
+                            <div *ngFor="let day of weatherForecast" class="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1">{{ day.day }}</span>
+                                <span class="text-4xl mb-2 drop-shadow-sm">{{ day.icon }}</span>
+                                <span class="text-[11px] font-bold text-gray-500 whitespace-nowrap mb-2">{{ day.desc }}</span>
+                                <div class="flex gap-2 text-sm font-black">
+                                    <span class="text-red-500" title="High">{{ day.maxTemp }}°</span>
+                                    <span class="text-blue-500" title="Low">{{ day.minTemp }}°</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,6 +231,39 @@
                         {{ campsite.averageRating || 'New' }}
                         <span class="font-bold text-[#1a2e1a]">&middot; {{ campsite.reviewCount || 0 }} reviews</span>
                     </h2>
+
+                    <!-- AI Smart Review Summary & Trust Score Box -->
+                    <div class="mb-10 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4">
+                            <!-- Trust Score Badge -->
+                            <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full shadow-sm border border-emerald-100">
+                                <span class="text-[#D4A843] text-lg">⭐</span>
+                                <span class="text-sm font-black text-[#1a2e1a]">AI Score: {{ aiInsights?.trustScore ?? 0 }}/100</span>
+                                <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full"
+                                    [ngClass]="trustLabelClasses">{{ aiInsights?.trustLabel || 'Unknown' }}</span>
+                            </div>
+                        </div>
+                        <h3 class="text-lg font-black text-emerald-900 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                            AI Review Summary
+                        </h3>
+                        <p class="text-emerald-800/80 text-[15px] leading-relaxed italic mb-4 max-w-3xl">
+                            "{{ aiInsights?.reviewSummary || 'Review summary unavailable.' }}"
+                        </p>
+                        <!-- Satisfaction Progress Bar -->
+                        <div class="flex items-center gap-3 max-w-sm">
+                            <div class="flex-1 h-2 bg-white rounded-full overflow-hidden border border-emerald-200/50">
+                                <div class="h-full bg-emerald-500 rounded-full" [style.width]="trustProgressWidth"></div>
+                            </div>
+                            <span class="text-sm font-bold text-emerald-700">{{ aiInsights?.satisfactionPercentage ?? 0 }}% positive</span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="campsite && reviewTextsForMl.length > 0" class="mb-10 rounded-2xl border border-violet-100 bg-white p-4 shadow-sm overflow-x-auto">
+                        <h3 class="text-sm font-black text-[#1a2e1a] uppercase tracking-widest mb-3">Deep ML sentiment (guest reviews)</h3>
+                        <p class="text-xs text-gray-500 mb-3">Powered by <code class="bg-gray-100 px-1 rounded">/api/ml/user/review-summary</code>; uses the comments below.</p>
+                        <app-ai-review-summary [siteId]="campsite!.id" [reviews]="reviewTextsForMl"></app-ai-review-summary>
+                    </div>
 
                     <div *ngIf="isReviewAllowed"
                         class="mb-10 bg-[#f7f5f0] border border-[#e9e6df] rounded-2xl p-6 space-y-4">
@@ -395,8 +487,8 @@
                                     Capacity
                                 </h4>
                                 <div class="text-gray-600 text-sm space-y-3 font-medium">
-                                    <p>Up to 6 guests max</p>
-                                    <p>Tents & RVs permitted</p>
+                                    <p>{{ capacityDescription }}</p>
+                                    <p>{{ accommodationDescription }}</p>
                                 </div>
                             </div>
                             <div>
@@ -424,7 +516,15 @@
                     class="sticky top-8 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 p-6">
                     <div class="flex justify-between items-end mb-6">
                         <div>
-                            <span class="text-3xl font-black text-forest">{{ campsite.price }} DT</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-3xl font-black text-forest">{{ campsite.price }} DT</span>
+                                <!-- AI Price Badge inserted here -->
+                                <span class="px-2 py-1 text-xs font-bold uppercase tracking-widest rounded-full border"
+                                    [ngClass]="priceBadgeClasses">
+                                    <svg class="w-3 h-3 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    {{ aiInsights?.priceBadge || 'Fair Price' }}
+                                </span>
+                            </div>
                             <span class="text-gray-500 font-medium text-lg"> /night</span>
                         </div>
                         <div class="text-sm font-semibold text-olive flex items-center gap-1">
@@ -434,29 +534,57 @@
                         </div>
                     </div>
 
-                    <div class="border border-gray-300 rounded-xl mb-4 overflow-hidden">
+                    <div class="border border-gray-300 rounded-xl mb-4 overflow-hidden bg-white">
                         <div class="grid grid-cols-2 border-b border-gray-300">
-                            <div
-                                class="p-3 border-r border-gray-300 hover:bg-gray-50 cursor-pointer transition-colors relative group">
-                                <label
-                                    class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider">Check-in</label>
-                                <div class="text-gray-600 truncate">Add date</div>
+                            <div class="p-2.5 border-r border-gray-300 relative focus-within:bg-gray-50 transition-colors">
+                                <label class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider mb-0.5">Check-in</label>
+                                <input type="date" [(ngModel)]="checkInDate" [min]="minDate"
+                                       class="w-full text-sm text-gray-700 bg-transparent outline-none cursor-pointer">
                             </div>
-                            <div class="p-3 hover:bg-gray-50 cursor-pointer transition-colors relative group">
-                                <label
-                                    class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider">Check-out</label>
-                                <div class="text-gray-600 truncate">Add date</div>
+                            <div class="p-2.5 relative focus-within:bg-gray-50 transition-colors">
+                                <label class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider mb-0.5">Check-out</label>
+                                <input type="date" [(ngModel)]="checkOutDate" [min]="checkInDate || minDate"
+                                       class="w-full text-sm text-gray-700 bg-transparent outline-none cursor-pointer">
                             </div>
                         </div>
-                        <div class="p-3 hover:bg-gray-50 cursor-pointer transition-colors relative group">
-                            <label
-                                class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider">Guests</label>
-                            <div class="text-gray-600 truncate">1 guest</div>
-                            <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
+                        <div class="p-2.5 relative focus-within:bg-gray-50 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-800 uppercase tracking-wider mb-0.5">Guests</label>
+                            <select [(ngModel)]="guests" class="w-full text-sm text-gray-700 bg-transparent outline-none cursor-pointer appearance-none">
+                                <option *ngFor="let opt of guestOptions" [ngValue]="opt">{{ opt }} {{ opt === 1 ? 'guest' : 'guests' }}</option>
+                            </select>
+                            <svg class="w-4 h-4 absolute right-3 top-1/2 mt-1 text-gray-400 pointer-events-none" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                             </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Availability Prediction Warning -->
+                    <div class="border rounded-lg p-3 mb-4 flex gap-3 items-start" [ngClass]="availabilityAlertClasses">
+                        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        <p class="text-sm font-semibold tracking-wide">
+                            {{ aiInsights?.availabilityMessage || 'Availability prediction unavailable at the moment.' }}
+                        </p>
+                    </div>
+
+                    <div *ngIf="campsite" class="space-y-4 mb-4 max-h-[70vh] overflow-y-auto rounded-xl border border-gray-100 bg-gray-50/80 p-3">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400">Booking intelligence</p>
+                        <app-best-time-to-book
+                            [siteId]="campsite.id"
+                            [currentPrice]="campsitePriceForMl"
+                            [desiredMonth]="bookingDesiredMonthForMl">
+                        </app-best-time-to-book>
+                        <div *ngIf="isAuthenticated" class="pt-2 border-t border-gray-100">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Your match for this campsite</p>
+                            <app-campsite-match-score
+                                [siteId]="campsite.id"
+                                [siteName]="campsite.name"
+                                [userAmenities]="mlUserPreferenceAmenities"
+                                [budgetMin]="mlBudgetMin"
+                                [budgetMax]="mlBudgetMax"
+                                [preferredLocations]="mlPreferredLocationsHint"
+                                [siteFeatures]="mlSiteFeaturesPayload">
+                            </app-campsite-match-score>
                         </div>
                     </div>
 
@@ -476,18 +604,15 @@
 
                     <!-- Price Breakdown -->
                     <div class="space-y-4 text-gray-600 mb-6 pb-6 border-b border-gray-100">
-                        <div
-                            class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
-                            <span>{{ campsite.price }} DT x 5 nights</span>
-                            <span>{{ (campsite.price || 0) * 5 }} DT</span>
+                        <div class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
+                            <span>{{ campsite.price }} DT x {{ numberOfNights > 0 ? numberOfNights : 1 }} {{ numberOfNights > 1 ? 'nights' : 'night' }}</span>
+                            <span>{{ (campsite.price || 0) * (numberOfNights > 0 ? numberOfNights : 1) }} DT</span>
                         </div>
-                        <div
-                            class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
+                        <div class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
                             <span>Cleaning fee</span>
                             <span>45 DT</span>
                         </div>
-                        <div
-                            class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
+                        <div class="flex justify-between hover:text-forest transition-colors underline decoration-dotted cursor-help">
                             <span>Service fee</span>
                             <span>32 DT</span>
                         </div>
@@ -495,7 +620,7 @@
 
                     <div class="flex justify-between items-center text-lg font-bold text-forest">
                         <span>Total</span>
-                        <span>{{ ((campsite.price || 0) * 5) + 45 + 32 }} DT</span>
+                        <span>{{ calculatedTotal }} DT</span>
                     </div>
                 </div>
             </div>
@@ -503,6 +628,31 @@
         </div>
     </div>
     }
+
+    <!-- AI Similar Campsites Section (Added to the bottom of page layout) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-10 pt-10 border-t border-gray-200">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h3 class="text-2xl font-black text-forest mb-2">Similar Campsites You Might Like</h3>
+                <p class="text-gray-500">AI-recommended picks based on amenities, price, and location.</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let site of similarSites" class="block group cursor-pointer" (click)="openSimilarSite(site.siteId)">
+                <div class="relative w-full h-[220px] rounded-2xl overflow-hidden mb-3">
+                    <img [src]="site.thumbnail || 'https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?q=80&w=800'" class="w-full h-full object-cover transition-transform group-hover:scale-[1.03]">
+                    <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-bold text-emerald-700 flex items-center gap-1 shadow-sm">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        {{ ((site.similarityScore ?? 0) * 100) | number:'1.0-0' }}% Match
+                    </div>
+                </div>
+                <h4 class="font-bold text-forest text-lg">{{ site.name || 'Similar campsite' }}</h4>
+                <p class="text-gray-500 text-sm">{{ site.pricePerNight ?? 0 }} DT / night</p>
+                <p class="text-xs font-medium text-gray-400 mt-1">{{ site.type || 'Camping' }} • {{ site.city || 'Tunisia' }}</p>
+            </div>
+        </div>
+        <p *ngIf="similarSites.length === 0" class="text-gray-500 text-sm">No similar campsites available yet.</p>
+    </div>
 
     <!-- Fullscreen Image Gallery Overlay -->
     <div *ngIf="isGalleryOpen" (click)="onGalleryBackdropClick($event)"
