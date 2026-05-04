@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AuthGuard, SellerGuard, ClientGuard, AdminGuard, OrganizerOnlyGuard, OrganizerGuard } from './guards/auth.guard';
-import { AdminGuard as ThrottleAdminGuard } from './throttle/guards/admin.guard';
 
 export const routes: Routes = [
   // Redirect root to the auth login page
@@ -75,7 +74,6 @@ export const routes: Routes = [
   { path: 'admin/flagged-messages', loadComponent: () => import('./admin/flagged-messages/flagged-messages.component').then(m => m.FlaggedMessagesComponent), canActivate: [AdminGuard] },
   { path: 'admin/sponsors', loadComponent: () => import('./admin/sponsors-management/sponsors-management.component').then(m => m.SponsorsManagementComponent), canActivate: [AdminGuard] },
   { path: 'admin/sponsorship-assignment', loadComponent: () => import('./admin/sponsorship-assignment/sponsorship-assignment.component').then(m => m.SponsorshipAssignmentComponent), canActivate: [AdminGuard] },
-  { path: 'admin/throttle', loadComponent: () => import('./throttle/throttle-monitor/throttle-monitor.component').then(m => m.ThrottleMonitorComponent), canActivate: [ThrottleAdminGuard] },
 
   // --- Sponsor routes ---
   { path: 'sponsor/events', loadComponent: () => import('./components/sponsor-event-request/sponsor-event-request.component').then(m => m.SponsorEventRequestComponent), canActivate: [AuthGuard], data: { role: 'SPONSOR' } },
@@ -107,9 +105,6 @@ export const routes: Routes = [
     loadComponent: () => import('./components/organizer-sponsorships/organizer-sponsorships.component').then(m => m.OrganizerSponsorshipsComponent),
     canActivate: [OrganizerOnlyGuard]
   },
-
-  // --- Throttling pages ---
-  { path: 'banned', loadComponent: () => import('./throttle/pages/banned/banned.component').then(m => m.BannedComponent) },
 
   // --- Catch‑all: redirect to root (which goes to auth) ---
   { path: '**', redirectTo: '' }

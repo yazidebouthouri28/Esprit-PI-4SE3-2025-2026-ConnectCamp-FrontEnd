@@ -266,10 +266,6 @@ export class AuthComponent implements OnInit, OnDestroy {
 
   clearMessages(): void { this.errorMessage = ''; this.successMessage = ''; }
 
-  goToAdminDashboard(): void {
-    window.location.href = '/admin/throttle';
-  }
-
   private animateSidebarSwitch(targetIsLogin: boolean): void {
     if (this.isLoginMode === targetIsLogin || this.isSidebarAnimatingOut) return;
 
